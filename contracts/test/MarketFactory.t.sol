@@ -6,6 +6,7 @@ import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {PredictionMarket} from "../src/PredictionMarket.sol";
 import {MarketFactory} from "../src/MarketFactory.sol";
 import {ModelRegistry, IGroth16Verifier} from "../src/ModelRegistry.sol";
+import {MockCaptchaGate} from "./mocks/MockCaptchaGate.sol";
 
 contract MockVerifierF is IGroth16Verifier {
     function verifyProof(uint[2] calldata, uint[2][2] calldata, uint[2] calldata, uint[2] calldata)
@@ -23,6 +24,7 @@ contract MarketFactoryTest is Test {
     ModelRegistry public modelRegistry;
     MarketFactory public factory;
     MockVerifierF public verifier;
+    MockCaptchaGate public captchaGate;
 
     address owner = makeAddr("owner");
     address alice = makeAddr("alice");
@@ -40,7 +42,8 @@ contract MarketFactoryTest is Test {
         // Approve a test pubkey hash so alice can register
         uint256 testPubkeyHash = 12345;
         modelRegistry.addApprovedPubkeyHash(testPubkeyHash);
-        factory = new MarketFactory(address(token), address(modelRegistry), owner);
+        captchaGate = new MockCaptchaGate();
+        factory = new MarketFactory(address(token), address(modelRegistry), address(captchaGate), owner);
         // Whitelist the factory so it can hold CLAW during market creation
         token.whitelistAddress(address(factory));
         // Make factory a whitelister so it can whitelist new market contracts

@@ -4,10 +4,12 @@ pragma solidity ^0.8.24;
 import {Test, console} from "forge-std/Test.sol";
 import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {PredictionMarket} from "../src/PredictionMarket.sol";
+import {MockCaptchaGate} from "./mocks/MockCaptchaGate.sol";
 
 contract PredictionMarketTest is Test {
     ClawliaToken public token;
     PredictionMarket public market;
+    MockCaptchaGate public captchaGate;
 
     address owner = makeAddr("owner");
     address registry = makeAddr("registry");
@@ -25,8 +27,11 @@ contract PredictionMarketTest is Test {
         token.setModelRegistry(registry);
         vm.stopPrank();
 
+        captchaGate = new MockCaptchaGate();
+
         market = new PredictionMarket(
             address(token),
+            address(captchaGate),
             "Will GPT-5 pass the Turing test by 2027?",
             RESOLUTION_TIME,
             resolver

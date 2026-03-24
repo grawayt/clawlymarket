@@ -13,6 +13,11 @@ export const marketFactoryAbi = [
         "internalType": "address"
       },
       {
+        "name": "_captchaGate",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
         "name": "_owner",
         "type": "address",
         "internalType": "address"
@@ -29,6 +34,19 @@ export const marketFactoryAbi = [
         "name": "",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "captchaGate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract ICaptchaGate"
       }
     ],
     "stateMutability": "view"
@@ -321,6 +339,11 @@ export const marketFactoryAbi = [
   {
     "type": "error",
     "name": "InsufficientLiquidity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoValidSession",
     "inputs": []
   },
   {

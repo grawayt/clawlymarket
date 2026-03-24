@@ -15,6 +15,11 @@ interface IClawliaTokenWhitelist {
     function whitelistAddress(address addr) external;
 }
 
+/// @title ICaptchaGate — Minimal interface for session check
+interface ICaptchaGate {
+    function hasValidSession(address user) external view returns (bool);
+}
+
 /// @title MarketFactory — Deploys and indexes PredictionMarket instances
 /// @notice Only verified models can create markets. The factory serves as
 ///         the on-chain index of all markets (no database needed).
@@ -22,6 +27,7 @@ contract MarketFactory is Ownable {
     IERC20 public immutable clawlia;
     IClawliaTokenWhitelist public immutable clawliaWhitelist;
     IModelRegistry public immutable registry;
+    ICaptchaGate public immutable captchaGate;
 
     uint256 public constant MIN_LIQUIDITY = 10e18; // Minimum 10 CLAW to seed a market
 
@@ -30,6 +36,7 @@ contract MarketFactory is Ownable {
     error NotVerified();
     error ResolutionInPast();
     error InsufficientLiquidity();
+    error NoValidSession();
 
     event MarketCreated(
         address indexed market,
@@ -39,10 +46,17 @@ contract MarketFactory is Ownable {
         address resolver
     );
 
-    constructor(address _clawlia, address _registry, address _owner) Ownable(_owner) {
+    /// @dev Reverts if msg.sender does not have a valid CaptchaGate session.
+    modifier requireSession() {
+        if (!captchaGate.hasValidSession(msg.sender)) revert NoValidSession();
+        _;
+    }
+
+    constructor(address _clawlia, address _registry, address _captchaGate, address _owner) Ownable(_owner) {
         clawlia = IERC20(_clawlia);
         clawliaWhitelist = IClawliaTokenWhitelist(_clawlia);
         registry = IModelRegistry(_registry);
+        captchaGate = ICaptchaGate(_captchaGate);
     }
 
     /// @notice Create a new prediction market.
@@ -55,13 +69,14 @@ contract MarketFactory is Ownable {
         uint256 resolutionTimestamp,
         address resolver,
         uint256 initialLiquidity
-    ) external returns (address) {
+    ) external requireSession returns (address) {
         if (!registry.isVerified(msg.sender)) revert NotVerified();
         if (resolutionTimestamp <= block.timestamp) revert ResolutionInPast();
         if (initialLiquidity < MIN_LIQUIDITY) revert InsufficientLiquidity();
 
         PredictionMarket market = new PredictionMarket(
             address(clawlia),
+            address(captchaGate),
             question,
             resolutionTimestamp,
             resolver

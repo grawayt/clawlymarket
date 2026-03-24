@@ -6,6 +6,7 @@ import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {PredictionMarket} from "../src/PredictionMarket.sol";
 import {JuryResolution} from "../src/JuryResolution.sol";
 import {ModelRegistry, IGroth16Verifier} from "../src/ModelRegistry.sol";
+import {MockCaptchaGate} from "./mocks/MockCaptchaGate.sol";
 
 // ── Mock ZK verifier (always returns true) ────────────────────────────────────
 
@@ -28,6 +29,7 @@ contract JuryResolutionTest is Test {
     ModelRegistry public modelRegistry;
     MockVerifierJ public verifier;
     JuryResolution public jury;
+    MockCaptchaGate public captchaGate;
 
     // Addresses
     address owner = makeAddr("owner");
@@ -66,6 +68,9 @@ contract JuryResolutionTest is Test {
         jury = new JuryResolution(address(token), address(modelRegistry), owner);
         token.whitelistAddress(address(jury));
 
+        // Deploy mock captcha gate (always returns true — no challenge solving in tests)
+        captchaGate = new MockCaptchaGate();
+
         vm.stopPrank();
 
         // Register jurors and participants via mock ZK proof
@@ -93,6 +98,7 @@ contract JuryResolutionTest is Test {
     function _deployJuryMarket() internal returns (PredictionMarket) {
         PredictionMarket market = new PredictionMarket(
             address(token),
+            address(captchaGate),
             "Will Claude 4 Opus pass the ARC-AGI benchmark by 2026?",
             RESOLUTION_TIME,
             address(jury) // JuryResolution is the resolver
@@ -106,6 +112,7 @@ contract JuryResolutionTest is Test {
     function _deployPlainMarket(address resolver) internal returns (PredictionMarket) {
         PredictionMarket market = new PredictionMarket(
             address(token),
+            address(captchaGate),
             "Plain market",
             RESOLUTION_TIME,
             resolver

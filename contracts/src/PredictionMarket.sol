@@ -5,6 +5,11 @@ import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+/// @title ICaptchaGate — Minimal interface for session check
+interface ICaptchaGate {
+    function hasValidSession(address user) external view returns (bool);
+}
+
 /// @title PredictionMarket — Binary AMM (Fixed Product Market Maker)
 /// @notice Each instance represents a single YES/NO prediction market.
 ///         Position tokens are ERC-1155 (YES=0, NO=1). Collateral is CLAW.
@@ -15,6 +20,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     uint256 public constant GRACE_PERIOD = 7 days;
 
     IERC20 public immutable clawlia;
+    ICaptchaGate public immutable captchaGate;
     string public question;
     uint256 public resolutionTimestamp;
     address public resolver;
@@ -35,6 +41,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     error ZeroAmount();
     error InsufficientLiquidity();
     error SlippageExceeded();
+    error NoValidSession();
 
     event LiquidityAdded(address indexed provider, uint256 amount, uint256 yesTokens, uint256 noTokens);
     event LiquidityRemoved(address indexed provider, uint256 yesTokens, uint256 noTokens, uint256 collateral);
@@ -43,13 +50,21 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     event Redeemed(address indexed redeemer, uint256 amount, uint256 payout);
     event EmergencyWithdraw(address indexed user, uint256 amount);
 
+    /// @dev Reverts if msg.sender does not have a valid CaptchaGate session.
+    modifier requireSession() {
+        if (!captchaGate.hasValidSession(msg.sender)) revert NoValidSession();
+        _;
+    }
+
     constructor(
         address _clawlia,
+        address _captchaGate,
         string memory _question,
         uint256 _resolutionTimestamp,
         address _resolver
     ) ERC1155("") {
         clawlia = IERC20(_clawlia);
+        captchaGate = ICaptchaGate(_captchaGate);
         question = _question;
         resolutionTimestamp = _resolutionTimestamp;
         resolver = _resolver;
@@ -59,7 +74,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
     /// @notice Add liquidity to the AMM. Caller deposits CLAW, receives YES + NO tokens.
     ///         Must have approved this contract for `amount` CLAW first.
-    function addLiquidity(uint256 amount) external nonReentrant returns (uint256 yesTokens, uint256 noTokens) {
+    function addLiquidity(uint256 amount) external nonReentrant requireSession returns (uint256 yesTokens, uint256 noTokens) {
         if (resolved) revert MarketResolved();
         if (amount == 0) revert ZeroAmount();
 
@@ -118,6 +133,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     function buy(uint256 outcomeIndex, uint256 collateralAmount, uint256 minTokensOut)
         external
         nonReentrant
+        requireSession
         returns (uint256 tokensOut)
     {
         if (resolved) revert MarketResolved();
@@ -179,6 +195,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     function sell(uint256 outcomeIndex, uint256 tokenAmount, uint256 minCollateralOut)
         external
         nonReentrant
+        requireSession
         returns (uint256 collateralOut)
     {
         if (resolved) revert MarketResolved();

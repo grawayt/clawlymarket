@@ -5,6 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {ModelRegistry} from "../src/ModelRegistry.sol";
 import {MarketFactory} from "../src/MarketFactory.sol";
+import {CaptchaGate} from "../src/CaptchaGate.sol";
 import {Groth16Verifier} from "../src/ZKVerifier.sol";
 
 /// @notice Placeholder verifier for testnet only.
@@ -64,15 +65,20 @@ contract Deploy is Script {
         // 4. Wire token to registry
         token.setModelRegistry(address(registry));
 
-        // 5. Deploy Market Factory
+        // 5. Deploy CaptchaGate
+        CaptchaGate captchaGate = new CaptchaGate(deployer);
+        console.log("CaptchaGate:", address(captchaGate));
+
+        // 6. Deploy Market Factory (receives captchaGate address)
         MarketFactory factory = new MarketFactory(
             address(token),
             address(registry),
+            address(captchaGate),
             deployer
         );
         console.log("MarketFactory:", address(factory));
 
-        // 6. Whitelist factory and make it a whitelister (for new markets)
+        // 7. Whitelist factory and make it a whitelister (for new markets)
         token.whitelistAddress(address(factory));
         token.setWhitelister(address(factory), true);
 

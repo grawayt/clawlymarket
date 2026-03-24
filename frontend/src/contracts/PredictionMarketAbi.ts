@@ -8,6 +8,11 @@ export const predictionMarketAbi = [
         "internalType": "address"
       },
       {
+        "name": "_captchaGate",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
         "name": "_question",
         "type": "string",
         "internalType": "string"
@@ -177,6 +182,19 @@ export const predictionMarketAbi = [
       }
     ],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "captchaGate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract ICaptchaGate"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -929,6 +947,11 @@ export const predictionMarketAbi = [
   {
     "type": "error",
     "name": "InvalidOutcome",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoValidSession",
     "inputs": []
   },
   {
