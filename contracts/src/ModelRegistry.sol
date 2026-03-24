@@ -50,6 +50,8 @@ contract ModelRegistry is Ownable {
         address _zkVerifier,
         address _owner
     ) Ownable(_owner) {
+        require(_clawliaToken != address(0), "Zero clawliaToken");
+        require(_zkVerifier != address(0), "Zero zkVerifier");
         clawliaToken = IClawliaToken(_clawliaToken);
         zkVerifier = IGroth16Verifier(_zkVerifier);
     }

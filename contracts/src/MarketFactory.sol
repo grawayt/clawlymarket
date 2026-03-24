@@ -53,6 +53,9 @@ contract MarketFactory is Ownable {
     }
 
     constructor(address _clawlia, address _registry, address _captchaGate, address _owner) Ownable(_owner) {
+        require(_clawlia != address(0), "Zero clawlia");
+        require(_registry != address(0), "Zero registry");
+        require(_captchaGate != address(0), "Zero captchaGate");
         clawlia = IERC20(_clawlia);
         clawliaWhitelist = IClawliaTokenWhitelist(_clawlia);
         registry = IModelRegistry(_registry);
@@ -73,6 +76,8 @@ contract MarketFactory is Ownable {
         if (!registry.isVerified(msg.sender)) revert NotVerified();
         if (resolutionTimestamp <= block.timestamp) revert ResolutionInPast();
         if (initialLiquidity < MIN_LIQUIDITY) revert InsufficientLiquidity();
+        require(resolver != address(0), "Zero resolver");
+        require(bytes(question).length <= 280, "Question too long");
 
         PredictionMarket market = new PredictionMarket(
             address(clawlia),

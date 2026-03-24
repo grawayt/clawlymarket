@@ -27,7 +27,11 @@ contract Deploy is Script {
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
-        bool useRealVerifier = vm.envOr("USE_REAL_VERIFIER", false);
+        bool useRealVerifier = vm.envOr("USE_REAL_VERIFIER", true);
+        // PlaceholderVerifier is only safe on local devnet (chainId 31337)
+        if (!useRealVerifier) {
+            require(block.chainid == 31337, "PlaceholderVerifier only allowed on local devnet");
+        }
 
         console.log("Deployer:", deployer);
         console.log("Use real verifier:", useRealVerifier);

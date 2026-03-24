@@ -28,6 +28,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
     bool public resolved;
     uint256 public outcome; // 0 = YES won, 1 = NO won
     uint256 public totalCollateral;
+    uint256 public accumulatedFees; // fees collected (buy + sell); excluded from redemption payouts
 
     // AMM reserves
     uint256 public reserveYes;
@@ -63,6 +64,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         uint256 _resolutionTimestamp,
         address _resolver
     ) ERC1155("") {
+        require(_resolver != address(0), "Zero resolver");
         clawlia = IERC20(_clawlia);
         captchaGate = ICaptchaGate(_captchaGate);
         question = _question;
@@ -79,18 +81,20 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         if (amount == 0) revert ZeroAmount();
 
         clawlia.transferFrom(msg.sender, address(this), amount);
-        totalCollateral += amount;
 
         if (reserveYes == 0 && reserveNo == 0) {
             // First liquidity provider: 50/50 split
             yesTokens = amount;
             noTokens = amount;
         } else {
-            // Proportional to current reserves
-            yesTokens = (amount * reserveYes) / totalCollateral;
-            noTokens = (amount * reserveNo) / totalCollateral;
+            // Proportional to current reserves — use oldCollateral BEFORE adding amount
+            uint256 oldCollateral = totalCollateral;
+            yesTokens = (amount * reserveYes) / oldCollateral;
+            noTokens = (amount * reserveNo) / oldCollateral;
             if (yesTokens == 0 || noTokens == 0) revert ZeroAmount();
         }
+
+        totalCollateral += amount;
 
         reserveYes += yesTokens;
         reserveNo += noTokens;
@@ -103,6 +107,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
     /// @notice Remove liquidity by returning equal amounts of YES and NO tokens.
     function removeLiquidity(uint256 yesAmount, uint256 noAmount) external nonReentrant returns (uint256 collateral) {
+        if (resolved) revert MarketResolved();
         if (yesAmount == 0 || noAmount == 0) revert ZeroAmount();
 
         // Calculate proportional collateral to return
@@ -145,6 +150,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
         clawlia.transferFrom(msg.sender, address(this), collateralAmount);
         totalCollateral += collateralAmount;
+        accumulatedFees += fee;
 
         // Constant product: (reserveYes + netAmount) * (reserveNo + netAmount) stays constant
         // after minting both sides and selling back the unwanted side.
@@ -235,18 +241,16 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
         collateralOut = (sum - sqrtDisc) / 2;
 
-        // Apply fee
+        // Apply fee — fee stays in reserves, benefiting LPs
         uint256 fee = (collateralOut * FEE_BPS) / 10000;
         collateralOut -= fee;
 
         if (collateralOut < minCollateralOut) revert SlippageExceeded();
 
-        reserveYes -= (collateralOut + fee);
-        reserveNo -= (collateralOut + fee);
-        totalCollateral -= (collateralOut + fee);
-
-        // Return fee to pool (only send net to seller)
-        totalCollateral += fee;
+        // Remove only net collateralOut from reserves; fee remains in both reserves
+        reserveYes -= collateralOut;
+        reserveNo -= collateralOut;
+        totalCollateral -= collateralOut;
 
         clawlia.transfer(msg.sender, collateralOut);
 
@@ -275,10 +279,11 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
         _burn(msg.sender, outcome, amount);
 
-        // Payout: proportional share of total remaining collateral
-        // Winners split the entire pot based on their share of winning tokens
+        // Payout: proportional share of collateral excluding protocol fees
+        // Winners split the pot (minus accumulated fees) based on their share of winning tokens
         uint256 totalWinning = (outcome == YES) ? reserveYes : reserveNo;
-        uint256 payout = (amount * totalCollateral) / totalWinning;
+        uint256 payoutPool = totalCollateral - accumulatedFees;
+        uint256 payout = (amount * payoutPool) / totalWinning;
 
         if (outcome == YES) {
             reserveYes -= amount;
@@ -300,6 +305,8 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
 
         uint256 yesBalance = balanceOf(msg.sender, YES);
         uint256 noBalance = balanceOf(msg.sender, NO);
+        if (yesBalance + noBalance == 0) revert ZeroAmount();
+
         uint256 totalTokens = reserveYes + reserveNo;
 
         if (totalTokens == 0) revert ZeroAmount();

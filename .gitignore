@@ -24,6 +24,9 @@ frontend/node_modules/
 .env.local
 .env.*.local
 
+# Jury agent secrets
+scripts/jury-agent/.env
+
 # IDE
 .vscode/
 .idea/

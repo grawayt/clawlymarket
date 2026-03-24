@@ -92,6 +92,8 @@ contract JuryResolution is Ownable {
     // ── Constructor ──────────────────────────────────────────────────
 
     constructor(address _clawlia, address _modelRegistry, address _owner) Ownable(_owner) {
+        require(_clawlia != address(0), "Zero clawlia");
+        require(_modelRegistry != address(0), "Zero modelRegistry");
         clawlia = IERC20(_clawlia);
         modelRegistry = IModelRegistry(_modelRegistry);
     }
@@ -114,6 +116,7 @@ contract JuryResolution is Ownable {
 
     /// @notice Update the voting window duration.
     function setVotingWindow(uint256 newWindow) external onlyOwner {
+        require(newWindow >= 1 hours, "Window too short");
         votingWindow = newWindow;
         emit VotingWindowUpdated(newWindow);
     }
