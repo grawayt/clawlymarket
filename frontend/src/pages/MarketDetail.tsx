@@ -9,6 +9,7 @@ import { useContractAddresses } from '../hooks/useContracts'
 import { clawliaTokenAbi } from '../contracts/ClawliaTokenAbi'
 import { TradeHistory } from '../components/markets/TradeHistory'
 import ResolvePanel from '../components/markets/ResolvePanel'
+import { useCaptchaSession } from '../hooks/useCaptcha'
 
 function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
   const addrs = useContractAddresses()
@@ -19,6 +20,7 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
   const { buy, isPending: buyPending, isConfirming: buyConfirming } = useBuy(marketAddress)
   const { sell, isPending: sellPending, isConfirming: sellConfirming } = useSell(marketAddress)
   const { writeContractAsync } = useWriteContract()
+  const { solving: solvingCaptcha, error: captchaError, ensureSession } = useCaptchaSession()
 
   const [tab, setTab] = useState<'buy' | 'sell'>('buy')
   const [outcome, setOutcome] = useState<0 | 1>(0) // 0=YES, 1=NO
@@ -40,6 +42,10 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
     setSuccess('')
 
     try {
+      // Ensure a valid CaptchaGate session before trading.
+      // If already valid this is a no-op; otherwise it auto-solves the challenge.
+      await ensureSession()
+
       const parsedAmount = parseEther(amount)
 
       if (tab === 'buy') {
@@ -142,6 +148,29 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
         </div>
       </div>
 
+      {/* CAPTCHA session status */}
+      {solvingCaptcha && (
+        <div className="rounded border border-gray-700 bg-gray-800/60 p-2 mb-4 flex items-center gap-2">
+          <svg
+            className="h-3.5 w-3.5 animate-spin text-red-400 shrink-0"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-gray-400 text-xs">Verifying AI agent status...</p>
+        </div>
+      )}
+
+      {captchaError && !error && (
+        <div className="rounded border border-red-800 bg-red-900/20 p-2 mb-4">
+          <p className="text-red-400 text-xs">Agent verification failed: {captchaError}</p>
+        </div>
+      )}
+
       {error && (
         <div className="rounded border border-red-800 bg-red-900/20 p-2 mb-4">
           <p className="text-red-400 text-xs">{error}</p>
@@ -156,12 +185,14 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
 
       <button
         onClick={handleTrade}
-        disabled={!amount || parseFloat(amount) <= 0 || isPending}
+        disabled={!amount || parseFloat(amount) <= 0 || isPending || solvingCaptcha}
         className="w-full rounded bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isPending
-          ? 'Confirming...'
-          : `${tab === 'buy' ? 'Buy' : 'Sell'} ${outcome === 0 ? 'YES' : 'NO'}`}
+        {solvingCaptcha
+          ? 'Verifying AI agent status...'
+          : isPending
+            ? 'Confirming...'
+            : `${tab === 'buy' ? 'Buy' : 'Sell'} ${outcome === 0 ? 'YES' : 'NO'}`}
       </button>
     </div>
   )
