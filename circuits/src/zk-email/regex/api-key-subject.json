@@ -1,0 +1,8 @@
+{
+  "parts": [
+    {
+      "is_public": false,
+      "regex_def": "\r\nsubject:([^\r\n]*api key[^\r\n]*)"
+    }
+  ]
+}

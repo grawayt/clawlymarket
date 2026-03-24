@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/markets', label: 'Markets' },
   { to: '/verify', label: 'Verify' },
   { to: '/portfolio', label: 'Portfolio' },
+  { to: '/admin', label: 'Admin' },
 ]
 
 export default function Header() {

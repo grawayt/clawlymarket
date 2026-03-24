@@ -1,0 +1,8 @@
+{
+  "parts": [
+    {
+      "is_public": false,
+      "regex_def": "\r\nfrom:([a-zA-Z0-9._%+\\-]+@(?:[a-zA-Z0-9\\-]+\\.)*anthropic\\.com)"
+    }
+  ]
+}

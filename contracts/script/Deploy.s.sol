@@ -5,9 +5,10 @@ import {Script, console} from "forge-std/Script.sol";
 import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {ModelRegistry} from "../src/ModelRegistry.sol";
 import {MarketFactory} from "../src/MarketFactory.sol";
+import {Groth16Verifier} from "../src/ZKVerifier.sol";
 
-/// @notice Placeholder verifier for testnet deployment.
-///         Replace with the auto-generated ZKVerifier.sol from snarkjs for production.
+/// @notice Placeholder verifier for testnet only.
+///         Set USE_REAL_VERIFIER=true in the environment to deploy the real Groth16Verifier instead.
 contract PlaceholderVerifier {
     function verifyProof(uint[2] calldata, uint[2][2] calldata, uint[2] calldata, uint[2] calldata)
         external
@@ -23,14 +24,24 @@ contract Deploy is Script {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
         uint256 initialMerkleRoot = vm.envOr("MERKLE_ROOT", uint256(0));
+        bool useRealVerifier = vm.envOr("USE_REAL_VERIFIER", false);
 
         console.log("Deployer:", deployer);
+        console.log("Use real verifier:", useRealVerifier);
 
         vm.startBroadcast(deployerKey);
 
-        // 1. Deploy placeholder ZK Verifier (replace with real one later)
-        PlaceholderVerifier verifier = new PlaceholderVerifier();
-        console.log("ZKVerifier:", address(verifier));
+        // 1. Deploy ZK Verifier — real Groth16Verifier or testnet placeholder depending on USE_REAL_VERIFIER
+        address verifierAddr;
+        if (useRealVerifier) {
+            Groth16Verifier realVerifier = new Groth16Verifier();
+            verifierAddr = address(realVerifier);
+            console.log("ZKVerifier (Groth16):", verifierAddr);
+        } else {
+            PlaceholderVerifier placeholderVerifier = new PlaceholderVerifier();
+            verifierAddr = address(placeholderVerifier);
+            console.log("ZKVerifier (Placeholder/testnet):", verifierAddr);
+        }
 
         // 2. Deploy Clawlia Token
         ClawliaToken token = new ClawliaToken(deployer);
@@ -39,7 +50,7 @@ contract Deploy is Script {
         // 3. Deploy Model Registry
         ModelRegistry registry = new ModelRegistry(
             address(token),
-            address(verifier),
+            verifierAddr,
             initialMerkleRoot,
             deployer
         );

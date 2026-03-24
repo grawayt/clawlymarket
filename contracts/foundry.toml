@@ -12,3 +12,11 @@ remappings = [
 
 [profile.default.fuzz]
 runs = 256
+
+[rpc_endpoints]
+arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
+arbitrum         = "https://arb1.arbitrum.io/rpc"
+
+[etherscan]
+arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", url = "https://api-sepolia.arbiscan.io/api", chain = 421614 }
+arbitrum         = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api",         chain = 42161  }

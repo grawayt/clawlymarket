@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAccount, useWriteContract } from 'wagmi'
 import { parseEther, formatEther } from 'viem'
@@ -7,12 +7,14 @@ import { useMarketData, useMarketPositions, useBuy, useSell } from '../hooks/use
 import { useClawliaBalance, useIsVerified } from '../hooks/useClawlia'
 import { useContractAddresses } from '../hooks/useContracts'
 import { clawliaTokenAbi } from '../contracts/ClawliaTokenAbi'
+import { TradeHistory } from '../components/markets/TradeHistory'
+import ResolvePanel from '../components/markets/ResolvePanel'
 
 function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
   const addrs = useContractAddresses()
   const { isVerified } = useIsVerified()
   const { formatted: clawBalance, refetch: refetchBalance } = useClawliaBalance()
-  const { market, refetch: refetchMarket } = useMarketData(marketAddress)
+  const { market: _market, refetch: refetchMarket } = useMarketData(marketAddress)
   const { yesBalance, noBalance, refetch: refetchPositions } = useMarketPositions(marketAddress)
   const { buy, isPending: buyPending, isConfirming: buyConfirming } = useBuy(marketAddress)
   const { sell, isPending: sellPending, isConfirming: sellConfirming } = useSell(marketAddress)
@@ -167,9 +169,9 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
 
 export default function MarketDetail() {
   const { address: marketAddress } = useParams<{ address: string }>()
-  const { isConnected } = useAccount()
+  const { isConnected, address: connectedAddress } = useAccount()
   const typedAddress = marketAddress as `0x${string}` | undefined
-  const { market, isLoading } = useMarketData(typedAddress)
+  const { market, isLoading, refetch: refetchMarket } = useMarketData(typedAddress)
   const { yesBalance, noBalance } = useMarketPositions(typedAddress)
 
   if (!marketAddress) {
@@ -194,6 +196,19 @@ export default function MarketDetail() {
   const resolutionDate = market.resolutionTimestamp
     ? new Date(Number(market.resolutionTimestamp) * 1000)
     : null
+
+  // ResolvePanel visibility: connected wallet === resolver, not yet resolved,
+  // and resolution timestamp has passed.
+  const nowSec = Math.floor(Date.now() / 1000)
+  const isResolver =
+    isConnected &&
+    connectedAddress &&
+    market.resolver &&
+    connectedAddress.toLowerCase() === market.resolver.toLowerCase()
+  const resolutionPassed =
+    market.resolutionTimestamp != null &&
+    Number(market.resolutionTimestamp) <= nowSec
+  const showResolvePanel = isResolver && !market.resolved && resolutionPassed
 
   return (
     <div>
@@ -301,8 +316,16 @@ export default function MarketDetail() {
           )}
         </div>
 
-        {/* Right: Trade panel */}
-        <div>
+        {/* Right: Resolve panel (resolver only, when eligible) + Trade panel */}
+        <div className="space-y-4">
+          {showResolvePanel && (
+            <ResolvePanel
+              marketAddress={typedAddress!}
+              question={market.question}
+              onResolved={refetchMarket}
+            />
+          )}
+
           {isConnected ? (
             market.resolved ? (
               <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 text-center">
@@ -318,6 +341,11 @@ export default function MarketDetail() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Trade history */}
+      <div className="mt-6">
+        <TradeHistory marketAddress={typedAddress!} />
       </div>
     </div>
   )

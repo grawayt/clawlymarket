@@ -1,5 +1,5 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { parseEther, formatEther } from 'viem'
+import { formatEther } from 'viem'
 import { clawliaTokenAbi } from '../contracts/ClawliaTokenAbi'
 import { useContractAddresses } from './useContracts'
 

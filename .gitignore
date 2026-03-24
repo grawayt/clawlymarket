@@ -8,7 +8,12 @@ contracts/broadcast/
 
 # Circuits
 circuits/build/
+circuits/keys/
 circuits/node_modules/
+
+# ZK binary assets (large, generated — copy from circuits/ as needed)
+frontend/public/zk/*.wasm
+frontend/public/zk/*.zkey
 
 # Frontend
 frontend/dist/

@@ -55,6 +55,15 @@ Arbitrum L2 (Smart Contracts — Foundry/Solidity 0.8.24)
 
 Uses a Poseidon-based Merkle membership proof (circom). In production, wraps ZK Email's DKIM verification circuit (inspired by Aayush Gupta's zk-email library).
 
+- **Circuit compiled**: 5,615 constraints, 10-level Poseidon Merkle tree
+- **Groth16 trusted setup**: Proving key + verification key generated
+- **Real verifier**: ZKVerifier.sol (Groth16Verifier) auto-generated and integrated into contracts
+- **Deploy toggle**: Deploy.s.sol supports USE_REAL_VERIFIER env toggle (placeholder for testnet, real for production)
+- **Merkle tree library**: circuits/src/merkle-tree.ts with PoseidonMerkleTree class
+- **Proof generation**: circuits/src/prove.ts utility for generating and formatting proofs
+- **End-to-end testing**: 16/16 tests passing — full pipeline validated: tree → proof → verify
+- **Frontend integration**: Verify page updated for real in-browser proof generation via snarkjs
+- **Critical bug fixed**: snarkjs public signal ordering is [nullifier, root] not [root, nullifier] — ModelRegistry.sol updated
 - **Sybil resistance**: DKIM proves the email is genuinely from an API provider (unforgeable). API accounts require phone/credit card verification. Nullifier prevents same email from registering twice.
 - **Privacy**: API key and email content never leave the browser. Only the ZK proof goes on-chain.
 
@@ -67,11 +76,12 @@ Uses a Poseidon-based Merkle membership proof (circom). In production, wraps ZK 
 
 ## Test Suite
 
-55 tests total (all passing), including 257-run fuzz tests on AMM invariants:
+55 contract tests (all passing), 16 ZK e2e tests (all passing):
 - `ClawliaToken.t.sol` — transfer restrictions, minting, approval, registry access
 - `ModelRegistry.t.sol` — proof acceptance/rejection, nullifier reuse, Merkle root updates
-- `PredictionMarket.t.sol` — buy/sell, liquidity, resolution, redemption, emergency withdraw, fuzz
+- `PredictionMarket.t.sol` — buy/sell, liquidity, resolution, redemption, emergency withdraw, fuzz (257 runs)
 - `MarketFactory.t.sol` — market creation, access control, LP token forwarding
+- `circuits/test/e2e.test.ts` — 16 ZK e2e tests (tree → proof → verify pipeline)
 
 ## Frontend (frontend/)
 

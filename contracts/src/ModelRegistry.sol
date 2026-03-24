@@ -70,8 +70,8 @@ contract ModelRegistry is Ownable {
         if (registered[msg.sender]) revert AlreadyRegistered();
         if (usedNullifiers[_nullifier]) revert NullifierAlreadyUsed();
 
-        // Public signals: [root, nullifier]
-        uint[2] memory pubSignals = [merkleRoot, _nullifier];
+        // Public signals order (snarkjs): outputs first, then inputs → [nullifier, root]
+        uint[2] memory pubSignals = [_nullifier, merkleRoot];
 
         if (!zkVerifier.verifyProof(_pA, _pB, _pC, pubSignals)) {
             revert InvalidProof();
