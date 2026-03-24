@@ -1,85 +1,91 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 // @ts-ignore — snarkjs ships without TS declarations
 import * as snarkjs from 'snarkjs'
+// @ts-ignore — circomlibjs ships without TS declarations
+import { buildPoseidon } from 'circomlibjs'
+import { generateEmailVerifierInputs } from '@zk-email/helpers'
 import { modelRegistryAbi } from '../contracts/ModelRegistryAbi'
 import { useContractAddresses } from '../hooks/useContracts'
 import { useIsVerified, useClawliaBalance } from '../hooks/useClawlia'
 
 // ---------------------------------------------------------------------------
 // Static asset paths (served from frontend/public/zk/)
-//
-// Setup: run `cd circuits && npx ts-node scripts/demo-setup.ts` to deploy
-// contracts and populate these files.
 // ---------------------------------------------------------------------------
-const WASM_PATH = import.meta.env.BASE_URL + 'zk/api-key-email.wasm'
-const ZKEY_PATH = import.meta.env.BASE_URL + 'zk/membership.zkey'
-const TREE_PATH = import.meta.env.BASE_URL + 'zk/demo-tree.json'
+const BASE_URL = import.meta.env.BASE_URL
+const WASM_PATH = `${BASE_URL}zk/anthropic-email.wasm`
+const ZKEY_PATH = `${BASE_URL}zk/anthropic-email.zkey`
+
+const ANTHROPIC_DKIM_DOMAIN = 'anthropic.com'
 
 // ---------------------------------------------------------------------------
-// Types for the demo tree state exported by demo-setup.ts
+// Pubkey hash computation
+//
+// ZK Email represents the RSA public key as 17 chunks of 121-bit values.
+// We pack them into 9 chunks (pairs of 121-bit values, last one padded)
+// then Poseidon-hash the result.
 // ---------------------------------------------------------------------------
-interface DemoTree {
-  root: string
-  testSecret: string
-  proofs: {
-    leafIndex: number
-    pathElements: string[]
-    pathIndices: number[]
-  }[]
+async function computePubkeyHash(pubkeyChunks: bigint[]): Promise<bigint> {
+  const poseidon = await buildPoseidon()
+
+  // Pack 17 × 121-bit chunks into 9 × 242-bit chunks
+  const packed: bigint[] = []
+  for (let i = 0; i < 17; i += 2) {
+    const lo = pubkeyChunks[i] ?? 0n
+    const hi = pubkeyChunks[i + 1] ?? 0n
+    packed.push(lo + (hi << 121n))
+  }
+
+  // Poseidon hash the 9 packed chunks
+  const hashResult = poseidon(packed)
+  return poseidon.F.toObject(hashResult) as bigint
 }
 
 // ---------------------------------------------------------------------------
 // Proof generation
 // ---------------------------------------------------------------------------
 
-async function generateAndFormatProof(
-  secret: string,
-  tree: DemoTree
-): Promise<{
+async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
   pA: [bigint, bigint]
   pB: [[bigint, bigint], [bigint, bigint]]
   pC: [bigint, bigint]
   nullifier: bigint
+  pubkeyHash: bigint
 }> {
-  const proof0 = tree.proofs[0]
-  if (!proof0) throw new Error('No proof paths in tree state')
+  // Parse the email and generate circuit inputs
+  const inputs = await generateEmailVerifierInputs(emlBytes, {
+    maxHeadersLength: 1024,
+    maxBodyLength: 64,
+    ignoreBodyHashCheck: true,
+  })
 
-  // Build circuit inputs — all as decimal strings for snarkjs
-  const input = {
-    secret: BigInt(secret).toString(),
-    pathElements: proof0.pathElements,
-    pathIndices: proof0.pathIndices.map(String),
-    root: tree.root,
-  }
+  // Compute pubkeyHash from the RSA modulus chunks
+  const pubkeyChunks = (inputs.pubkey as string[]).map((c) => BigInt(c))
+  const pubkeyHash = await computePubkeyHash(pubkeyChunks)
 
-  // Generate the Groth16 proof entirely in-browser
+  // Generate the Groth16 proof entirely in-browser (~15 seconds for 700K constraints)
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-    input,
+    inputs,
     WASM_PATH,
     ZKEY_PATH
   )
 
-  // Format for Solidity using snarkjs's built-in formatter.
-  // This handles the G2 coordinate swap for the EVM pairing precompile.
+  // Format for Solidity — handles G2 coordinate swap for EVM pairing precompile
   const rawCalldata: string = await snarkjs.groth16.exportSolidityCallData(
     proof,
     publicSignals
   )
 
-  // rawCalldata looks like: ["0x...","0x..."],[[...],[...]],["0x...","0x..."],["0x...","0x..."]
-  // Wrap in [] to make valid JSON, then parse.
-  const [pA, pB, pC, pubSignals]: [
+  // rawCalldata: ["0x...","0x..."],[[...],[...]],["0x...","0x..."],["0x...","0x..."]
+  const [pA, pB, pC]: [
     [string, string],
     [[string, string], [string, string]],
     [string, string],
-    string[]
   ] = JSON.parse(`[${rawCalldata}]`)
 
-  // Public signals order from snarkjs: outputs first, then inputs.
-  // Circuit: output nullifier, public input root → [nullifier, root]
-  const nullifier = BigInt(pubSignals[0])
+  // Public signals: nullifier is index 0, pubkeyHash is index 1
+  const nullifier = BigInt(publicSignals[0])
 
   return {
     pA: [BigInt(pA[0]), BigInt(pA[1])],
@@ -89,6 +95,7 @@ async function generateAndFormatProof(
     ],
     pC: [BigInt(pC[0]), BigInt(pC[1])],
     nullifier,
+    pubkeyHash,
   }
 }
 
@@ -96,7 +103,33 @@ async function generateAndFormatProof(
 // Component
 // ---------------------------------------------------------------------------
 
-type Status = 'idle' | 'loading-tree' | 'generating' | 'submitting' | 'confirming' | 'success' | 'error'
+type Status = 'idle' | 'parsing' | 'generating' | 'submitting' | 'success' | 'error'
+
+// Simple spinner SVG
+function Spinner({ className }: { className?: string }) {
+  return (
+    <svg
+      className={`animate-spin h-5 w-5 shrink-0 ${className ?? ''}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  )
+}
 
 export default function Verify() {
   const { isConnected } = useAccount()
@@ -104,81 +137,109 @@ export default function Verify() {
   const { isVerified, refetch: refetchVerified } = useIsVerified()
   const { refetch: refetchBalance } = useClawliaBalance()
 
-  const [secretInput, setSecretInput] = useState('')
+  const [emlFile, setEmlFile] = useState<File | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
-  const [tree, setTree] = useState<DemoTree | null>(null)
-  const [treeError, setTreeError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { writeContractAsync } = useWriteContract()
 
-  // Load tree state on mount
-  useEffect(() => {
-    fetch(TREE_PATH)
-      .then((res) => {
-        if (!res.ok) throw new Error(`${res.status}`)
-        return res.json()
-      })
-      .then((data: DemoTree) => setTree(data))
-      .catch(() =>
-        setTreeError(
-          'Tree state not found. Run: cd circuits && npx ts-node scripts/demo-setup.ts'
-        )
-      )
+  // ---- Drag-and-drop handlers ----
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
   }, [])
 
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file) {
+      setEmlFile(file)
+      setStatus('idle')
+      setErrorMsg('')
+    }
+  }, [])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null
+    if (file) {
+      setEmlFile(file)
+      setStatus('idle')
+      setErrorMsg('')
+    }
+  }
+
   const handleVerify = async () => {
-    if (!secretInput.trim() || !addrs || !tree) return
-    if (status === 'generating' || status === 'submitting' || status === 'confirming') return
+    if (!emlFile || !addrs) return
+    if (status === 'parsing' || status === 'generating' || status === 'submitting') return
 
     setErrorMsg('')
 
     try {
-      // Validate input is a number
-      try {
-        BigInt(secretInput.trim())
-      } catch {
-        throw new Error('Secret must be a number (e.g. 1337)')
+      // Step 1: Read and validate the .eml file
+      setStatus('parsing')
+
+      const arrayBuffer = await emlFile.arrayBuffer()
+      const emlBytes = new Uint8Array(arrayBuffer)
+
+      // Quick sanity-check: look for DKIM-Signature header referencing anthropic.com
+      const emlText = new TextDecoder().decode(emlBytes)
+
+      if (!emlText.includes('DKIM-Signature') && !emlText.includes('dkim-signature')) {
+        throw new Error('DKIM verification failed')
       }
 
-      // Step 1: Generate ZK proof in-browser
+      const dkimMatch = emlText.match(/d=([^\s;]+)/i)
+      const dkimDomain = dkimMatch?.[1]?.toLowerCase().replace(/['"]/g, '') ?? ''
+      if (!dkimDomain.endsWith(ANTHROPIC_DKIM_DOMAIN)) {
+        throw new Error('This doesn\'t appear to be an Anthropic email')
+      }
+
+      // Step 2: Parse email + generate ZK proof
       setStatus('generating')
 
       let proofData: Awaited<ReturnType<typeof generateAndFormatProof>>
       try {
-        proofData = await generateAndFormatProof(secretInput.trim(), tree)
+        proofData = await generateAndFormatProof(emlBytes)
       } catch (proofErr: any) {
-        if (proofErr?.message?.includes('Assert Failed')) {
+        const msg: string = proofErr?.message ?? ''
+        if (msg.includes('Assert Failed') || msg.includes('assert')) {
+          throw new Error('DKIM verification failed')
+        }
+        if (msg.includes('fetch') || msg.includes('404') || msg.includes('NetworkError')) {
           throw new Error(
-            'Invalid secret — your input does not match any approved entry in the Merkle tree.'
+            'Circuit files not found. Ensure anthropic-email.wasm and anthropic-email.zkey are in public/zk/.'
           )
         }
-        if (
-          proofErr?.message?.includes('fetch') ||
-          proofErr?.message?.includes('404')
-        ) {
-          throw new Error(
-            'Circuit files not found in public/zk/. Run the demo setup script first.'
-          )
+        if (msg.includes('Invalid email') || msg.includes('parse')) {
+          throw new Error('Invalid email format')
         }
         throw proofErr
       }
 
-      // Step 2: Submit proof on-chain
+      // Step 3: Submit proof on-chain
       setStatus('submitting')
 
       await writeContractAsync({
         address: addrs.modelRegistry,
         abi: modelRegistryAbi,
         functionName: 'register',
-        args: [proofData.pA, proofData.pB, proofData.pC, proofData.nullifier],
+        args: [
+          proofData.pA,
+          proofData.pB,
+          proofData.pC,
+          proofData.nullifier,
+          proofData.pubkeyHash,
+        ],
+        gas: 500_000n,
       })
-
-      setStatus('confirming')
-
-      // wagmi writeContractAsync resolves when the tx is submitted.
-      // The tx confirms instantly on Anvil, so we can refetch immediately.
-      // On real chains, you'd use useWaitForTransactionReceipt.
 
       setStatus('success')
       refetchVerified()
@@ -186,14 +247,21 @@ export default function Verify() {
     } catch (err: any) {
       setStatus('error')
       const msg: string = err?.shortMessage || err?.message || 'Unknown error'
-      if (msg.includes('AlreadyRegistered')) {
+
+      if (msg.includes('Invalid email format')) {
+        setErrorMsg('Invalid email format — please upload a valid .eml file.')
+      } else if (msg.includes('doesn\'t appear to be an Anthropic email')) {
+        setErrorMsg('This doesn\'t appear to be an Anthropic email. The DKIM domain must be anthropic.com.')
+      } else if (msg.includes('DKIM verification failed')) {
+        setErrorMsg('DKIM verification failed — the email signature is invalid or missing.')
+      } else if (msg.includes('AlreadyRegistered')) {
         setErrorMsg('This wallet is already registered.')
       } else if (msg.includes('NullifierAlreadyUsed')) {
-        setErrorMsg('This credential has already been used to register another wallet.')
+        setErrorMsg('This email has already been used to register another wallet.')
       } else if (msg.includes('InvalidProof')) {
-        setErrorMsg(
-          'Proof rejected on-chain. The Merkle root may be stale — re-run the setup script.'
-        )
+        setErrorMsg('Proof rejected on-chain. The circuit verifier may be out of sync.')
+      } else if (msg.includes('Circuit files not found')) {
+        setErrorMsg(msg)
       } else {
         setErrorMsg(msg)
       }
@@ -230,45 +298,87 @@ export default function Verify() {
   }
 
   // ---- Main form ----
-  const isWorking =
-    status === 'generating' || status === 'submitting' || status === 'confirming'
+  const isWorking = status === 'parsing' || status === 'generating' || status === 'submitting'
 
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Verify Your Identity</h1>
       <p className="text-gray-400 mb-8">
-        Prove you have an approved credential by generating a zero-knowledge
-        proof. Your secret never leaves your browser.
+        Prove you have an Anthropic email by generating a zero-knowledge proof
+        of its DKIM signature. Your email never leaves your browser.
       </p>
 
-      {/* Tree state error */}
-      {treeError && (
-        <div className="rounded-lg border border-red-800 bg-red-900/20 p-4 mb-6">
-          <p className="text-red-400 text-sm font-medium">Setup required</p>
-          <p className="text-red-300 text-sm mt-1 font-mono text-xs">
-            {treeError}
-          </p>
-        </div>
-      )}
-
       <div className="space-y-6">
-        {/* Secret input */}
+        {/* File upload zone */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            Enter your secret
+            Upload your Anthropic API key email
           </label>
+
+          {/* Drag-and-drop area */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => !isWorking && fileInputRef.current?.click()}
+            className={[
+              'relative flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-10 text-center transition-colors cursor-pointer',
+              isDragging
+                ? 'border-red-500 bg-red-900/10'
+                : 'border-gray-700 bg-gray-900 hover:border-gray-600 hover:bg-gray-800/50',
+              isWorking ? 'opacity-50 pointer-events-none' : '',
+            ].join(' ')}
+          >
+            {/* Upload icon */}
+            <svg
+              className="h-10 w-10 text-gray-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 16.5v-9m0 0-3 3m3-3 3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.338-1.5A4.5 4.5 0 0 1 17.25 19.5H6.75Z"
+              />
+            </svg>
+
+            {emlFile ? (
+              <div>
+                <p className="text-sm font-medium text-red-400">{emlFile.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Click or drop to replace
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-400">
+                  Drop your Anthropic email here or{' '}
+                  <span className="text-red-400 underline underline-offset-2">
+                    click to browse
+                  </span>
+                </p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Accepts .eml and .txt files
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Hidden file input */}
           <input
-            type="text"
-            className="w-full rounded-lg border border-gray-700 bg-gray-900 p-4 text-sm text-gray-300 font-mono focus:border-red-500 focus:outline-none disabled:opacity-50"
-            placeholder={
-              tree ? `Hint: try ${tree.testSecret}` : 'Loading tree state...'
-            }
-            value={secretInput}
-            onChange={(e) => setSecretInput(e.target.value)}
-            disabled={isWorking || status === 'success' || !tree}
+            ref={fileInputRef}
+            type="file"
+            accept=".eml,.txt"
+            className="hidden"
+            onChange={handleFileChange}
+            disabled={isWorking}
           />
+
           <p className="mt-1 text-xs text-gray-500">
-            The secret is processed entirely in your browser. Nothing is sent to
+            Your email is processed entirely in your browser. Nothing is sent to
             any server.
           </p>
         </div>
@@ -279,79 +389,53 @@ export default function Verify() {
             How it works:
           </h3>
           <ol className="list-decimal list-inside text-sm text-gray-400 space-y-1">
-            <li>Your secret is used as a private input to a ZK circuit</li>
-            <li>
-              A Groth16 proof is generated in your browser (~1-3 seconds)
-            </li>
-            <li>
-              Only the proof is sent on-chain — your secret stays private
-            </li>
-            <li>The smart contract verifies the proof and mints 1,000 CLAW</li>
+            <li>Your email's DKIM signature is verified (proves it's from Anthropic)</li>
+            <li>A zero-knowledge proof is generated in your browser (~15 seconds)</li>
+            <li>Only the proof goes on-chain — your email stays private</li>
+            <li>You receive 1,000 CLAW upon verification</li>
           </ol>
         </div>
 
-        {/* Generating spinner */}
-        {status === 'generating' && (
+        {/* Parsing spinner */}
+        {status === 'parsing' && (
           <div className="flex items-center gap-3 rounded-lg border border-yellow-800 bg-yellow-900/20 p-4">
-            <svg
-              className="animate-spin h-5 w-5 text-yellow-400 shrink-0"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
+            <Spinner className="text-yellow-400" />
             <div>
               <p className="text-yellow-300 text-sm font-medium">
-                Clawing through cryptographic constraints...
+                Parsing email headers...
               </p>
               <p className="text-yellow-600 text-xs mt-0.5">
-                Groth16 proof generation runs entirely in your browser.
+                Reading DKIM signature and preparing circuit inputs.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Generating spinner */}
+        {status === 'generating' && (
+          <div className="flex items-center gap-3 rounded-lg border border-orange-800 bg-orange-900/20 p-4">
+            <Spinner className="text-orange-400" />
+            <div>
+              <p className="text-orange-300 text-sm font-medium">
+                Clawing through cryptographic constraints...
+              </p>
+              <p className="text-orange-600 text-xs mt-0.5">
+                Groth16 proof generation (700K constraints) runs entirely in your browser — this takes ~15 seconds.
               </p>
             </div>
           </div>
         )}
 
         {/* Submitting spinner */}
-        {(status === 'submitting' || status === 'confirming') && (
+        {status === 'submitting' && (
           <div className="flex items-center gap-3 rounded-lg border border-blue-800 bg-blue-900/20 p-4">
-            <svg
-              className="animate-spin h-5 w-5 text-blue-400 shrink-0"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
+            <Spinner className="text-blue-400" />
             <div>
               <p className="text-blue-300 text-sm font-medium">
-                {status === 'submitting'
-                  ? 'Snapping proof onto the chain...'
-                  : 'Waiting for confirmation...'}
+                Snapping proof onto the chain...
+              </p>
+              <p className="text-blue-600 text-xs mt-0.5">
+                Check your wallet for a transaction to confirm.
               </p>
             </div>
           </div>
@@ -383,23 +467,18 @@ export default function Verify() {
         {/* Action button */}
         <button
           onClick={handleVerify}
-          disabled={
-            !secretInput.trim() ||
-            isWorking ||
-            status === 'success' ||
-            !tree
-          }
+          disabled={!emlFile || isWorking || status === 'success'}
           className="w-full rounded-lg bg-red-600 px-6 py-3 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {status === 'idle' || status === 'loading-tree'
+          {status === 'idle' || status === 'error'
             ? 'Generate Proof & Verify'
-            : status === 'generating'
-              ? 'Generating ZK Proof...'
-              : status === 'submitting' || status === 'confirming'
-                ? 'Submitting...'
-                : status === 'success'
-                  ? 'Verified!'
-                  : 'Retry'}
+            : status === 'parsing'
+              ? 'Parsing Email...'
+              : status === 'generating'
+                ? 'Generating ZK Proof...'
+                : status === 'submitting'
+                  ? 'Submitting...'
+                  : 'Verified!'}
         </button>
       </div>
     </div>

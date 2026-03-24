@@ -32,7 +32,9 @@ contract ModelRegistryTest is Test {
     address alice = makeAddr("alice");
     address bob = makeAddr("bob");
 
-    uint256 constant MERKLE_ROOT = 12345;
+    // Anthropic's real DKIM pubkey hash (Poseidon)
+    uint256 constant ANTHROPIC_PUBKEY_HASH = 21143687054953386827989663701408810093555362204214086893911788067496102859806;
+    uint256 constant OTHER_PUBKEY_HASH = 99999;
     uint256 constant NULLIFIER_A = 111;
     uint256 constant NULLIFIER_B = 222;
 
@@ -48,10 +50,11 @@ contract ModelRegistryTest is Test {
         registry = new ModelRegistry(
             address(token),
             address(verifier),
-            MERKLE_ROOT,
             owner
         );
         token.setModelRegistry(address(registry));
+        // Approve Anthropic's DKIM pubkey hash for tests
+        registry.addApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
         vm.stopPrank();
     }
 
@@ -59,7 +62,7 @@ contract ModelRegistryTest is Test {
 
     function test_register_success() public {
         vm.prank(alice);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
 
         assertTrue(registry.isVerified(alice));
         assertTrue(registry.registered(alice));
@@ -72,7 +75,7 @@ contract ModelRegistryTest is Test {
         emit ModelRegistry.ModelRegistered(alice, NULLIFIER_A);
 
         vm.prank(alice);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
     }
 
     function test_register_invalidProof_reverts() public {
@@ -80,35 +83,41 @@ contract ModelRegistryTest is Test {
 
         vm.prank(alice);
         vm.expectRevert(ModelRegistry.InvalidProof.selector);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
     }
 
     function test_register_nullifierReuse_reverts() public {
         vm.prank(alice);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
 
         // Bob tries to use the same nullifier
         vm.prank(bob);
         vm.expectRevert(ModelRegistry.NullifierAlreadyUsed.selector);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
     }
 
     function test_register_alreadyRegistered_reverts() public {
         vm.prank(alice);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
 
         // Alice tries to register again with a different nullifier
         vm.prank(alice);
         vm.expectRevert(ModelRegistry.AlreadyRegistered.selector);
-        registry.register(pA, pB, pC, NULLIFIER_B);
+        registry.register(pA, pB, pC, NULLIFIER_B, ANTHROPIC_PUBKEY_HASH);
+    }
+
+    function test_register_unapprovedPubkeyHash_reverts() public {
+        vm.prank(alice);
+        vm.expectRevert(ModelRegistry.UnapprovedPubkeyHash.selector);
+        registry.register(pA, pB, pC, NULLIFIER_A, OTHER_PUBKEY_HASH);
     }
 
     function test_register_twoModels() public {
         vm.prank(alice);
-        registry.register(pA, pB, pC, NULLIFIER_A);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
 
         vm.prank(bob);
-        registry.register(pA, pB, pC, NULLIFIER_B);
+        registry.register(pA, pB, pC, NULLIFIER_B, ANTHROPIC_PUBKEY_HASH);
 
         assertTrue(registry.isVerified(alice));
         assertTrue(registry.isVerified(bob));
@@ -116,31 +125,74 @@ contract ModelRegistryTest is Test {
         assertEq(token.balanceOf(bob), 1000e18);
     }
 
-    // ── Merkle Root Updates ──────────────────────────────────────────
+    // ── Pubkey Hash Management ────────────────────────────────────────
 
-    function test_updateMerkleRoot() public {
+    function test_addApprovedPubkeyHash() public {
         vm.prank(owner);
-        registry.updateMerkleRoot(99999);
-        assertEq(registry.merkleRoot(), 99999);
+        registry.addApprovedPubkeyHash(OTHER_PUBKEY_HASH);
+        assertTrue(registry.approvedPubkeyHashes(OTHER_PUBKEY_HASH));
     }
 
-    function test_updateMerkleRoot_emitsEvent() public {
+    function test_addApprovedPubkeyHash_emitsEvent() public {
         vm.expectEmit(false, false, false, true);
-        emit ModelRegistry.MerkleRootUpdated(MERKLE_ROOT, 99999);
+        emit ModelRegistry.PubkeyHashAdded(OTHER_PUBKEY_HASH);
 
         vm.prank(owner);
-        registry.updateMerkleRoot(99999);
+        registry.addApprovedPubkeyHash(OTHER_PUBKEY_HASH);
     }
 
-    function test_updateMerkleRoot_notOwner_reverts() public {
+    function test_addApprovedPubkeyHash_notOwner_reverts() public {
         vm.prank(alice);
         vm.expectRevert();
-        registry.updateMerkleRoot(99999);
+        registry.addApprovedPubkeyHash(OTHER_PUBKEY_HASH);
+    }
+
+    function test_removeApprovedPubkeyHash() public {
+        vm.prank(owner);
+        registry.removeApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
+        assertFalse(registry.approvedPubkeyHashes(ANTHROPIC_PUBKEY_HASH));
+    }
+
+    function test_removeApprovedPubkeyHash_emitsEvent() public {
+        vm.expectEmit(false, false, false, true);
+        emit ModelRegistry.PubkeyHashRemoved(ANTHROPIC_PUBKEY_HASH);
+
+        vm.prank(owner);
+        registry.removeApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
+    }
+
+    function test_removeApprovedPubkeyHash_notOwner_reverts() public {
+        vm.prank(alice);
+        vm.expectRevert();
+        registry.removeApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
+    }
+
+    function test_removedHash_cannotRegister() public {
+        vm.prank(owner);
+        registry.removeApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
+
+        vm.prank(alice);
+        vm.expectRevert(ModelRegistry.UnapprovedPubkeyHash.selector);
+        registry.register(pA, pB, pC, NULLIFIER_A, ANTHROPIC_PUBKEY_HASH);
+    }
+
+    function test_addHash_thenRegister_succeeds() public {
+        vm.prank(owner);
+        registry.addApprovedPubkeyHash(OTHER_PUBKEY_HASH);
+
+        vm.prank(alice);
+        registry.register(pA, pB, pC, NULLIFIER_A, OTHER_PUBKEY_HASH);
+
+        assertTrue(registry.isVerified(alice));
     }
 
     // ── View ─────────────────────────────────────────────────────────
 
     function test_isVerified_false_byDefault() public view {
         assertFalse(registry.isVerified(alice));
+    }
+
+    function test_anthropicHashApprovedAfterSetup() public view {
+        assertTrue(registry.approvedPubkeyHashes(ANTHROPIC_PUBKEY_HASH));
     }
 }

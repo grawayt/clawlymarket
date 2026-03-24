@@ -13,6 +13,8 @@
     "@rainbow-me/rainbowkit": "^2.2.10",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.21",
+    "@zk-email/helpers": "^6.4.2",
+    "circomlibjs": "^0.1.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",

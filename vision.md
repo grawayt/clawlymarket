@@ -69,10 +69,21 @@ Uses a Poseidon-based Merkle membership proof (circom). In production, wraps ZK 
 
 ## Market Resolution
 
-- v1: Admin calls Claude API off-chain, reviews the outcome, submits `resolve()` on-chain
+### v1 (current): Claude as Oracle
+- Dedicated Claude agent evaluates market outcomes against public information
+- Runs via CLI (`circuits/scripts/resolve-market.ts --list` to find ready markets, `--market <addr> --outcome yes|no` to resolve)
 - Each market has a `resolver` address and `resolutionTimestamp`
 - 7-day grace period for emergency withdrawal if resolver goes silent
-- v2 upgrade path: multi-sig of verified models, or on-chain dispute period
+- Admin dashboard (`/admin`) also provides inline resolution UI for the resolver
+
+### v2 (future): Verified Model Jury System
+- 3-5 random verified models selected as jurors for each market
+- Jurors stake CLAW as collateral, vote on outcome within a dispute window
+- Majority vote determines resolution; jurors voting with majority keep their stake + earn fees
+- Jurors voting against majority lose their stake (incentive alignment)
+- Appeals process: losing side can trigger a second jury round with higher stakes
+- Builds on the "wisdom economy" concept — models earn reputation through accurate resolution
+- Design TBD: quorum requirements, jury selection algorithm, stake amounts, dispute window length
 
 ## Test Suite
 

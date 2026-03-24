@@ -18,11 +18,6 @@ function truncateAddress(addr: string, chars = 6) {
   return `${addr.slice(0, chars + 2)}...${addr.slice(-chars)}`
 }
 
-function truncateHex(hex: string, chars = 10) {
-  if (!hex || hex.length <= chars * 2 + 2) return hex
-  return `${hex.slice(0, chars + 2)}...${hex.slice(-chars)}`
-}
-
 // ---------------------------------------------------------------------------
 // Spinner
 // ---------------------------------------------------------------------------
@@ -200,113 +195,155 @@ function MarketRow({ index, address }: MarketRowProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Merkle Root Management section
+// DKIM Pubkey Hash Management section
 // ---------------------------------------------------------------------------
 
-function MerkleRootSection() {
+const ANTHROPIC_PUBKEY_HASH = 21143687054953386827989663701408810093555362204214086893911788067496102859806n
+
+function PubkeyHashSection() {
   const addrs = useContractAddresses()
   const { writeContractAsync } = useWriteContract()
 
-  const [newRoot, setNewRoot] = useState('')
-  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle')
+  const [hashInput, setHashInput] = useState('')
+  const [addStatus, setAddStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle')
+  const [removeStatus, setRemoveStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
 
-  const { data: currentRoot, refetch } = useReadContract({
+  const { data: anthropicApproved, refetch } = useReadContract({
     address: addrs?.modelRegistry,
     abi: modelRegistryAbi,
-    functionName: 'merkleRoot',
+    functionName: 'approvedPubkeyHashes',
+    args: [ANTHROPIC_PUBKEY_HASH],
     query: { enabled: !!addrs },
   })
 
-  const rootHex = currentRoot != null ? `0x${(currentRoot as bigint).toString(16).padStart(64, '0')}` : null
-
-  const handleCopy = () => {
-    if (rootHex) {
-      navigator.clipboard.writeText(rootHex)
-      setMessage('Copied to clipboard!')
-      setTimeout(() => setMessage(''), 2000)
+  const parseHash = (): bigint | null => {
+    const trimmed = hashInput.trim()
+    if (!trimmed) return null
+    try {
+      return trimmed.startsWith('0x') ? BigInt(trimmed) : BigInt(trimmed)
+    } catch {
+      return null
     }
   }
 
-  const handleUpdate = async () => {
-    if (!addrs || !newRoot.trim()) return
-    setStatus('pending')
-    setMessage('')
-
-    let rootBigInt: bigint
-    try {
-      // Accept 0x-prefixed hex or plain decimal
-      rootBigInt = newRoot.trim().startsWith('0x')
-        ? BigInt(newRoot.trim())
-        : BigInt(newRoot.trim())
-    } catch {
-      setStatus('error')
-      setMessage('Invalid root value — must be a number or 0x-prefixed hex')
+  const handleAdd = async () => {
+    const hash = parseHash()
+    if (!addrs || hash == null) {
+      setIsError(true)
+      setMessage('Invalid hash value — must be a decimal number or 0x-prefixed hex')
       return
     }
-
+    setAddStatus('pending')
+    setMessage('')
+    setIsError(false)
     try {
       await writeContractAsync({
         address: addrs.modelRegistry,
         abi: modelRegistryAbi,
-        functionName: 'updateMerkleRoot',
-        args: [rootBigInt],
+        functionName: 'addApprovedPubkeyHash',
+        args: [hash],
       })
-      setStatus('success')
-      setMessage('Merkle root updated successfully.')
-      setNewRoot('')
+      setAddStatus('success')
+      setMessage('Pubkey hash approved successfully.')
+      setHashInput('')
       refetch()
     } catch (err: any) {
-      setStatus('error')
+      setAddStatus('error')
+      setIsError(true)
       setMessage(err?.shortMessage || err?.message || 'Transaction failed')
     }
   }
 
+  const handleRemove = async () => {
+    const hash = parseHash()
+    if (!addrs || hash == null) {
+      setIsError(true)
+      setMessage('Invalid hash value — must be a decimal number or 0x-prefixed hex')
+      return
+    }
+    setRemoveStatus('pending')
+    setMessage('')
+    setIsError(false)
+    try {
+      await writeContractAsync({
+        address: addrs.modelRegistry,
+        abi: modelRegistryAbi,
+        functionName: 'removeApprovedPubkeyHash',
+        args: [hash],
+      })
+      setRemoveStatus('success')
+      setMessage('Pubkey hash removed.')
+      setHashInput('')
+      refetch()
+    } catch (err: any) {
+      setRemoveStatus('error')
+      setIsError(true)
+      setMessage(err?.shortMessage || err?.message || 'Transaction failed')
+    }
+  }
+
+  const isPending = addStatus === 'pending' || removeStatus === 'pending'
+
   return (
     <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <h2 className="text-lg font-semibold text-gray-100 mb-4">Merkle Root Management</h2>
+      <h2 className="text-lg font-semibold text-gray-100 mb-4">DKIM Pubkey Hash Management</h2>
 
       <div className="mb-5">
-        <p className="text-xs text-gray-500 mb-1">Current Merkle Root</p>
-        {rootHex ? (
-          <div className="flex items-center gap-2 rounded border border-gray-700 bg-gray-950 px-3 py-2">
-            <code className="text-xs text-gray-300 font-mono flex-1 break-all">{rootHex}</code>
-            <button
-              onClick={handleCopy}
-              title="Copy to clipboard"
-              className="text-gray-500 hover:text-gray-200 transition-colors shrink-0 text-xs"
-            >
-              Copy
-            </button>
+        <p className="text-xs text-gray-500 mb-1">Anthropic DKIM Pubkey Hash</p>
+        <div className="rounded border border-gray-700 bg-gray-950 px-3 py-2">
+          <code className="text-xs text-gray-300 font-mono break-all">
+            {ANTHROPIC_PUBKEY_HASH.toString()}
+          </code>
+          <div className="mt-1.5">
+            {anthropicApproved === true && (
+              <span className="text-xs text-green-400">Approved</span>
+            )}
+            {anthropicApproved === false && (
+              <span className="text-xs text-red-400">Not approved</span>
+            )}
+            {anthropicApproved == null && (
+              <span className="text-xs text-gray-500">Loading...</span>
+            )}
           </div>
-        ) : (
-          <p className="text-gray-500 text-sm">Loading...</p>
-        )}
+        </div>
       </div>
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">New Root (decimal or 0x hex)</label>
+          <label className="block text-sm text-gray-400 mb-1">Pubkey Hash (decimal or 0x hex)</label>
           <input
             type="text"
-            value={newRoot}
-            onChange={(e) => setNewRoot(e.target.value)}
-            placeholder="e.g. 0x1a2b... or 123456789"
+            value={hashInput}
+            onChange={(e) => setHashInput(e.target.value)}
+            placeholder="e.g. 21143687... or 0x2e8b..."
             className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 font-mono focus:border-red-500 focus:outline-none"
           />
         </div>
 
-        <button
-          onClick={handleUpdate}
-          disabled={!newRoot.trim() || status === 'pending'}
-          className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          {status === 'pending' && <Spinner />}
-          {status === 'pending' ? 'Burrowing into registry...' : 'Update Root'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleAdd}
+            disabled={!hashInput.trim() || isPending}
+            className="rounded bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {addStatus === 'pending' && <Spinner />}
+            {addStatus === 'pending' ? 'Pinching hash into registry...' : 'Approve Hash'}
+          </button>
+
+          <button
+            onClick={handleRemove}
+            disabled={!hashInput.trim() || isPending}
+            className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {removeStatus === 'pending' && <Spinner />}
+            {removeStatus === 'pending' ? 'Clawing hash out...' : 'Remove Hash'}
+          </button>
+        </div>
 
         {message && (
-          <p className={`text-xs ${status === 'error' ? 'text-red-400' : status === 'success' ? 'text-green-400' : 'text-gray-400'}`}>
+          <p className={`text-xs ${isError ? 'text-red-400' : 'text-green-400'}`}>
             {message}
           </p>
         )}
@@ -419,7 +456,12 @@ export default function Admin() {
     contracts: addrs ? [
       { address: addrs.clawliaToken, abi: clawliaTokenAbi, functionName: 'totalSupply' },
       { address: addrs.marketFactory, abi: marketFactoryAbi, functionName: 'getMarketCount' },
-      { address: addrs.modelRegistry, abi: modelRegistryAbi, functionName: 'merkleRoot' },
+      {
+        address: addrs.modelRegistry,
+        abi: modelRegistryAbi,
+        functionName: 'approvedPubkeyHashes',
+        args: [ANTHROPIC_PUBKEY_HASH],
+      },
     ] : [],
     query: { enabled: !!addrs },
   })
@@ -427,7 +469,7 @@ export default function Admin() {
   const owner = ownerData as `0x${string}` | undefined
   const totalSupply = statsData?.[0]?.result as bigint | undefined
   const marketCount = statsData?.[1]?.result as bigint | undefined
-  const merkleRoot = statsData?.[2]?.result as bigint | undefined
+  const anthropicApproved = statsData?.[2]?.result as boolean | undefined
 
   const isOwner =
     address != null &&
@@ -479,10 +521,6 @@ export default function Admin() {
     )
   }
 
-  const merkleRootHex = merkleRoot != null
-    ? truncateHex(`0x${merkleRoot.toString(16).padStart(64, '0')}`)
-    : '—'
-
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -515,9 +553,15 @@ export default function Admin() {
             {totalSupply != null && <p className="text-xs text-gray-500 mt-0.5">CLAW</p>}
           </div>
           <div className="rounded-lg border border-gray-800 bg-gray-900 p-4 lg:col-span-2">
-            <p className="text-xs text-gray-500 mb-1">Current Merkle Root</p>
+            <p className="text-xs text-gray-500 mb-1">Anthropic DKIM Key</p>
             <p className="text-sm font-mono text-gray-300 break-all">
-              {merkleRootHex}
+              {anthropicApproved === true && (
+                <span className="text-green-400 font-medium">Approved</span>
+              )}
+              {anthropicApproved === false && (
+                <span className="text-red-400 font-medium">Not approved</span>
+              )}
+              {anthropicApproved == null && '—'}
             </p>
           </div>
         </div>
@@ -559,9 +603,9 @@ export default function Admin() {
         </div>
       </section>
 
-      {/* Merkle Root + Whitelist in 2-col grid */}
+      {/* DKIM Pubkey Hash + Whitelist in 2-col grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MerkleRootSection />
+        <PubkeyHashSection />
         <WhitelistSection />
       </div>
     </div>

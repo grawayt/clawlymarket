@@ -20,10 +20,12 @@ contract PlaceholderVerifier {
 }
 
 contract Deploy is Script {
+    // Anthropic's DKIM RSA public key hash (Poseidon). Pre-approved on deployment.
+    uint256 constant ANTHROPIC_PUBKEY_HASH = 21143687054953386827989663701408810093555362204214086893911788067496102859806;
+
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
-        uint256 initialMerkleRoot = vm.envOr("MERKLE_ROOT", uint256(0));
         bool useRealVerifier = vm.envOr("USE_REAL_VERIFIER", false);
 
         console.log("Deployer:", deployer);
@@ -51,10 +53,13 @@ contract Deploy is Script {
         ModelRegistry registry = new ModelRegistry(
             address(token),
             verifierAddr,
-            initialMerkleRoot,
             deployer
         );
         console.log("ModelRegistry:", address(registry));
+
+        // 3a. Approve Anthropic's DKIM pubkey hash so models can prove via ZK Email
+        registry.addApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
+        console.log("Approved Anthropic DKIM pubkey hash:", ANTHROPIC_PUBKEY_HASH);
 
         // 4. Wire token to registry
         token.setModelRegistry(address(registry));

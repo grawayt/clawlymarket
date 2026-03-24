@@ -13,17 +13,57 @@ export const modelRegistryAbi = [
         "internalType": "address"
       },
       {
-        "name": "_initialMerkleRoot",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
         "name": "_owner",
         "type": "address",
         "internalType": "address"
       }
     ],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addApprovedPubkeyHash",
+    "inputs": [
+      {
+        "name": "_hash",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "anthropicPubkeyHash",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "approvedPubkeyHashes",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -53,19 +93,6 @@ export const modelRegistryAbi = [
         "name": "",
         "type": "bool",
         "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "merkleRoot",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -106,6 +133,11 @@ export const modelRegistryAbi = [
         "name": "_nullifier",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "_pubkeyHash",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -132,6 +164,19 @@ export const modelRegistryAbi = [
   },
   {
     "type": "function",
+    "name": "removeApprovedPubkeyHash",
+    "inputs": [
+      {
+        "name": "_hash",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "renounceOwnership",
     "inputs": [],
     "outputs": [],
@@ -145,19 +190,6 @@ export const modelRegistryAbi = [
         "name": "newOwner",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "updateMerkleRoot",
-    "inputs": [
-      {
-        "name": "_newRoot",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -194,25 +226,6 @@ export const modelRegistryAbi = [
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "event",
-    "name": "MerkleRootUpdated",
-    "inputs": [
-      {
-        "name": "oldRoot",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "newRoot",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
   },
   {
     "type": "event",
@@ -253,6 +266,32 @@ export const modelRegistryAbi = [
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "PubkeyHashAdded",
+    "inputs": [
+      {
+        "name": "hash",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PubkeyHashRemoved",
+    "inputs": [
+      {
+        "name": "hash",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AlreadyRegistered",
     "inputs": []
@@ -288,5 +327,10 @@ export const modelRegistryAbi = [
         "internalType": "address"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "UnapprovedPubkeyHash",
+    "inputs": []
   }
 ] as const

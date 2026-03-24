@@ -35,8 +35,11 @@ contract MarketFactoryTest is Test {
         vm.startPrank(owner);
         token = new ClawliaToken(owner);
         verifier = new MockVerifierF();
-        modelRegistry = new ModelRegistry(address(token), address(verifier), 12345, owner);
+        modelRegistry = new ModelRegistry(address(token), address(verifier), owner);
         token.setModelRegistry(address(modelRegistry));
+        // Approve a test pubkey hash so alice can register
+        uint256 testPubkeyHash = 12345;
+        modelRegistry.addApprovedPubkeyHash(testPubkeyHash);
         factory = new MarketFactory(address(token), address(modelRegistry), owner);
         // Whitelist the factory so it can hold CLAW during market creation
         token.whitelistAddress(address(factory));
@@ -50,7 +53,7 @@ contract MarketFactoryTest is Test {
         uint[2] memory pC = [uint(7), uint(8)];
 
         vm.prank(alice);
-        modelRegistry.register(pA, pB, pC, 111);
+        modelRegistry.register(pA, pB, pC, 111, testPubkeyHash);
     }
 
     function test_createMarket() public {
