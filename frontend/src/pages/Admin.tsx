@@ -37,7 +37,35 @@ function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Market row — reads per-market data
+// Status badge
+// ---------------------------------------------------------------------------
+
+function StatusBadge({ resolved, readyToResolve }: { resolved?: boolean; readyToResolve: boolean }) {
+  if (resolved) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-700/50 text-gray-400 border border-gray-600/30">
+        Resolved
+      </span>
+    )
+  }
+  if (readyToResolve) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-500/15 text-yellow-300 border border-yellow-500/25">
+        <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+        Ready to Resolve
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-500/15 text-green-300 border border-green-500/25">
+      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+      Open
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Market row
 // ---------------------------------------------------------------------------
 
 interface MarketRowProps {
@@ -95,68 +123,49 @@ function MarketRow({ index, address }: MarketRowProps) {
 
   if (isLoading) {
     return (
-      <tr className="border-b border-gray-800">
-        <td className="px-4 py-3 text-gray-500">{index + 1}</td>
+      <tr className="border-b border-white/[0.04]">
+        <td className="px-4 py-3 text-gray-600 text-sm">{index + 1}</td>
         <td className="px-4 py-3" colSpan={6}>
-          <div className="h-4 bg-gray-800 rounded animate-pulse w-2/3" />
+          <div className="h-4 bg-gray-800/60 rounded animate-pulse w-2/3" />
         </td>
       </tr>
     )
   }
 
-  let statusBadge: React.ReactNode
-  if (resolved) {
-    statusBadge = (
-      <span className="rounded px-2 py-0.5 text-xs font-medium bg-gray-700 text-gray-300">
-        Resolved
-      </span>
-    )
-  } else if (readyToResolve) {
-    statusBadge = (
-      <span className="rounded px-2 py-0.5 text-xs font-medium bg-yellow-900/60 text-yellow-300 border border-yellow-700">
-        Ready to Resolve
-      </span>
-    )
-  } else {
-    statusBadge = (
-      <span className="rounded px-2 py-0.5 text-xs font-medium bg-green-900/60 text-green-300 border border-green-700">
-        Open
-      </span>
-    )
-  }
-
   return (
     <>
-      <tr className="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
-        <td className="px-4 py-3 text-gray-500 text-sm">{index + 1}</td>
+      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+        <td className="px-4 py-3 text-gray-600 text-sm tabular-nums">{index + 1}</td>
         <td className="px-4 py-3 text-gray-200 text-sm max-w-[260px]">
           <span title={question} className="line-clamp-2">
             {question
               ? question.length > 70
                 ? question.slice(0, 70) + '…'
                 : question
-              : <span className="text-gray-500 italic">—</span>}
+              : <span className="text-gray-600 italic">—</span>}
           </span>
         </td>
-        <td className="px-4 py-3">{statusBadge}</td>
+        <td className="px-4 py-3">
+          <StatusBadge resolved={resolved} readyToResolve={readyToResolve} />
+        </td>
         <td className="px-4 py-3 text-sm">
           {resolved && outcome != null ? (
-            <span className={outcome === 0n ? 'text-green-400 font-medium' : 'text-red-400 font-medium'}>
+            <span className={`font-semibold ${outcome === 0n ? 'text-green-400' : 'text-red-400'}`}>
               {outcome === 0n ? 'YES' : 'NO'}
             </span>
           ) : (
-            <span className="text-gray-500">—</span>
+            <span className="text-gray-700">—</span>
           )}
         </td>
-        <td className="px-4 py-3 text-gray-300 text-sm">
+        <td className="px-4 py-3 text-gray-400 text-sm tabular-nums">
           {totalCollateral != null
             ? `${parseFloat(formatEther(totalCollateral)).toLocaleString()} CLAW`
             : '—'}
         </td>
-        <td className="px-4 py-3 text-gray-400 text-sm">
+        <td className="px-4 py-3 text-gray-500 text-sm">
           {resolutionDate ? resolutionDate.toLocaleDateString() : '—'}
         </td>
-        <td className="px-4 py-3 text-gray-500 text-xs font-mono">
+        <td className="px-4 py-3 text-gray-600 text-xs font-mono">
           {resolver ? truncateAddress(resolver) : '—'}
         </td>
         <td className="px-4 py-3">
@@ -165,28 +174,30 @@ function MarketRow({ index, address }: MarketRowProps) {
               <button
                 onClick={() => handleResolve(0n)}
                 disabled={resolveStatus === 'pending'}
-                className="rounded bg-green-700 hover:bg-green-600 px-2.5 py-1 text-xs font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-green-600/80 hover:bg-green-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 {resolveStatus === 'pending' ? <Spinner className="h-3 w-3" /> : 'YES'}
               </button>
               <button
                 onClick={() => handleResolve(1n)}
                 disabled={resolveStatus === 'pending'}
-                className="rounded bg-red-700 hover:bg-red-600 px-2.5 py-1 text-xs font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-red-600/80 hover:bg-red-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 {resolveStatus === 'pending' ? <Spinner className="h-3 w-3" /> : 'NO'}
               </button>
             </div>
           )}
           {resolveStatus === 'success' && (
-            <span className="text-xs text-green-400">Resolved!</span>
+            <span className="text-xs text-green-400 font-medium">Resolved!</span>
           )}
         </td>
       </tr>
       {resolveStatus === 'error' && resolveError && (
-        <tr className="border-b border-gray-800">
-          <td colSpan={8} className="px-4 pb-2">
-            <p className="text-xs text-red-400 bg-red-900/20 border border-red-800 rounded px-2 py-1">{resolveError}</p>
+        <tr className="border-b border-white/[0.04]">
+          <td colSpan={8} className="px-4 pb-3">
+            <p className="text-xs text-red-400 bg-red-500/[0.07] border border-red-500/25 rounded-lg px-3 py-2">
+              {resolveError}
+            </p>
           </td>
         </tr>
       )}
@@ -195,7 +206,7 @@ function MarketRow({ index, address }: MarketRowProps) {
 }
 
 // ---------------------------------------------------------------------------
-// DKIM Pubkey Hash Management section
+// DKIM Pubkey Hash Management
 // ---------------------------------------------------------------------------
 
 const ANTHROPIC_PUBKEY_HASH = 21143687054953386827989663701408810093555362204214086893911788067496102859806n
@@ -287,24 +298,31 @@ function PubkeyHashSection() {
   const isPending = addStatus === 'pending' || removeStatus === 'pending'
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <h2 className="text-lg font-semibold text-gray-100 mb-4">DKIM Pubkey Hash Management</h2>
+    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+      <h2 className="text-sm font-semibold text-gray-200 mb-5 flex items-center gap-2">
+        <span className="w-1 h-4 rounded-full bg-indigo-500/70 block" />
+        DKIM Pubkey Hash Management
+      </h2>
 
       <div className="mb-5">
-        <p className="text-xs text-gray-500 mb-1">Anthropic DKIM Pubkey Hash</p>
-        <div className="rounded border border-gray-700 bg-gray-950 px-3 py-2">
-          <code className="text-xs text-gray-300 font-mono break-all">
-            {ANTHROPIC_PUBKEY_HASH.toString()}
-          </code>
-          <div className="mt-1.5">
+        <p className="text-xs text-gray-600 mb-2">Anthropic DKIM Pubkey Hash</p>
+        <div className="rounded-lg border border-white/[0.06] bg-[#070710] px-3 py-3">
+          <code className="text-xs text-gray-400 font-mono break-all">{ANTHROPIC_PUBKEY_HASH.toString()}</code>
+          <div className="mt-2">
             {anthropicApproved === true && (
-              <span className="text-xs text-green-400">Approved</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                Approved
+              </span>
             )}
             {anthropicApproved === false && (
-              <span className="text-xs text-red-400">Not approved</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                Not approved
+              </span>
             )}
             {anthropicApproved == null && (
-              <span className="text-xs text-gray-500">Loading...</span>
+              <span className="text-xs text-gray-600">Loading...</span>
             )}
           </div>
         </div>
@@ -312,13 +330,13 @@ function PubkeyHashSection() {
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Pubkey Hash (decimal or 0x hex)</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Pubkey Hash (decimal or 0x hex)</label>
           <input
             type="text"
             value={hashInput}
             onChange={(e) => setHashInput(e.target.value)}
             placeholder="e.g. 21143687... or 0x2e8b..."
-            className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 font-mono focus:border-red-500 focus:outline-none"
+            className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 font-mono placeholder-gray-700 focus:border-red-500/50 focus:outline-none transition-colors"
           />
         </div>
 
@@ -326,7 +344,7 @@ function PubkeyHashSection() {
           <button
             onClick={handleAdd}
             disabled={!hashInput.trim() || isPending}
-            className="rounded bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-lg bg-green-600/80 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {addStatus === 'pending' && <Spinner />}
             {addStatus === 'pending' ? 'Pinching hash into registry...' : 'Approve Hash'}
@@ -335,7 +353,7 @@ function PubkeyHashSection() {
           <button
             onClick={handleRemove}
             disabled={!hashInput.trim() || isPending}
-            className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-lg bg-red-600/80 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {removeStatus === 'pending' && <Spinner />}
             {removeStatus === 'pending' ? 'Clawing hash out...' : 'Remove Hash'}
@@ -343,9 +361,7 @@ function PubkeyHashSection() {
         </div>
 
         {message && (
-          <p className={`text-xs ${isError ? 'text-red-400' : 'text-green-400'}`}>
-            {message}
-          </p>
+          <p className={`text-xs ${isError ? 'text-red-400' : 'text-green-400'}`}>{message}</p>
         )}
       </div>
     </div>
@@ -353,7 +369,7 @@ function PubkeyHashSection() {
 }
 
 // ---------------------------------------------------------------------------
-// Whitelist Management section
+// Whitelist Management
 // ---------------------------------------------------------------------------
 
 function WhitelistSection() {
@@ -397,29 +413,32 @@ function WhitelistSection() {
   }
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <h2 className="text-lg font-semibold text-gray-100 mb-4">Whitelist Management</h2>
-      <p className="text-sm text-gray-400 mb-4">
+    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+      <h2 className="text-sm font-semibold text-gray-200 mb-5 flex items-center gap-2">
+        <span className="w-1 h-4 rounded-full bg-red-500/70 block" />
+        Whitelist Management
+      </h2>
+      <p className="text-sm text-gray-500 mb-5 leading-relaxed">
         Manually whitelist an address so it can hold and transfer CLAW tokens.
-        Infrastructure contracts (markets, factory) are whitelisted automatically.
+        Infrastructure contracts are whitelisted automatically.
       </p>
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Address to whitelist</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Address to whitelist</label>
           <input
             type="text"
             value={addrInput}
             onChange={(e) => setAddrInput(e.target.value)}
             placeholder="0x..."
-            className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 font-mono focus:border-red-500 focus:outline-none"
+            className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 font-mono placeholder-gray-700 focus:border-red-500/50 focus:outline-none transition-colors"
           />
         </div>
 
         <button
           onClick={handleWhitelist}
           disabled={!addrInput.trim() || status === 'pending'}
-          className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 active:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-red-900/20"
         >
           {status === 'pending' && <Spinner />}
           {status === 'pending' ? 'Snapping address to whitelist...' : 'Whitelist Address'}
@@ -444,7 +463,6 @@ export default function Admin() {
   const addrs = useContractAddresses()
   const { markets, isLoading: marketsLoading } = useMarkets()
 
-  // Read owner and system stats
   const { data: ownerData } = useReadContract({
     address: addrs?.clawliaToken,
     abi: clawliaTokenAbi,
@@ -476,121 +494,117 @@ export default function Admin() {
     owner != null &&
     address.toLowerCase() === owner.toLowerCase()
 
-  // ---- Not connected ----
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-gray-400">Connect your wallet to access the admin panel.</p>
+        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
+        <p className="text-gray-500 text-sm">Connect your wallet to access the admin panel.</p>
         <ConnectButton />
       </div>
     )
   }
 
-  // ---- Unsupported network ----
   if (!addrs) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-8 text-center max-w-md">
+        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-8 text-center max-w-md">
           <p className="text-gray-400">Unsupported network.</p>
-          <p className="text-gray-500 text-sm mt-2">Switch to Anvil local, Arbitrum Sepolia, or Arbitrum.</p>
+          <p className="text-gray-600 text-sm mt-2">Switch to Anvil local, Arbitrum Sepolia, or Arbitrum.</p>
         </div>
       </div>
     )
   }
 
-  // ---- Access check ----
   if (owner != null && !isOwner) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <div className="rounded-lg border border-red-800 bg-red-900/20 p-8 text-center max-w-md">
-          <p className="text-red-400 text-lg font-semibold">Admin access required</p>
-          <p className="text-gray-400 text-sm mt-2">
-            This page is restricted to the contract owner.
-          </p>
-          <p className="text-gray-500 text-xs mt-3 font-mono">
-            Owner: {owner ? truncateAddress(owner) : '—'}
-          </p>
-          <p className="text-gray-500 text-xs mt-1 font-mono">
-            You: {address ? truncateAddress(address) : '—'}
-          </p>
+        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
+        <div className="rounded-xl border border-red-500/20 bg-red-500/[0.05] p-8 text-center max-w-md">
+          <p className="text-red-400 text-base font-semibold mb-2">Admin access required</p>
+          <p className="text-gray-500 text-sm">This page is restricted to the contract owner.</p>
+          <div className="mt-4 space-y-1">
+            <p className="text-gray-600 text-xs font-mono">Owner: {owner ? truncateAddress(owner) : '—'}</p>
+            <p className="text-gray-600 text-xs font-mono">You: {address ? truncateAddress(address) : '—'}</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
+      {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">ClawlyMarket system management</p>
+          <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
+          <p className="text-gray-600 text-sm mt-0.5">ClawlyMarket system management</p>
         </div>
-        <span className="text-xs text-gray-500 font-mono bg-gray-900 border border-gray-700 rounded px-3 py-1.5">
+        <span className="text-xs text-gray-500 font-mono bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-1.5">
           {address ? truncateAddress(address) : '—'}
         </span>
       </div>
 
       {/* System Overview */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-100 mb-3">System Overview</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <p className="text-xs text-gray-500 mb-1">Total Markets</p>
-            <p className="text-2xl font-bold text-gray-100">
-              {marketCount != null ? marketCount.toString() : <span className="text-gray-600">—</span>}
-            </p>
-          </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <p className="text-xs text-gray-500 mb-1">Total CLAW Supply</p>
-            <p className="text-2xl font-bold text-gray-100">
-              {totalSupply != null
-                ? `${parseFloat(formatEther(totalSupply)).toLocaleString()}`
-                : <span className="text-gray-600">—</span>}
-            </p>
-            {totalSupply != null && <p className="text-xs text-gray-500 mt-0.5">CLAW</p>}
-          </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-4 lg:col-span-2">
-            <p className="text-xs text-gray-500 mb-1">Anthropic DKIM Key</p>
-            <p className="text-sm font-mono text-gray-300 break-all">
-              {anthropicApproved === true && (
-                <span className="text-green-400 font-medium">Approved</span>
-              )}
-              {anthropicApproved === false && (
-                <span className="text-red-400 font-medium">Not approved</span>
-              )}
-              {anthropicApproved == null && '—'}
-            </p>
-          </div>
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">System Overview</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            {
+              label: 'Total Markets',
+              value: marketCount != null ? marketCount.toString() : '—',
+              accent: 'text-white',
+              border: 'border-l-indigo-500',
+            },
+            {
+              label: 'CLAW Supply',
+              value: totalSupply != null ? parseFloat(formatEther(totalSupply)).toLocaleString() : '—',
+              sub: totalSupply != null ? 'CLAW' : undefined,
+              accent: 'text-white',
+              border: 'border-l-red-500',
+            },
+            {
+              label: 'Anthropic Key',
+              value: anthropicApproved === true ? 'Approved' : anthropicApproved === false ? 'Not Approved' : '—',
+              accent: anthropicApproved === true ? 'text-green-400' : anthropicApproved === false ? 'text-red-400' : 'text-gray-500',
+              border: anthropicApproved === true ? 'border-l-green-500' : 'border-l-gray-700',
+              span: 'lg:col-span-2',
+            },
+          ].map(({ label, value, sub, accent, border, span }) => (
+            <div
+              key={label}
+              className={`rounded-xl border border-white/[0.06] border-l-2 ${border} bg-[#0d0d18] p-4 ${span ?? ''}`}
+            >
+              <p className="text-xs text-gray-600 mb-1">{label}</p>
+              <p className={`text-xl font-bold tabular-nums ${accent}`}>{value}</p>
+              {sub && <p className="text-xs text-gray-600 mt-0.5">{sub}</p>}
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Markets Management */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-100 mb-3">Markets Management</h2>
-        <div className="rounded-lg border border-gray-800 bg-gray-900 overflow-x-auto">
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Markets Management</h2>
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] overflow-x-auto">
           {marketsLoading ? (
-            <div className="p-8 text-center">
-              <p className="text-gray-400 text-sm">Scuttling through markets...</p>
+            <div className="p-8 text-center flex items-center justify-center gap-2 text-gray-600">
+              <Spinner className="h-4 w-4 text-red-500" />
+              <p className="text-sm">Scuttling through markets...</p>
             </div>
           ) : markets.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-gray-500 text-sm">No markets deployed yet.</p>
+              <p className="text-gray-600 text-sm">No markets deployed yet.</p>
             </div>
           ) : (
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">#</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Question</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Outcome</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Collateral</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Resolves</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Resolver</th>
-                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Actions</th>
+                <tr className="border-b border-white/[0.06]">
+                  {['#', 'Question', 'Status', 'Outcome', 'Collateral', 'Resolves', 'Resolver', 'Actions'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-widest whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -603,8 +617,8 @@ export default function Admin() {
         </div>
       </section>
 
-      {/* DKIM Pubkey Hash + Whitelist in 2-col grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* DKIM + Whitelist */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <PubkeyHashSection />
         <WhitelistSection />
       </div>

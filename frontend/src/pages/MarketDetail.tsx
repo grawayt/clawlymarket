@@ -11,6 +11,8 @@ import { TradeHistory } from '../components/markets/TradeHistory'
 import ResolvePanel from '../components/markets/ResolvePanel'
 import { useCaptchaSession } from '../hooks/useCaptcha'
 
+// ── TradePanel ────────────────────────────────────────────────────────────────
+
 function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
   const addrs = useContractAddresses()
   const { isVerified } = useIsVerified()
@@ -23,7 +25,7 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
   const { solving: solvingCaptcha, error: captchaError, ensureSession } = useCaptchaSession()
 
   const [tab, setTab] = useState<'buy' | 'sell'>('buy')
-  const [outcome, setOutcome] = useState<0 | 1>(0) // 0=YES, 1=NO
+  const [outcome, setOutcome] = useState<0 | 1>(0)
   const [amount, setAmount] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -42,14 +44,11 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
     setSuccess('')
 
     try {
-      // Ensure a valid CaptchaGate session before trading.
-      // If already valid this is a no-op; otherwise it auto-solves the challenge.
       await ensureSession()
 
       const parsedAmount = parseEther(amount)
 
       if (tab === 'buy') {
-        // Approve CLAW spend first
         await writeContractAsync({
           address: addrs.clawliaToken,
           abi: clawliaTokenAbi,
@@ -73,130 +72,139 @@ function TradePanel({ marketAddress }: { marketAddress: `0x${string}` }) {
 
   if (!isVerified) {
     return (
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 text-center">
-        <p className="text-gray-400">You must be <Link to="/verify" className="text-red-400 underline">verified</Link> to trade.</p>
+      <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6 text-center">
+        <p className="text-gray-400 text-sm">
+          You must be{' '}
+          <Link to="/verify" className="text-red-400 hover:text-red-300 underline underline-offset-2">
+            verified
+          </Link>{' '}
+          to trade.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setTab('buy')}
-          className={`flex-1 rounded py-2 text-sm font-medium transition-colors ${
-            tab === 'buy' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-          }`}
-        >
-          Buy
-        </button>
-        <button
-          onClick={() => setTab('sell')}
-          className={`flex-1 rounded py-2 text-sm font-medium transition-colors ${
-            tab === 'sell' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-          }`}
-        >
-          Sell
-        </button>
-      </div>
-
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setOutcome(0)}
-          className={`flex-1 rounded py-2 text-sm font-medium transition-colors ${
-            outcome === 0
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-          }`}
-        >
-          YES
-        </button>
-        <button
-          onClick={() => setOutcome(1)}
-          className={`flex-1 rounded py-2 text-sm font-medium transition-colors ${
-            outcome === 1
-              ? 'bg-red-500 text-white'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-          }`}
-        >
-          NO
-        </button>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-xs text-gray-500 mb-1">
-          {tab === 'buy' ? 'Amount (CLAW)' : `Amount (${outcome === 0 ? 'YES' : 'NO'} tokens)`}
-        </label>
-        <input
-          type="number"
-          min="0"
-          step="0.1"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0.0"
-          className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 focus:border-red-500 focus:outline-none"
-        />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>Balance: {parseFloat(clawBalance).toLocaleString()} CLAW</span>
-          {tab === 'sell' && (
-            <span>
-              {outcome === 0 ? 'YES' : 'NO'}: {
-                formatEther((outcome === 0 ? yesBalance : noBalance) ?? 0n)
-              }
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* CAPTCHA session status */}
-      {solvingCaptcha && (
-        <div className="rounded border border-gray-700 bg-gray-800/60 p-2 mb-4 flex items-center gap-2">
-          <svg
-            className="h-3.5 w-3.5 animate-spin text-red-400 shrink-0"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+    <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] overflow-hidden">
+      {/* Buy / Sell tab row */}
+      <div className="flex border-b border-white/[0.06]">
+        {(['buy', 'sell'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex-1 py-3 text-sm font-semibold transition-all duration-150 relative ${
+              tab === t
+                ? 'text-white'
+                : 'text-gray-500 hover:text-gray-300'
+            }`}
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <p className="text-gray-400 text-xs">Verifying AI agent status...</p>
-        </div>
-      )}
+            {t === 'buy' ? 'Buy' : 'Sell'}
+            {tab === t && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] bg-red-500 rounded-full" />
+            )}
+          </button>
+        ))}
+      </div>
 
-      {captchaError && !error && (
-        <div className="rounded border border-red-800 bg-red-900/20 p-2 mb-4">
-          <p className="text-red-400 text-xs">Agent verification failed: {captchaError}</p>
+      <div className="p-5 space-y-4">
+        {/* YES / NO outcome selector */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => setOutcome(0)}
+            className={`rounded-lg py-2.5 text-sm font-semibold transition-all duration-150 border ${
+              outcome === 0
+                ? 'bg-green-600/20 border-green-500/50 text-green-300'
+                : 'bg-white/[0.03] border-white/[0.06] text-gray-500 hover:text-gray-300 hover:bg-white/[0.05]'
+            }`}
+          >
+            YES
+          </button>
+          <button
+            onClick={() => setOutcome(1)}
+            className={`rounded-lg py-2.5 text-sm font-semibold transition-all duration-150 border ${
+              outcome === 1
+                ? 'bg-red-600/20 border-red-500/50 text-red-300'
+                : 'bg-white/[0.03] border-white/[0.06] text-gray-500 hover:text-gray-300 hover:bg-white/[0.05]'
+            }`}
+          >
+            NO
+          </button>
         </div>
-      )}
 
-      {error && (
-        <div className="rounded border border-red-800 bg-red-900/20 p-2 mb-4">
-          <p className="text-red-400 text-xs">{error}</p>
+        {/* Amount input */}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+            {tab === 'buy' ? 'Amount (CLAW)' : `Amount (${outcome === 0 ? 'YES' : 'NO'} tokens)`}
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.0"
+            className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 placeholder-gray-700 focus:border-red-500/50 focus:outline-none focus:bg-[#0a0a18] transition-colors font-mono"
+          />
+          <div className="flex justify-between text-xs text-gray-600 mt-1.5">
+            <span>Balance: {parseFloat(clawBalance).toLocaleString()} CLAW</span>
+            {tab === 'sell' && (
+              <span>
+                {outcome === 0 ? 'YES' : 'NO'}: {formatEther((outcome === 0 ? yesBalance : noBalance) ?? 0n)}
+              </span>
+            )}
+          </div>
         </div>
-      )}
 
-      {success && (
-        <div className="rounded border border-green-800 bg-green-900/20 p-2 mb-4">
-          <p className="text-green-400 text-xs">{success}</p>
-        </div>
-      )}
+        {/* CAPTCHA status */}
+        {solvingCaptcha && (
+          <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/[0.06] p-3 flex items-center gap-2">
+            <svg className="h-3.5 w-3.5 animate-spin text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-indigo-300 text-xs">Verifying AI agent status...</p>
+          </div>
+        )}
 
-      <button
-        onClick={handleTrade}
-        disabled={!amount || parseFloat(amount) <= 0 || isPending || solvingCaptcha}
-        className="w-full rounded bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {solvingCaptcha
-          ? 'Verifying AI agent status...'
-          : isPending
-            ? 'Confirming...'
-            : `${tab === 'buy' ? 'Buy' : 'Sell'} ${outcome === 0 ? 'YES' : 'NO'}`}
-      </button>
+        {captchaError && !error && (
+          <div className="rounded-lg border border-red-500/25 bg-red-500/[0.08] p-3">
+            <p className="text-red-400 text-xs">Agent verification failed: {captchaError}</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-lg border border-red-500/25 bg-red-500/[0.08] p-3">
+            <p className="text-red-400 text-xs">{error}</p>
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-lg border border-green-500/25 bg-green-500/[0.08] p-3">
+            <p className="text-green-400 text-xs">{success}</p>
+          </div>
+        )}
+
+        <button
+          onClick={handleTrade}
+          disabled={!amount || parseFloat(amount) <= 0 || isPending || solvingCaptcha}
+          className={`w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg ${
+            outcome === 0
+              ? 'bg-green-600 hover:bg-green-500 active:bg-green-700 shadow-green-900/25'
+              : 'bg-red-600 hover:bg-red-500 active:bg-red-700 shadow-red-900/25'
+          }`}
+        >
+          {solvingCaptcha
+            ? 'Verifying AI agent status...'
+            : isPending
+              ? 'Confirming...'
+              : `${tab === 'buy' ? 'Buy' : 'Sell'} ${outcome === 0 ? 'YES' : 'NO'}`}
+        </button>
+      </div>
     </div>
   )
 }
+
+// ── MarketDetail ──────────────────────────────────────────────────────────────
 
 export default function MarketDetail() {
   const { address: marketAddress } = useParams<{ address: string }>()
@@ -212,7 +220,13 @@ export default function MarketDetail() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <p className="text-gray-400">Loading market...</p>
+        <div className="flex items-center gap-2 text-gray-500">
+          <svg className="w-4 h-4 animate-spin text-red-500" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-sm">Loading market...</p>
+        </div>
       </div>
     )
   }
@@ -228,8 +242,6 @@ export default function MarketDetail() {
     ? new Date(Number(market.resolutionTimestamp) * 1000)
     : null
 
-  // ResolvePanel visibility: connected wallet === resolver, not yet resolved,
-  // and resolution timestamp has passed.
   const nowSec = Math.floor(Date.now() / 1000)
   const isResolver =
     isConnected &&
@@ -243,83 +255,109 @@ export default function MarketDetail() {
 
   return (
     <div>
-      <Link to="/markets" className="text-sm text-gray-500 hover:text-gray-300 mb-4 inline-block">
-        &larr; Back to Markets
+      {/* Back link */}
+      <Link
+        to="/markets"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-300 mb-5 transition-colors"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to Markets
       </Link>
 
-      <h1 className="text-2xl font-bold mb-6">{market.question}</h1>
+      {/* Market title */}
+      <h1 className="text-xl font-bold text-gray-100 mb-6 leading-snug">{market.question}</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Market info */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Probability bars */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* ── Left: Market info (2/3 width) ── */}
+        <div className="lg:col-span-2 space-y-4">
+
+          {/* Probability display */}
           {market.resolved ? (
-            <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-              <p className="text-sm text-gray-400 mb-2">Resolved</p>
-              <p className="text-3xl font-bold text-green-400">
-                {market.outcome === 0n ? 'YES' : 'NO'}
-              </p>
+            <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-3">Resolution</p>
+              <div className="flex items-center gap-3">
+                <span className="rounded-full bg-gray-700/50 border border-gray-600/30 px-3 py-1 text-xs font-medium text-gray-400">Resolved</span>
+                <span className={`text-3xl font-bold ${market.outcome === 0n ? 'text-green-400' : 'text-red-400'}`}>
+                  {market.outcome === 0n ? 'YES' : 'NO'}
+                </span>
+              </div>
             </div>
           ) : (
-            <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-              <p className="text-sm text-gray-400 mb-3">Implied Probability</p>
-              <div className="flex gap-4 mb-3">
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-green-400 font-medium">YES</span>
-                    <span className="text-green-300 font-bold">{yesPct?.toFixed(1) ?? '--'}%</span>
-                  </div>
-                  <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full transition-all duration-500"
-                      style={{ width: `${yesPct ?? 50}%` }}
-                    />
-                  </div>
+            <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">Implied Probability</p>
+
+              {/* Large probability numbers */}
+              <div className="flex items-baseline gap-6 mb-4">
+                <div>
+                  <span className="text-4xl font-bold tabular-nums text-green-400">
+                    {yesPct?.toFixed(1) ?? '--'}%
+                  </span>
+                  <span className="text-sm font-medium text-green-600 ml-2">YES</span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-red-400 font-medium">NO</span>
-                    <span className="text-red-300 font-bold">{noPct?.toFixed(1) ?? '--'}%</span>
-                  </div>
-                  <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-red-500 rounded-full transition-all duration-500"
-                      style={{ width: `${noPct ?? 50}%` }}
-                    />
-                  </div>
+                <div className="text-gray-700 text-2xl font-light">/</div>
+                <div>
+                  <span className="text-4xl font-bold tabular-nums text-red-400">
+                    {noPct?.toFixed(1) ?? '--'}%
+                  </span>
+                  <span className="text-sm font-medium text-red-600 ml-2">NO</span>
                 </div>
               </div>
+
+              {/* Gradient probability bar */}
+              {yesPct != null && (
+                <div className="h-2.5 w-full rounded-full overflow-hidden bg-gray-800/80">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${yesPct}%`,
+                      background: 'linear-gradient(90deg, #15803d, #22c55e)',
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
           {/* Market details */}
-          <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-            <h2 className="text-sm font-medium text-gray-400 mb-3">Market Details</h2>
-            <dl className="grid grid-cols-2 gap-4 text-sm">
+          <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">Market Details</p>
+            <dl className="grid grid-cols-2 gap-5 text-sm">
               <div>
-                <dt className="text-gray-500">Total Collateral</dt>
-                <dd className="text-gray-200 font-medium">
+                <dt className="text-gray-600 text-xs mb-1">Total Collateral</dt>
+                <dd className="text-gray-200 font-semibold">
                   {market.totalCollateral != null
                     ? `${parseFloat(formatEther(market.totalCollateral)).toLocaleString()} CLAW`
-                    : '--'}
+                    : '—'}
                 </dd>
               </div>
               <div>
-                <dt className="text-gray-500">Resolution Date</dt>
-                <dd className="text-gray-200 font-medium">
-                  {resolutionDate?.toLocaleDateString() ?? '--'}
+                <dt className="text-gray-600 text-xs mb-1">Resolution Date</dt>
+                <dd className="text-gray-200 font-semibold">
+                  {resolutionDate?.toLocaleDateString() ?? '—'}
+                </dd>
+              </div>
+              <div className="col-span-2">
+                <dt className="text-gray-600 text-xs mb-1">Resolver</dt>
+                <dd className="text-gray-400 font-mono text-xs truncate">
+                  {market.resolver ?? '—'}
                 </dd>
               </div>
               <div>
-                <dt className="text-gray-500">Resolver</dt>
-                <dd className="text-gray-200 font-mono text-xs truncate">
-                  {market.resolver ?? '--'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-gray-500">Status</dt>
-                <dd className={`font-medium ${market.resolved ? 'text-gray-400' : 'text-green-400'}`}>
-                  {market.resolved ? 'Resolved' : 'Active'}
+                <dt className="text-gray-600 text-xs mb-1">Status</dt>
+                <dd>
+                  {market.resolved ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                      Resolved
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      Active
+                    </span>
+                  )}
                 </dd>
               </div>
             </dl>
@@ -327,18 +365,26 @@ export default function MarketDetail() {
 
           {/* Your positions */}
           {isConnected && (yesBalance || noBalance) && (
-            <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-              <h2 className="text-sm font-medium text-gray-400 mb-3">Your Positions</h2>
-              <div className="flex gap-4">
-                <div className="flex-1 rounded bg-green-900/20 border border-green-800/40 p-3 text-center">
-                  <p className="text-xs text-green-400">YES tokens</p>
-                  <p className="text-lg font-bold text-green-300">
+            <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">Your Positions</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`rounded-lg p-4 text-center border ${
+                  (yesBalance ?? 0n) > 0n
+                    ? 'bg-green-500/[0.07] border-green-500/20'
+                    : 'bg-white/[0.02] border-white/[0.05]'
+                }`}>
+                  <p className="text-xs font-medium text-green-500 uppercase tracking-wide mb-1">YES tokens</p>
+                  <p className="text-xl font-bold text-green-300 tabular-nums">
                     {parseFloat(formatEther(yesBalance ?? 0n)).toLocaleString()}
                   </p>
                 </div>
-                <div className="flex-1 rounded bg-red-900/20 border border-red-800/40 p-3 text-center">
-                  <p className="text-xs text-red-400">NO tokens</p>
-                  <p className="text-lg font-bold text-red-300">
+                <div className={`rounded-lg p-4 text-center border ${
+                  (noBalance ?? 0n) > 0n
+                    ? 'bg-red-500/[0.07] border-red-500/20'
+                    : 'bg-white/[0.02] border-white/[0.05]'
+                }`}>
+                  <p className="text-xs font-medium text-red-500 uppercase tracking-wide mb-1">NO tokens</p>
+                  <p className="text-xl font-bold text-red-300 tabular-nums">
                     {parseFloat(formatEther(noBalance ?? 0n)).toLocaleString()}
                   </p>
                 </div>
@@ -347,7 +393,7 @@ export default function MarketDetail() {
           )}
         </div>
 
-        {/* Right: Resolve panel (resolver only, when eligible) + Trade panel */}
+        {/* ── Right: Trade panel (1/3 width) ── */}
         <div className="space-y-4">
           {showResolvePanel && (
             <ResolvePanel
@@ -359,15 +405,18 @@ export default function MarketDetail() {
 
           {isConnected ? (
             market.resolved ? (
-              <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 text-center">
-                <p className="text-gray-400">This market has been resolved.</p>
+              <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6 text-center">
+                <p className="text-gray-500 text-sm">This market has been resolved.</p>
               </div>
             ) : (
               <TradePanel marketAddress={typedAddress!} />
             )
           ) : (
-            <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 flex flex-col items-center gap-4">
-              <p className="text-gray-400 text-sm text-center">Connect your wallet to trade</p>
+            <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-6 flex flex-col items-center gap-5">
+              <div className="text-center">
+                <p className="text-gray-300 text-sm font-medium mb-1">Connect wallet to trade</p>
+                <p className="text-gray-600 text-xs">You need a connected wallet to buy or sell positions.</p>
+              </div>
               <ConnectButton />
             </div>
           )}

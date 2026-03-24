@@ -27,31 +27,29 @@ function TradeRow({ trade }: { trade: TradeEvent }) {
   const tokens = parseFloat(formatEther(trade.tokenAmount))
 
   return (
-    <tr className="border-b border-gray-800 hover:bg-gray-800/40 transition-colors">
-      <td className="py-2.5 px-3 text-gray-500 text-xs font-mono">
+    <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+      <td className="py-2.5 px-3 text-gray-600 text-xs font-mono tabular-nums">
         #{trade.blockNumber.toString()}
       </td>
       <td className="py-2.5 px-3">
-        <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
           trade.isBuy
-            ? 'bg-green-900/40 text-green-400 border border-green-800/50'
-            : 'bg-red-900/40 text-red-400 border border-red-800/50'
+            ? 'bg-green-500/10 text-green-400 border-green-500/25'
+            : 'bg-red-500/10 text-red-400 border-red-500/25'
         }`}>
           {type}
         </span>
       </td>
       <td className="py-2.5 px-3">
-        <span className={`text-xs font-medium ${
-          outcome === 'YES' ? 'text-green-400' : 'text-red-400'
-        }`}>
+        <span className={`text-xs font-bold ${outcome === 'YES' ? 'text-green-400' : 'text-red-400'}`}>
           {outcome}
         </span>
       </td>
-      <td className="py-2.5 px-3 text-gray-300 text-xs">
+      <td className="py-2.5 px-3 text-gray-300 text-xs tabular-nums">
         {collateral.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-        <span className="text-gray-500 ml-1">CLAW</span>
+        <span className="text-gray-600 ml-1">CLAW</span>
       </td>
-      <td className="py-2.5 px-3 text-gray-300 text-xs">
+      <td className="py-2.5 px-3 text-gray-400 text-xs tabular-nums">
         {tokens.toLocaleString(undefined, { maximumFractionDigits: 4 })}
       </td>
       <td className="py-2.5 px-3">
@@ -73,41 +71,40 @@ export function TradeHistory({ marketAddress, title = 'Trade History' }: TradeHi
   const visible = showAll ? trades : trades.slice(0, PAGE_SIZE)
   const hasMore = trades.length > PAGE_SIZE && !showAll
 
+  const tableHeaders = ['Block', 'Type', 'Outcome', 'Amount', 'Tokens', 'Tx']
+
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium text-gray-400">{title}</h2>
+    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+          <span className="w-1 h-4 rounded-full bg-indigo-500/70 block" />
+          {title}
+        </h2>
         {trades.length > 0 && (
-          <span className="text-xs text-gray-600">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
+          <span className="text-xs text-gray-700 tabular-nums">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-gray-500 text-sm">Loading trades...</p>
+        <p className="text-gray-600 text-sm">Loading trades...</p>
       ) : error ? (
         <p className="text-red-400 text-sm">Failed to load trade history.</p>
       ) : trades.length === 0 ? (
-        <p className="text-gray-500 text-sm">No trades yet.</p>
+        <p className="text-gray-600 text-sm">No trades yet.</p>
       ) : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Block</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Type</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Outcome</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Amount</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Tokens</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Tx</th>
+                <tr className="border-b border-white/[0.06]">
+                  {tableHeaders.map((h) => (
+                    <th key={h} className="pb-2.5 px-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wide">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {visible.map((trade) => (
-                  <TradeRow
-                    key={`${trade.transactionHash}-${trade.outcomeIndex}`}
-                    trade={trade}
-                  />
+                  <TradeRow key={`${trade.transactionHash}-${trade.outcomeIndex}`} trade={trade} />
                 ))}
               </tbody>
             </table>
@@ -116,7 +113,7 @@ export function TradeHistory({ marketAddress, title = 'Trade History' }: TradeHi
           {hasMore && (
             <button
               onClick={() => setShowAll(true)}
-              className="mt-3 text-xs text-red-400 hover:text-red-300 transition-colors"
+              className="mt-4 text-xs text-red-400 hover:text-red-300 transition-colors"
             >
               Show all {trades.length} trades
             </button>
@@ -139,41 +136,40 @@ export function UserTradeHistory({ marketAddress, title = 'Recent Activity' }: U
   const visible = showAll ? trades : trades.slice(0, PAGE_SIZE)
   const hasMore = trades.length > PAGE_SIZE && !showAll
 
+  const tableHeaders = ['Block', 'Type', 'Outcome', 'Amount', 'Tokens', 'Tx']
+
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">{title}</h2>
+    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+          <span className="w-1 h-4 rounded-full bg-red-500/70 block" />
+          {title}
+        </h2>
         {trades.length > 0 && (
-          <span className="text-xs text-gray-600">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
+          <span className="text-xs text-gray-700 tabular-nums">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-gray-500 text-sm">Loading activity...</p>
+        <p className="text-gray-600 text-sm">Loading activity...</p>
       ) : error ? (
         <p className="text-red-400 text-sm">Failed to load activity.</p>
       ) : trades.length === 0 ? (
-        <p className="text-gray-500 text-sm">No trading activity yet.</p>
+        <p className="text-gray-600 text-sm">No trading activity yet.</p>
       ) : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Block</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Type</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Outcome</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Amount</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Tokens</th>
-                  <th className="pb-2 px-3 text-left text-xs font-medium text-gray-500">Tx</th>
+                <tr className="border-b border-white/[0.06]">
+                  {tableHeaders.map((h) => (
+                    <th key={h} className="pb-2.5 px-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wide">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {visible.map((trade) => (
-                  <TradeRow
-                    key={`${trade.transactionHash}-${trade.outcomeIndex}`}
-                    trade={trade}
-                  />
+                  <TradeRow key={`${trade.transactionHash}-${trade.outcomeIndex}`} trade={trade} />
                 ))}
               </tbody>
             </table>
@@ -182,7 +178,7 @@ export function UserTradeHistory({ marketAddress, title = 'Recent Activity' }: U
           {hasMore && (
             <button
               onClick={() => setShowAll(true)}
-              className="mt-3 text-xs text-red-400 hover:text-red-300 transition-colors"
+              className="mt-4 text-xs text-red-400 hover:text-red-300 transition-colors"
             >
               Show all {trades.length} trades
             </button>

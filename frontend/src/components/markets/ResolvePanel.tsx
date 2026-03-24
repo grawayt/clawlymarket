@@ -59,17 +59,17 @@ export default function ResolvePanel({ marketAddress, question, onResolved }: Re
 
   if (resolved && resolvedOutcome !== null) {
     return (
-      <div className="rounded-lg border border-amber-700 bg-amber-900/20 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-3">
+      <div className="rounded-xl border border-yellow-500/25 bg-yellow-500/[0.06] p-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500 mb-3">
           Resolution submitted
         </p>
-        <p className="text-2xl font-bold text-amber-200">
+        <p className="text-2xl font-bold text-yellow-200">
           Resolved:{' '}
           <span className={resolvedOutcome === 0 ? 'text-green-400' : 'text-red-400'}>
             {outcomeLabel(resolvedOutcome)}
           </span>
         </p>
-        <p className="text-xs text-amber-500 mt-2">
+        <p className="text-xs text-yellow-700 mt-2">
           The market outcome has been recorded on-chain.
         </p>
       </div>
@@ -77,60 +77,52 @@ export default function ResolvePanel({ marketAddress, question, onResolved }: Re
   }
 
   return (
-    <div className="rounded-lg border border-amber-700 bg-amber-900/10 p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-1">
+    <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/[0.04] p-5">
+      <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500 mb-1">
         Resolver controls
       </p>
-      <p className="text-sm text-amber-300 mb-4">
+      <p className="text-sm text-yellow-300/70 mb-4 leading-relaxed">
         You are the resolver for this market. Select the outcome to record on-chain.
       </p>
 
-      {/* Outcome buttons — show confirmation inline */}
       {pendingOutcome === null ? (
         <div className="flex gap-3">
           <button
             onClick={() => handleClickOutcome(0)}
             disabled={isBusy}
-            className="flex-1 rounded border border-green-700 bg-green-900/30 py-3 text-sm font-semibold text-green-300
-              hover:bg-green-800/50 hover:border-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-lg border border-green-500/30 bg-green-500/[0.08] py-3 text-sm font-semibold text-green-300 hover:bg-green-500/15 hover:border-green-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Resolve YES
           </button>
           <button
             onClick={() => handleClickOutcome(1)}
             disabled={isBusy}
-            className="flex-1 rounded border border-red-700 bg-red-900/30 py-3 text-sm font-semibold text-red-300
-              hover:bg-red-800/50 hover:border-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-lg border border-red-500/30 bg-red-500/[0.08] py-3 text-sm font-semibold text-red-300 hover:bg-red-500/15 hover:border-red-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Resolve NO
           </button>
         </div>
       ) : (
-        /* Confirmation dialog */
-        <div className="rounded border border-amber-600 bg-amber-900/30 p-4">
-          <p className="text-sm text-amber-200 mb-1 font-medium">Confirm resolution</p>
-          <p className="text-xs text-amber-400 mb-3 leading-relaxed">
+        <div className="rounded-lg border border-yellow-500/25 bg-yellow-500/[0.07] p-4">
+          <p className="text-sm text-yellow-200 mb-1 font-semibold">Confirm resolution</p>
+          <p className="text-xs text-yellow-400/70 mb-3 leading-relaxed">
             You are about to resolve this market as{' '}
-            <span
-              className={`font-bold ${pendingOutcome === 0 ? 'text-green-400' : 'text-red-400'}`}
-            >
+            <span className={`font-bold ${pendingOutcome === 0 ? 'text-green-400' : 'text-red-400'}`}>
               {outcomeLabel(pendingOutcome)}
             </span>
-            . This action is{' '}
-            <span className="font-bold text-amber-200">irreversible</span>.
+            . This action is <span className="font-bold text-yellow-200">irreversible</span>.
           </p>
-          <p className="text-xs text-amber-500 mb-4 italic truncate">"{question}"</p>
+          <p className="text-xs text-yellow-600 mb-4 italic truncate">"{question}"</p>
 
           <div className="flex gap-2">
             <button
               onClick={handleConfirm}
               disabled={isBusy}
-              className={`flex-1 rounded py-2 text-sm font-semibold text-white transition-colors
-                disabled:opacity-50 disabled:cursor-not-allowed
-                ${pendingOutcome === 0
-                  ? 'bg-green-700 hover:bg-green-600'
-                  : 'bg-red-700 hover:bg-red-600'
-                }`}
+              className={`flex-1 rounded-lg py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                pendingOutcome === 0
+                  ? 'bg-green-600 hover:bg-green-500'
+                  : 'bg-red-600 hover:bg-red-500'
+              }`}
             >
               {isBusy
                 ? isConfirming
@@ -141,8 +133,7 @@ export default function ResolvePanel({ marketAddress, question, onResolved }: Re
             <button
               onClick={() => { setPendingOutcome(null); setError('') }}
               disabled={isBusy}
-              className="rounded border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-400
-                hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm text-gray-400 hover:bg-white/[0.08] hover:text-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
@@ -151,12 +142,12 @@ export default function ResolvePanel({ marketAddress, question, onResolved }: Re
       )}
 
       {error && (
-        <div className="rounded border border-red-800 bg-red-900/20 p-2 mt-3">
+        <div className="rounded-lg border border-red-500/25 bg-red-500/[0.07] p-3 mt-3">
           <p className="text-red-400 text-xs">{error}</p>
         </div>
       )}
 
-      <p className="text-xs text-amber-700 mt-3">
+      <p className="text-xs text-yellow-700/60 mt-3">
         Resolution is permanent and cannot be reversed after submission.
       </p>
     </div>

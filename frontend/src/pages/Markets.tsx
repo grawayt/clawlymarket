@@ -16,6 +16,22 @@ import { marketFactoryAbi } from '../contracts/MarketFactoryAbi'
 type FilterMode = 'all' | 'open' | 'resolved'
 type SortMode = 'newest' | 'liquidity' | 'ending-soon'
 
+// ── Probability bar ───────────────────────────────────────────────────────────
+
+function ProbabilityBar({ yesPct }: { yesPct: number }) {
+  return (
+    <div className="h-1.5 w-full rounded-full overflow-hidden bg-gray-800">
+      <div
+        className="h-full rounded-full transition-all duration-700"
+        style={{
+          width: `${yesPct}%`,
+          background: `linear-gradient(90deg, #16a34a ${Math.max(0, yesPct - 40)}%, #22c55e)`,
+        }}
+      />
+    </div>
+  )
+}
+
 // ── MarketCard ───────────────────────────────────────────────────────────────
 
 function MarketCard({ address }: { address: `0x${string}` }) {
@@ -23,9 +39,10 @@ function MarketCard({ address }: { address: `0x${string}` }) {
 
   if (isLoading || !market?.question) {
     return (
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 animate-pulse">
-        <div className="h-5 bg-gray-800 rounded w-3/4 mb-3" />
-        <div className="h-4 bg-gray-800 rounded w-1/2" />
+      <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-5 animate-pulse">
+        <div className="h-4 bg-gray-800 rounded w-3/4 mb-3" />
+        <div className="h-3 bg-gray-800 rounded w-1/2 mb-4" />
+        <div className="h-1.5 bg-gray-800 rounded w-full" />
       </div>
     )
   }
@@ -38,44 +55,62 @@ function MarketCard({ address }: { address: `0x${string}` }) {
     ? new Date(Number(market.resolutionTimestamp) * 1000)
     : null
 
+  const liquidity =
+    market.totalCollateral != null
+      ? parseFloat(formatEther(market.totalCollateral))
+      : null
+
   return (
     <Link
       to={`/markets/${address}`}
-      className="rounded-lg border border-gray-800 bg-gray-900 p-6 block hover:border-gray-600 transition-colors"
+      className="group rounded-xl border border-white/[0.06] bg-[#0d0d18] p-5 block hover:border-red-500/25 hover:bg-[#110d18] transition-all duration-200"
     >
-      <h3 className="text-lg font-semibold text-gray-100 mb-2">{market.question}</h3>
+      {/* Question */}
+      <h3 className="text-sm font-semibold text-gray-100 mb-3 leading-snug line-clamp-2 group-hover:text-white transition-colors">
+        {market.question}
+      </h3>
 
       {isResolved ? (
-        <div className="flex items-center gap-2 mb-3">
-          <span className="rounded bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-300">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="rounded-full bg-gray-700/60 border border-gray-600/40 px-2.5 py-0.5 text-xs font-medium text-gray-400">
             Resolved
           </span>
-          <span className="text-sm font-medium text-green-400">
+          <span className={`text-sm font-bold ${market.outcome === 0n ? 'text-green-400' : 'text-red-400'}`}>
             {market.outcome === 0n ? 'YES' : 'NO'}
           </span>
         </div>
       ) : (
-        <div className="flex gap-3 mb-3">
-          <div className="flex-1 rounded bg-green-900/30 border border-green-800/50 px-3 py-2 text-center">
-            <p className="text-xs text-green-400">YES</p>
-            <p className="text-lg font-bold text-green-300">{yesPct?.toFixed(1) ?? '--'}%</p>
+        <div className="mb-4">
+          {/* YES / NO percentage chips */}
+          <div className="flex items-baseline justify-between mb-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs font-medium text-green-500 uppercase tracking-wide">YES</span>
+              <span className="text-xl font-bold text-green-400 tabular-nums">
+                {yesPct?.toFixed(1) ?? '--'}%
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl font-bold text-red-400 tabular-nums">
+                {noPct?.toFixed(1) ?? '--'}%
+              </span>
+              <span className="text-xs font-medium text-red-500 uppercase tracking-wide">NO</span>
+            </div>
           </div>
-          <div className="flex-1 rounded bg-red-900/30 border border-red-800/50 px-3 py-2 text-center">
-            <p className="text-xs text-red-400">NO</p>
-            <p className="text-lg font-bold text-red-300">{noPct?.toFixed(1) ?? '--'}%</p>
-          </div>
+          {/* Gradient probability bar */}
+          {yesPct != null && <ProbabilityBar yesPct={yesPct} />}
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs text-gray-500">
-        <span>
-          Liquidity:{' '}
-          {market.totalCollateral != null
-            ? `${parseFloat(formatEther(market.totalCollateral)).toLocaleString()} CLAW`
-            : '--'}
+      {/* Footer */}
+      <div className="flex items-center justify-between text-xs text-gray-600 border-t border-white/[0.04] pt-3 mt-1">
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          {liquidity != null ? `${liquidity.toLocaleString()} CLAW` : '—'}
         </span>
         {resolutionDate && (
-          <span>Resolves: {resolutionDate.toLocaleDateString()}</span>
+          <span>{resolutionDate.toLocaleDateString()}</span>
         )}
       </div>
     </Link>
@@ -132,54 +167,57 @@ function CreateMarketForm({ onClose, onCreated }: { onClose: () => void; onCreat
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-lg w-full">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#0d0d18] border border-white/[0.08] rounded-xl p-6 max-w-lg w-full shadow-2xl shadow-black/50">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Create Market</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl">
+          <h2 className="text-lg font-bold text-gray-100">Create Market</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg border border-white/[0.07] bg-white/[0.04] text-gray-400 hover:text-gray-200 hover:bg-white/[0.08] transition-colors flex items-center justify-center text-lg leading-none"
+          >
             &times;
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Question</label>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">Question</label>
             <input
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Will X happen by Y date?"
-              className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 focus:border-red-500 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 placeholder-gray-700 focus:border-red-500/60 focus:outline-none focus:bg-[#0a0a18] transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Days until resolution</label>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">Days until resolution</label>
             <input
               type="number"
               min="1"
               value={daysUntilResolution}
               onChange={(e) => setDaysUntilResolution(e.target.value)}
-              className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 focus:border-red-500 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 focus:border-red-500/60 focus:outline-none focus:bg-[#0a0a18] transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Initial liquidity (CLAW)</label>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">Initial liquidity (CLAW)</label>
             <input
               type="number"
               min="1"
               value={liquidity}
               onChange={(e) => setLiquidity(e.target.value)}
-              className="w-full rounded border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 focus:border-red-500 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 focus:border-red-500/60 focus:outline-none focus:bg-[#0a0a18] transition-colors"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Your balance: {parseFloat(clawBalance).toLocaleString()} CLAW
+            <p className="text-xs text-gray-600 mt-1.5">
+              Balance: {parseFloat(clawBalance).toLocaleString()} CLAW
             </p>
           </div>
 
           {error && (
-            <div className="rounded border border-red-800 bg-red-900/20 p-2">
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
               <p className="text-red-400 text-xs">{error}</p>
             </div>
           )}
@@ -187,7 +225,7 @@ function CreateMarketForm({ onClose, onCreated }: { onClose: () => void; onCreat
           <button
             onClick={handleCreate}
             disabled={!question.trim() || isPending || parseFloat(liquidity) <= 0}
-            className="w-full rounded bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 active:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-red-900/20"
           >
             {isPending ? 'Creating...' : 'Create Market'}
           </button>
@@ -198,8 +236,6 @@ function CreateMarketForm({ onClose, onCreated }: { onClose: () => void; onCreat
 }
 
 // ── MarketSummaryLoader ──────────────────────────────────────────────────────
-// Invisible component that fetches summary data for one market address and
-// calls onReady once loaded, so Markets can collect summaries for filtering.
 
 function MarketSummaryLoader({
   address,
@@ -210,7 +246,6 @@ function MarketSummaryLoader({
 }) {
   const { summary, isLoading } = useMarketSummary(address)
 
-  // Call onReady whenever summary is available — parent de-dupes by address
   if (!isLoading && summary?.question !== undefined) {
     onReady(summary)
   }
@@ -227,17 +262,14 @@ export default function Markets() {
   const addrs = useContractAddresses()
   const [showCreate, setShowCreate] = useState(false)
 
-  // Search / filter / sort state
   const [search, setSearch] = useState('')
   const [filterMode, setFilterMode] = useState<FilterMode>('all')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
 
-  // Collected summaries keyed by address (filled by MarketSummaryLoader children)
   const [summaries, setSummaries] = useState<Record<string, MarketSummary>>({})
 
   const handleSummaryReady = (summary: MarketSummary) => {
     setSummaries((prev) => {
-      // Avoid re-render if data is identical
       const existing = prev[summary.address]
       if (
         existing &&
@@ -252,12 +284,9 @@ export default function Markets() {
     })
   }
 
-  // Build filtered + sorted address list
   const filteredAddresses = useMemo(() => {
-    // If summaries aren't loaded yet, preserve original order
     const list = [...markets]
 
-    // Apply search filter (case-insensitive substring)
     const searchTrimmed = search.trim().toLowerCase()
     const afterSearch = searchTrimmed
       ? list.filter((addr) => {
@@ -266,7 +295,6 @@ export default function Markets() {
         })
       : list
 
-    // Apply status filter
     const afterFilter = afterSearch.filter((addr) => {
       if (filterMode === 'all') return true
       const resolved = summaries[addr]?.resolved
@@ -275,24 +303,19 @@ export default function Markets() {
       return true
     })
 
-    // Apply sort
     const sorted = [...afterFilter].sort((a, b) => {
       const sa = summaries[a]
       const sb = summaries[b]
 
       if (sortMode === 'newest') {
-        // Original array order descending (last created = highest index = first shown)
         return markets.indexOf(b) - markets.indexOf(a)
       }
-
       if (sortMode === 'liquidity') {
         const la = sa?.totalCollateral ?? 0n
         const lb = sb?.totalCollateral ?? 0n
         return lb > la ? 1 : lb < la ? -1 : 0
       }
-
       if (sortMode === 'ending-soon') {
-        // Unresolved only; resolved markets sink to bottom
         const ra = sa?.resolved ?? false
         const rb = sb?.resolved ?? false
         if (ra && !rb) return 1
@@ -301,7 +324,6 @@ export default function Markets() {
         const tb = sb?.resolutionTimestamp ?? 0n
         return ta < tb ? -1 : ta > tb ? 1 : 0
       }
-
       return 0
     })
 
@@ -316,24 +338,31 @@ export default function Markets() {
     setSortMode('newest')
   }
 
-  // ── pill helpers ────────────────────────────────────────────────────────────
   const filterPillClass = (active: boolean) =>
-    `px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+    `px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer ${
       active
-        ? 'bg-red-600 text-white border-red-600'
-        : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-gray-300'
+        ? 'bg-red-600 text-white border-red-600 shadow-sm shadow-red-900/30'
+        : 'bg-white/[0.03] text-gray-400 border-white/[0.07] hover:border-white/15 hover:text-gray-300 hover:bg-white/[0.06]'
     }`
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Markets</h1>
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between mb-7">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-100">Markets</h1>
+          {markets.length > 0 && (
+            <p className="text-sm text-gray-500 mt-0.5">{markets.length} market{markets.length !== 1 ? 's' : ''} deployed</p>
+          )}
+        </div>
         {isConnected && isVerified && (
           <button
             onClick={() => setShowCreate(true)}
-            className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors"
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 active:bg-red-700 transition-colors shadow-lg shadow-red-900/20 flex items-center gap-2"
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             Create Market
           </button>
         )}
@@ -347,30 +376,19 @@ export default function Markets() {
         />
       )}
 
-      {/* Invisible summary loaders — only mount when markets are available */}
+      {/* Invisible summary loaders */}
       {markets.map((addr) => (
         <MarketSummaryLoader key={addr} address={addr} onReady={handleSummaryReady} />
       ))}
 
-      {/* Search + filter controls (only shown when there are markets) */}
+      {/* Search + filter controls */}
       {!isLoading && markets.length > 0 && addrs && (
         <div className="mb-6 space-y-3">
           {/* Search bar */}
           <div className="relative">
-            <span className="absolute inset-y-0 left-3 flex items-center text-gray-500 pointer-events-none">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                />
+            <span className="absolute inset-y-0 left-3.5 flex items-center text-gray-600 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
               </svg>
             </span>
             <input
@@ -378,21 +396,14 @@ export default function Markets() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search markets…"
-              className="w-full rounded border border-gray-700 bg-gray-900 pl-9 pr-4 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-red-500 focus:outline-none"
+              className="w-full rounded-lg border border-white/[0.07] bg-[#0d0d18] pl-10 pr-10 py-2.5 text-sm text-gray-200 placeholder-gray-700 focus:border-red-500/50 focus:outline-none focus:bg-[#0f0f1c] transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-300"
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600 hover:text-gray-400 transition-colors"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -401,33 +412,16 @@ export default function Markets() {
 
           {/* Filter pills + sort dropdown */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            {/* Filter pills */}
             <div className="flex items-center gap-2">
-              <button
-                className={filterPillClass(filterMode === 'all')}
-                onClick={() => setFilterMode('all')}
-              >
-                All
-              </button>
-              <button
-                className={filterPillClass(filterMode === 'open')}
-                onClick={() => setFilterMode('open')}
-              >
-                Open
-              </button>
-              <button
-                className={filterPillClass(filterMode === 'resolved')}
-                onClick={() => setFilterMode('resolved')}
-              >
-                Resolved
-              </button>
+              <button className={filterPillClass(filterMode === 'all')} onClick={() => setFilterMode('all')}>All</button>
+              <button className={filterPillClass(filterMode === 'open')} onClick={() => setFilterMode('open')}>Open</button>
+              <button className={filterPillClass(filterMode === 'resolved')} onClick={() => setFilterMode('resolved')}>Resolved</button>
             </div>
 
-            {/* Sort dropdown */}
             <select
               value={sortMode}
               onChange={(e) => setSortMode(e.target.value as SortMode)}
-              className="rounded border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-300 focus:border-red-500 focus:outline-none cursor-pointer"
+              className="rounded-lg border border-white/[0.07] bg-[#0d0d18] px-3 py-1.5 text-xs text-gray-400 focus:border-red-500/50 focus:outline-none cursor-pointer"
             >
               <option value="newest">Newest</option>
               <option value="liquidity">Most Liquidity</option>
@@ -437,43 +431,45 @@ export default function Markets() {
         </div>
       )}
 
-      {/* Main content area */}
+      {/* Main content */}
       {!addrs ? (
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-12 text-center">
-          <p className="text-gray-400 text-lg">Unsupported network</p>
-          <p className="text-gray-500 text-sm mt-2">
-            Switch to a supported network (Anvil local, Arbitrum Sepolia, or Arbitrum) to see
-            markets.
-          </p>
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-12 text-center">
+          <p className="text-gray-400 text-base font-medium">Unsupported network</p>
+          <p className="text-gray-600 text-sm mt-2">Switch to Anvil local, Arbitrum Sepolia, or Arbitrum to see markets.</p>
         </div>
       ) : isLoading ? (
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-12 text-center">
-          <p className="text-gray-400">Loading markets...</p>
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-12 text-center">
+          <div className="flex items-center justify-center gap-2 text-gray-500">
+            <svg className="w-4 h-4 animate-spin text-red-500" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-sm">Loading markets...</p>
+          </div>
         </div>
       ) : markets.length === 0 ? (
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-12 text-center">
-          <p className="text-gray-400 text-lg">No markets yet.</p>
-          <p className="text-gray-500 text-sm mt-2">
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-12 text-center">
+          <p className="text-gray-300 text-base font-medium mb-2">No markets yet.</p>
+          <p className="text-gray-600 text-sm">
             {isVerified
               ? 'Click "Create Market" to launch the first prediction market.'
               : 'Verify your identity to create and trade on markets.'}
           </p>
         </div>
       ) : filteredAddresses.length === 0 ? (
-        /* Empty state for active filters */
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-12 text-center">
-          <p className="text-gray-400 text-lg">No markets match your filters.</p>
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-12 text-center">
+          <p className="text-gray-400 text-base font-medium mb-4">No markets match your filters.</p>
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="mt-4 rounded border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-gray-300 hover:border-gray-500 hover:text-gray-100 transition-colors"
+              className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-white/[0.07] transition-colors"
             >
               Clear filters
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredAddresses.map((addr) => (
             <MarketCard key={addr} address={addr} />
           ))}

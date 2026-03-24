@@ -15,7 +15,7 @@ import {
 import { UserTradeHistory } from '../components/markets/TradeHistory'
 import { TransferPanel } from '../components/token/TransferPanel'
 
-// ---- helpers ----
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function truncateAddr(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`
@@ -25,7 +25,7 @@ function fmtClaw(n: number) {
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
-// ---- stats bar ----
+// ── Stats bar ─────────────────────────────────────────────────────────────────
 
 interface StatsBarProps {
   clawBalance: number
@@ -45,38 +45,59 @@ function StatsBar({
   isLoading,
 }: StatsBarProps) {
   const totalValue = clawBalance + totalPositionValue
+
+  const stats = [
+    {
+      label: 'Total Value',
+      value: isLoading ? '…' : fmtClaw(totalValue),
+      sub: 'CLAW',
+      accent: 'text-white',
+      border: 'border-l-indigo-500',
+      bg: 'bg-indigo-500/[0.04]',
+    },
+    {
+      label: 'Active Positions',
+      value: String(activePositionCount),
+      sub: 'open markets',
+      accent: 'text-sky-400',
+      border: 'border-l-sky-500',
+      bg: 'bg-sky-500/[0.04]',
+    },
+    {
+      label: 'Markets Won',
+      value: String(totalWins),
+      sub: 'resolved',
+      accent: 'text-green-400',
+      border: 'border-l-green-500',
+      bg: 'bg-green-500/[0.04]',
+    },
+    {
+      label: 'Markets Lost',
+      value: String(totalLosses),
+      sub: 'resolved',
+      accent: 'text-red-400',
+      border: 'border-l-red-500',
+      bg: 'bg-red-500/[0.04]',
+    },
+  ]
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <p className="text-xs text-gray-400 mb-1">Total Value</p>
-        <p className="text-xl font-bold text-white">
-          {isLoading ? '…' : fmtClaw(totalValue)}
-        </p>
-        <p className="text-xs text-gray-500 mt-0.5">CLAW</p>
-      </div>
-
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <p className="text-xs text-gray-400 mb-1">Active Positions</p>
-        <p className="text-xl font-bold text-white">{activePositionCount}</p>
-        <p className="text-xs text-gray-500 mt-0.5">open markets</p>
-      </div>
-
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <p className="text-xs text-gray-400 mb-1">Markets Won</p>
-        <p className="text-xl font-bold text-green-400">{totalWins}</p>
-        <p className="text-xs text-gray-500 mt-0.5">resolved</p>
-      </div>
-
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-        <p className="text-xs text-gray-400 mb-1">Markets Lost</p>
-        <p className="text-xl font-bold text-red-400">{totalLosses}</p>
-        <p className="text-xs text-gray-500 mt-0.5">resolved</p>
-      </div>
+      {stats.map(({ label, value, sub, accent, border, bg }) => (
+        <div
+          key={label}
+          className={`rounded-xl border border-white/[0.06] border-l-2 ${border} ${bg} p-4`}
+        >
+          <p className="text-xs text-gray-500 mb-1">{label}</p>
+          <p className={`text-2xl font-bold tabular-nums ${accent}`}>{value}</p>
+          <p className="text-xs text-gray-600 mt-0.5">{sub}</p>
+        </div>
+      ))}
     </div>
   )
 }
 
-// ---- active position card ----
+// ── Active position card ──────────────────────────────────────────────────────
 
 function ActivePositionCard({
   marketAddress,
@@ -89,14 +110,13 @@ function ActivePositionCard({
   const { yesBalance, noBalance } = useMarketPositions(marketAddress)
   const stats = useMarketStats(marketAddress)
 
-  // Report stats to parent via stable callback (mutates a ref, no re-render loop)
   if (stats) onStats(stats)
 
   const hasYes = yesBalance != null && yesBalance > 0n
   const hasNo = noBalance != null && noBalance > 0n
 
   if (!hasYes && !hasNo) return null
-  if (market?.resolved) return null // resolved positions shown in separate section
+  if (market?.resolved) return null
 
   const yesProbBps = market?.probability?.[0]
   const yesPct = yesProbBps != null ? Number(yesProbBps) / 100 : null
@@ -105,40 +125,53 @@ function ActivePositionCard({
   return (
     <Link
       to={`/markets/${marketAddress}`}
-      className="rounded-lg border border-gray-800 bg-gray-900 p-4 block hover:border-gray-600 transition-colors"
+      className="group rounded-xl border border-white/[0.06] bg-[#0d0d18] p-4 block hover:border-red-500/20 hover:bg-[#110d18] transition-all duration-200"
     >
-      <h3 className="text-sm font-medium text-gray-200 mb-3 line-clamp-2">
+      <h3 className="text-sm font-medium text-gray-200 mb-3 line-clamp-2 group-hover:text-white transition-colors">
         {market?.question ?? 'Loading…'}
       </h3>
 
-      <div className="flex gap-3 mb-3">
+      <div className="flex gap-2 mb-3">
         {hasYes && (
-          <div className="flex-1 rounded bg-green-900/20 border border-green-800/40 px-3 py-2 text-center">
-            <p className="text-xs text-green-400">YES</p>
-            <p className="text-sm font-bold text-green-300">
+          <div className="flex-1 rounded-lg bg-green-500/[0.07] border border-green-500/20 px-3 py-2 text-center">
+            <p className="text-xs font-medium text-green-500 uppercase tracking-wide">YES</p>
+            <p className="text-sm font-bold text-green-300 tabular-nums mt-0.5">
               {parseFloat(formatEther(yesBalance)).toLocaleString()}
             </p>
             {yesPct != null && (
-              <p className="text-xs text-gray-500">{yesPct.toFixed(1)}%</p>
+              <p className="text-xs text-gray-600 mt-0.5">{yesPct.toFixed(1)}%</p>
             )}
           </div>
         )}
         {hasNo && (
-          <div className="flex-1 rounded bg-red-900/20 border border-red-800/40 px-3 py-2 text-center">
-            <p className="text-xs text-red-400">NO</p>
-            <p className="text-sm font-bold text-red-300">
+          <div className="flex-1 rounded-lg bg-red-500/[0.07] border border-red-500/20 px-3 py-2 text-center">
+            <p className="text-xs font-medium text-red-500 uppercase tracking-wide">NO</p>
+            <p className="text-sm font-bold text-red-300 tabular-nums mt-0.5">
               {parseFloat(formatEther(noBalance)).toLocaleString()}
             </p>
             {yesPct != null && (
-              <p className="text-xs text-gray-500">{(100 - yesPct).toFixed(1)}%</p>
+              <p className="text-xs text-gray-600 mt-0.5">{(100 - yesPct).toFixed(1)}%</p>
             )}
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-gray-800 pt-2">
-        <span className="text-xs text-gray-500">Est. value</span>
-        <span className="text-xs font-semibold text-gray-300">
+      {/* Probability bar */}
+      {yesPct != null && (
+        <div className="h-1 w-full rounded-full overflow-hidden bg-gray-800 mb-3">
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${yesPct}%`,
+              background: 'linear-gradient(90deg, #15803d, #22c55e)',
+            }}
+          />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between border-t border-white/[0.04] pt-2.5">
+        <span className="text-xs text-gray-600">Est. value</span>
+        <span className="text-xs font-semibold text-gray-300 tabular-nums">
           {fmtClaw(currentValue)} CLAW
         </span>
       </div>
@@ -146,7 +179,7 @@ function ActivePositionCard({
   )
 }
 
-// ---- resolved position card ----
+// ── Resolved position card ────────────────────────────────────────────────────
 
 function ResolvedPositionCard({ marketAddress }: { marketAddress: `0x${string}` }) {
   const { market } = useMarketData(marketAddress)
@@ -158,7 +191,6 @@ function ResolvedPositionCard({ marketAddress }: { marketAddress: `0x${string}` 
   if (!market?.resolved) return null
   if (!hasYes && !hasNo) return null
 
-  // outcome 0n = YES wins, 1n = NO wins
   const outcomeIsYes = market.outcome === 0n
   const userWon = (outcomeIsYes && hasYes) || (!outcomeIsYes && hasNo)
   const winningBalance = outcomeIsYes ? (yesBalance ?? 0n) : (noBalance ?? 0n)
@@ -167,25 +199,25 @@ function ResolvedPositionCard({ marketAddress }: { marketAddress: `0x${string}` 
   return (
     <Link
       to={`/markets/${marketAddress}`}
-      className="rounded-lg border border-gray-800 bg-gray-900 p-4 block hover:border-gray-600 transition-colors"
+      className="group rounded-xl border bg-[#0d0d18] p-4 block transition-all duration-200 hover:bg-[#0f0f1c] ${userWon ? 'border-green-500/15 hover:border-green-500/25' : 'border-white/[0.06] hover:border-white/10'}"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="text-sm font-medium text-gray-200 line-clamp-2 flex-1">
+        <h3 className="text-sm font-medium text-gray-200 line-clamp-2 flex-1 group-hover:text-white transition-colors">
           {market.question ?? 'Loading…'}
         </h3>
         <span
-          className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded ${
+          className={`shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${
             userWon
-              ? 'bg-green-900/40 text-green-400 border border-green-700/50'
-              : 'bg-red-900/40 text-red-400 border border-red-700/50'
+              ? 'bg-green-500/15 text-green-400 border border-green-500/25'
+              : 'bg-red-500/15 text-red-400 border border-red-500/25'
           }`}
         >
           {userWon ? 'WON' : 'LOST'}
         </span>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-        <span>Resolved: {outcomeIsYes ? 'YES' : 'NO'}</span>
+      <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+        <span>Resolved: <span className={outcomeIsYes ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>{outcomeIsYes ? 'YES' : 'NO'}</span></span>
         {userWon && payoutEst > 0 && (
           <span className="text-green-400 font-semibold">
             +{fmtClaw(payoutEst)} CLAW
@@ -193,7 +225,7 @@ function ResolvedPositionCard({ marketAddress }: { marketAddress: `0x${string}` 
         )}
       </div>
 
-      <div className="flex gap-3 text-xs text-gray-500">
+      <div className="flex gap-3 text-xs text-gray-600">
         {hasYes && (
           <span>YES: {parseFloat(formatEther(yesBalance)).toLocaleString()}</span>
         )}
@@ -205,17 +237,17 @@ function ResolvedPositionCard({ marketAddress }: { marketAddress: `0x${string}` 
   )
 }
 
-// ---- transfer row ----
+// ── Transfer row ──────────────────────────────────────────────────────────────
 
 function TransferRow({ t }: { t: TransferRecord }) {
   const isSent = t.direction === 'sent'
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-800 last:border-0">
+    <div className="flex items-center gap-3 py-3 border-b border-white/[0.04] last:border-0">
       <div
-        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+        className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 ${
           isSent
-            ? 'bg-red-900/30 text-red-400 border border-red-800/40'
-            : 'bg-green-900/30 text-green-400 border border-green-800/40'
+            ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+            : 'bg-green-500/10 text-green-400 border border-green-500/20'
         }`}
       >
         {isSent ? '↑' : '↓'}
@@ -224,32 +256,39 @@ function TransferRow({ t }: { t: TransferRecord }) {
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-300 font-mono">
           {isSent ? (
-            <>
-              <span className="text-gray-500">To </span>
-              {truncateAddr(t.to)}
-            </>
+            <><span className="text-gray-600">To </span>{truncateAddr(t.to)}</>
           ) : (
-            <>
-              <span className="text-gray-500">From </span>
-              {truncateAddr(t.from)}
-            </>
+            <><span className="text-gray-600">From </span>{truncateAddr(t.from)}</>
           )}
         </p>
-        <p className="text-xs text-gray-600 font-mono truncate">{t.txHash.slice(0, 18)}…</p>
+        <p className="text-xs text-gray-700 font-mono truncate mt-0.5">{t.txHash.slice(0, 18)}…</p>
       </div>
 
       <div className="text-right shrink-0">
-        <p className={`text-sm font-bold ${isSent ? 'text-red-400' : 'text-green-400'}`}>
-          {isSent ? '-' : '+'}
-          {t.amount}
+        <p className={`text-sm font-bold tabular-nums ${isSent ? 'text-red-400' : 'text-green-400'}`}>
+          {isSent ? '-' : '+'}{t.amount}
         </p>
-        <p className="text-xs text-gray-500">CLAW</p>
+        <p className="text-xs text-gray-600">CLAW</p>
       </div>
     </div>
   )
 }
 
-// ---- main page ----
+// ── Section wrapper ───────────────────────────────────────────────────────────
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6 mb-5">
+      <h2 className="text-sm font-semibold text-gray-200 mb-5 flex items-center gap-2">
+        <span className="w-1 h-4 rounded-full bg-red-500/70 block" />
+        {title}
+      </h2>
+      {children}
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Portfolio() {
   const { isConnected, address } = useAccount()
@@ -257,8 +296,6 @@ export default function Portfolio() {
   const { clawBalance, markets, isLoading: baseLoading } = usePortfolioBase()
   const { transfers, isLoading: transfersLoading, error: transfersError } = useClawliaTransfers()
 
-  // Collect per-market stats from child cards into a ref so writes don't
-  // trigger re-renders. Aggregates are computed in a memo keyed on markets.
   const statsRef = useRef<Map<`0x${string}`, PositionStats>>(new Map())
 
   useMemo(() => {
@@ -288,8 +325,8 @@ export default function Portfolio() {
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-3xl font-bold">Portfolio</h1>
-        <p className="text-gray-400">Connect your wallet to view your portfolio.</p>
+        <h1 className="text-2xl font-bold text-gray-100">Portfolio</h1>
+        <p className="text-gray-500 text-sm">Connect your wallet to view your portfolio.</p>
         <ConnectButton />
       </div>
     )
@@ -297,7 +334,7 @@ export default function Portfolio() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Portfolio</h1>
+      <h1 className="text-2xl font-bold text-gray-100 mb-7">Portfolio</h1>
 
       {/* Stats bar */}
       <StatsBar
@@ -310,36 +347,41 @@ export default function Portfolio() {
       />
 
       {/* Balance + verification */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-          <p className="text-sm text-gray-400">CLAW Balance</p>
-          <p className="text-3xl font-bold mt-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">CLAW Balance</p>
+          <p className="text-3xl font-bold text-white tabular-nums">
             {baseLoading ? '…' : fmtClaw(clawBalance)}
           </p>
-          <p className="text-xs text-gray-500 mt-2 font-mono">
+          <p className="text-xs text-gray-600 mt-2 font-mono">
             {address?.slice(0, 6)}…{address?.slice(-4)}
           </p>
           {totalPositionValue > 0 && (
-            <p className="text-xs text-gray-400 mt-1">
-              + {fmtClaw(totalPositionValue)} CLAW in open positions
+            <p className="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+              <span className="text-indigo-400">+</span>
+              <span>{fmtClaw(totalPositionValue)} CLAW in open positions</span>
             </p>
           )}
         </div>
 
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-          <p className="text-sm text-gray-400">Verification Status</p>
-          <p
-            className={`text-lg font-medium mt-1 ${
-              verLoading
-                ? 'text-gray-500'
-                : isVerified
-                  ? 'text-green-400'
-                  : 'text-yellow-400'
-            }`}
-          >
-            {verLoading ? 'Checking…' : isVerified ? 'Verified' : 'Not Verified'}
-          </p>
-          <p className="text-xs text-gray-500 mt-2">
+        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-2">Verification Status</p>
+          <div className="flex items-center gap-2 mt-1">
+            {verLoading ? (
+              <span className="text-gray-500 text-base font-medium">Checking…</span>
+            ) : isVerified ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-green-400 text-base font-semibold">Verified</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500" />
+                <span className="text-yellow-400 text-base font-semibold">Not Verified</span>
+              </>
+            )}
+          </div>
+          <p className="text-xs text-gray-600 mt-3 leading-relaxed">
             {isVerified
               ? 'You are verified and can create markets and trade'
               : 'Complete verification to receive 1,000 CLAW'}
@@ -347,7 +389,7 @@ export default function Portfolio() {
         </div>
       </div>
 
-      {/* Send CLAW — only shown to verified users */}
+      {/* Send CLAW */}
       {isVerified && (
         <div className="mb-6">
           <TransferPanel clawBalance={clawBalance} />
@@ -355,19 +397,18 @@ export default function Portfolio() {
       )}
 
       {/* Active positions */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Active Positions</h2>
+      <Section title="Active Positions">
         {markets.length === 0 ? (
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-600 text-sm">
             No markets exist yet.{' '}
-            <Link to="/markets" className="text-red-400 underline">
+            <Link to="/markets" className="text-red-400 hover:text-red-300 underline underline-offset-2">
               Create one
             </Link>{' '}
             to get started.
           </p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {markets.map((addr) => (
                 <ActivePositionCard
                   key={addr}
@@ -377,9 +418,9 @@ export default function Portfolio() {
               ))}
             </div>
             {activePositionCount === 0 && (
-              <p className="text-gray-500 text-sm mt-3">
+              <p className="text-gray-600 text-sm mt-4">
                 No open positions found.{' '}
-                <Link to="/markets" className="text-red-400 underline">
+                <Link to="/markets" className="text-red-400 hover:text-red-300 underline underline-offset-2">
                   Browse markets
                 </Link>{' '}
                 to start trading.
@@ -387,42 +428,34 @@ export default function Portfolio() {
             )}
           </>
         )}
-      </div>
+      </Section>
 
       {/* Resolved positions */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Resolved Positions</h2>
+      <Section title="Resolved Positions">
         {markets.length === 0 ? (
-          <p className="text-gray-500 text-sm">No resolved markets yet.</p>
+          <p className="text-gray-600 text-sm">No resolved markets yet.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {markets.map((addr) => (
                 <ResolvedPositionCard key={addr} marketAddress={addr} />
               ))}
             </div>
             {totalWins === 0 && totalLosses === 0 && (
-              <p className="text-gray-500 text-sm mt-3">No resolved positions yet.</p>
+              <p className="text-gray-600 text-sm mt-4">No resolved positions yet.</p>
             )}
           </>
         )}
-      </div>
+      </Section>
 
-      {/* Recent CLAW token transfers */}
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent CLAW Transfers</h2>
-          {transfers.length > 0 && (
-            <span className="text-xs text-gray-600">last {transfers.length}</span>
-          )}
-        </div>
-
+      {/* Recent CLAW transfers */}
+      <Section title="Recent CLAW Transfers">
         {transfersLoading ? (
-          <p className="text-gray-500 text-sm">Loading transfers…</p>
+          <p className="text-gray-600 text-sm">Loading transfers…</p>
         ) : transfersError ? (
           <p className="text-red-400 text-sm">Failed to load transfer history.</p>
         ) : transfers.length === 0 ? (
-          <p className="text-gray-500 text-sm">No CLAW transfer history found.</p>
+          <p className="text-gray-600 text-sm">No CLAW transfer history found.</p>
         ) : (
           <div>
             {transfers.map((t) => (
@@ -430,9 +463,9 @@ export default function Portfolio() {
             ))}
           </div>
         )}
-      </div>
+      </Section>
 
-      {/* User trade activity (all markets) */}
+      {/* User trade activity */}
       <UserTradeHistory />
     </div>
   )
