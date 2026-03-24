@@ -13,6 +13,7 @@ import {
   type TransferRecord,
 } from '../hooks/usePortfolioStats'
 import { UserTradeHistory } from '../components/markets/TradeHistory'
+import { TransferPanel } from '../components/token/TransferPanel'
 
 // ---- helpers ----
 
@@ -345,6 +346,13 @@ export default function Portfolio() {
           </p>
         </div>
       </div>
+
+      {/* Send CLAW — only shown to verified users */}
+      {isVerified && (
+        <div className="mb-6">
+          <TransferPanel clawBalance={clawBalance} />
+        </div>
+      )}
 
       {/* Active positions */}
       <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 mb-6">
