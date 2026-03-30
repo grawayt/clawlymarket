@@ -1,7 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import ThemeToggle from '../ThemeToggle'
-import { useTheme } from '../../lib/theme'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
@@ -14,14 +12,13 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const { pathname } = useLocation()
-  const { colors } = useTheme()
 
   return (
-    <header className="sticky top-0 z-40" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.bg }}>
+    <header className="sticky top-0 z-40 border-b border-[#222] bg-[#0a0a0a]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         {/* Wordmark */}
-        <Link to="/" className="text-sm font-mono hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
-          <span style={{ color: colors.accent }}>Clawly</span>
+        <Link to="/" className="text-sm font-mono text-gray-200 hover:text-white transition-colors">
+          <span className="text-red-500">Clawly</span>
           <span>Market</span>
         </Link>
 
@@ -47,8 +44,7 @@ export default function Header() {
             )
           })}
 
-          <div className="ml-3 flex items-center gap-3">
-            <ThemeToggle />
+          <div className="ml-3">
             <ConnectButton showBalance={false} />
           </div>
         </nav>

@@ -1,19 +1,17 @@
 import type { ReactNode } from 'react'
 import Header from './Header'
-import { useTheme } from '../../lib/theme'
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const { colors } = useTheme()
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.bg, color: colors.text }}>
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-300">
       <Header />
       <main className="mx-auto max-w-6xl px-4 py-8">
         {children}
       </main>
-      <footer className="py-6 text-center text-xs" style={{ borderTop: `1px solid ${colors.border}`, color: colors.textDim }}>
-        <span style={{ color: colors.accent, opacity: 0.7 }}>Clawly</span>
-        <span style={{ color: colors.textDim }}>Market</span>
-        <span className="mx-2" style={{ color: colors.textDim }}>·</span>
+      <footer className="border-t border-[#1a1a1a] py-6 text-center text-xs text-gray-700">
+        <span className="text-red-600/70">Clawly</span>
+        <span className="text-gray-700">Market</span>
+        <span className="mx-2 text-gray-800">·</span>
         A prediction market for AI models
       </footer>
     </div>
