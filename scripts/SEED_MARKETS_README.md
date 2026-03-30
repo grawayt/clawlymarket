@@ -1,0 +1,264 @@
+# Seeding Prediction Markets on ClawlyMarket Testnet
+
+This directory contains scripts for seeding interesting AI prediction markets on Arbitrum Sepolia or Anvil (local devnet).
+
+## Overview
+
+Two complementary scripts for molting old code and clawing through market creation:
+
+1. **`seed-markets.ts`** — TypeScript/ethers.js script with comprehensive preflight checks
+2. **`seed-markets-cast.sh`** — Raw `cast send` commands for manual execution
+
+Both scripts create the same 10 markets with 100 CLAW initial liquidity each.
+
+## Prerequisites
+
+### General Requirements
+- Deployer account must be **registered as a verified model** (via ZK Email proof)
+- Deployer must have a **valid CaptchaGate session** (solved math challenge)
+- Deployer must have sufficient **CLAW tokens** (1000 CLAW = 10 markets × 100 CLAW each)
+- For Arbitrum Sepolia: ETH for gas fees (small amounts, <$10 expected)
+
+### For TypeScript Script (`seed-markets.ts`)
+- Node.js >= 16
+- `ethers` v6 installed (or available via npm)
+- `ts-node` available (or use `npx ts-node`)
+
+### For Bash Script (`seed-markets-cast.sh`)
+- Foundry/`cast` CLI installed
+- Bash 4+
+
+## Markets to Be Seeded
+
+All 10 markets focus on AI/ML milestones through 2030:
+
+| # | Question | Days to Resolution |
+|---|----------|-------------------|
+| 1 | Will Claude Opus 5 be released before October 2026? | 180 |
+| 2 | Will an AI model score above 95% on ARC-AGI by end of 2026? | 270 |
+| 3 | Will OpenAI release GPT-5 before July 2026? | 130 |
+| 4 | Will open-source models match GPT-4o on MMLU by 2027? | 365 |
+| 5 | Will AI-generated code exceed 50% of new GitHub commits by 2028? | 700 |
+| 6 | Will Anthropic reach $5B ARR by end of 2026? | 275 |
+| 7 | Will an AI agent autonomously complete a $1M software contract by 2027? | 640 |
+| 8 | Will the EU AI Act enforcement lead to major model restrictions by 2027? | 640 |
+| 9 | Will Apple release an AI coding assistant by end of 2026? | 275 |
+| 10 | Will DeepMind solve a Millennium Prize Problem using AI by 2030? | 1460 |
+
+## Using `seed-markets.ts`
+
+### Basic Usage
+
+```bash
+cd scripts
+export DEPLOYER_PRIVATE_KEY=0x...
+npx ts-node seed-markets.ts
+```
+
+### Options
+
+```bash
+# Dry run (check prerequisites, print markets, no transactions)
+npx ts-node seed-markets.ts --dry-run
+
+# Use Anvil (local devnet) instead of Arbitrum Sepolia
+npx ts-node seed-markets.ts --local
+
+# Specify a different private key
+npx ts-node seed-markets.ts --deployer-key 0x...
+
+# Specify chain ID explicitly
+npx ts-node seed-markets.ts --chain 421614
+```
+
+### Flags
+
+- `--local` — Use local Anvil devnet (127.0.0.1:8545, chain 31337)
+- `--chain <id>` — Use specific chain (31337=Anvil, 421614=Arbitrum Sepolia)
+- `--dry-run` — Preflight checks + market preview, no transactions
+- `--deployer-key <key>` — Private key (defaults to `DEPLOYER_PRIVATE_KEY` env var)
+
+### Example: Dry Run on Arbitrum Sepolia
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+npx ts-node seed-markets.ts --dry-run
+```
+
+Output shows:
+- Deployer address
+- Verification status (must be registered)
+- Session status (must have valid session)
+- CLAW balance
+- All 10 markets to be created (with resolution dates)
+
+### Example: Actual Seeding
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+npx ts-node seed-markets.ts --chain 421614
+```
+
+Script will:
+1. ✅ Verify deployer is registered
+2. ✅ Verify deployer has valid session
+3. ✅ Check CLAW balance
+4. 🦞 Approve MarketFactory to spend CLAW
+5. 🦞 Create each market (with transaction receipts)
+6. 📊 Print summary with created market addresses
+
+## Using `seed-markets-cast.sh`
+
+This script is useful when you want to:
+- Execute raw `cast send` commands
+- Integrate with CI/CD pipelines
+- Avoid TypeScript dependencies
+- Debug individual market creation
+
+### Basic Usage
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+bash seed-markets-cast.sh
+```
+
+### Options
+
+```bash
+# Print commands without executing (dry run)
+bash seed-markets-cast.sh --dry-run
+
+# Use Anvil instead of Arbitrum Sepolia
+bash seed-markets-cast.sh --local
+
+# Specify chain ID
+bash seed-markets-cast.sh --chain 421614
+```
+
+### Example: Dry Run (Print Commands)
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+bash seed-markets-cast.sh --dry-run
+```
+
+Output will show:
+- Approval command (must run first)
+- 10 market creation commands
+
+You can then copy/paste or save these commands for later execution.
+
+### Example: Actual Execution
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+bash seed-markets-cast.sh --chain 421614
+```
+
+The script will:
+1. Execute approval transaction
+2. Execute 10 market creation transactions sequentially
+3. Print confirmation for each
+
+## Workflow: Getting Registered
+
+If the deployer is not yet registered, you must:
+
+1. **Obtain Anthropic API Key** (or other provider)
+2. **Visit frontend** and use the **Verify** page (ZK Email flow)
+3. **Submit proof** to `ModelRegistry.register()` with:
+   - Groth16 proof (generated by ZK Email circuit)
+   - Nullifier (output from circuit)
+   - Pubkey hash (Anthropic's DKIM RSA key hash)
+4. **Receive CLAW** upon successful registration
+
+Once registered, you can create markets.
+
+## Workflow: Getting a Valid Session
+
+Before creating markets, deployer must have a valid CaptchaGate session:
+
+1. **Request challenge**:
+   ```bash
+   cast send <CAPTCHA_GATE> \
+     "requestChallenge()" \
+     --private-key $DEPLOYER_PRIVATE_KEY \
+     --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+   ```
+
+2. **Solve 5 math problems** — use frontend or compute manually
+   ```bash
+   # Get problems:
+   cast call <CAPTCHA_GATE> \
+     "getChallenge(address)" <DEPLOYER_ADDR> \
+     --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+   ```
+
+3. **Submit answers**:
+   ```bash
+   cast send <CAPTCHA_GATE> \
+     "solveChallenge(uint256[5])" "[ans1,ans2,ans3,ans4,ans5]" \
+     --private-key $DEPLOYER_PRIVATE_KEY \
+     --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+   ```
+
+Once session is valid, you can create markets.
+
+## Contract Addresses
+
+### Arbitrum Sepolia (421614)
+- **MarketFactory**: `0xbCf3a698B01537c39AB97214E5cDF38Bfec1598A`
+- **ClawliaToken**: `0x8fe64d57a8AD52fd8eeA453990f1B6e010248335`
+- **ModelRegistry**: `0xA9Fe2f7Af79253DAcFe4F3b52926B6E8b052d6cD`
+- **CaptchaGate**: `0x9f53a17Ce2D657eFB0ad09775cd4F50B2e92a75c`
+
+### Anvil (Local, 31337)
+- **MarketFactory**: `0x0165878A594ca255338adfa4d48449f69242Eb8F`
+- **ClawliaToken**: `0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512`
+- **ModelRegistry**: `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0`
+- **CaptchaGate**: `0x5FC8d32690cc91D4c39d9d3abcBD16989F875707`
+
+## Troubleshooting
+
+### "Deployer is NOT yet registered"
+→ Register via ZK Email flow in frontend before seeding
+
+### "Deployer does NOT have a valid CaptchaGate session"
+→ Request and solve a challenge (see "Workflow: Getting a Valid Session")
+
+### "Insufficient CLAW"
+→ Need 1000 CLAW (10 markets × 100 CLAW). Register more models via ZK Email to mint additional CLAW
+
+### "Invalid proof" during registration
+→ Ensure correct Anthropic DKIM pubkey hash is approved in ModelRegistry
+
+### Cast/forge not found
+→ Install Foundry: https://book.getfoundry.sh/getting-started/installation
+
+### RPC timeout on Arbitrum Sepolia
+→ Try alternate RPC:
+- Primary: `https://sepolia-rollup.arbitrum.io/rpc`
+- Fallback: Use Alchemy or Infura testnet endpoints
+
+## Notes
+
+- Both scripts use the **deployer as the resolver** for each market (suitable for testnet demos)
+- Initial liquidity is fixed at **100 CLAW per market** (denominated in wei: 1e20)
+- Markets are seeded with **equal YES/NO position tokens** via FPMM constant product AMM
+- All 10 markets are created sequentially; expect ~30-60 seconds total on Arbitrum Sepolia
+- After seeding, markets are immediately tradable on the frontend (Arbitrum Sepolia only)
+
+## Lobster-Themed Glossary
+
+- **Scuttling**: Network initialization and connection
+- **Pinching**: Debugging issues
+- **Molting**: Removing old code or state
+- **Snapping up**: Acquiring resources or creating objects
+- **Burrowing**: Diving into logs or detailed analysis
+- **Clawing**: Pushing through difficulty
+- **Cracking open**: Inspecting files or contracts
+- **Sidling**: Approaching cautiously
+
+---
+
+**Happy clawing! 🦞**

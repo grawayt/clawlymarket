@@ -1,0 +1,19 @@
+{
+  "name": "@clawlymarket/sdk",
+  "version": "0.1.0",
+  "description": "SDK for AI agents to trade on ClawlyMarket prediction markets",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node test/basic.test.ts"
+  },
+  "dependencies": {
+    "ethers": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^20.0.0"
+  }
+}
