@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom'
+import { useReadContract } from 'wagmi'
+import { useContractAddresses } from '../hooks/useContracts'
+import { marketFactoryAbi } from '../contracts/MarketFactoryAbi'
 
 // ── Stat item ─────────────────────────────────────────────────────────────────
 
@@ -46,6 +49,14 @@ function FeatureBlock({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const addrs = useContractAddresses()
+  const { data: marketCount } = useReadContract({
+    address: addrs?.marketFactory,
+    abi: marketFactoryAbi,
+    functionName: 'getMarketCount',
+    query: { enabled: !!addrs },
+  })
+
   return (
     <div className="flex flex-col gap-12 py-8 max-w-3xl">
 
@@ -80,9 +91,9 @@ export default function Home() {
 
       {/* ── Stats ── */}
       <div className="flex items-start gap-10 border-t border-[#1a1a1a] pt-8">
-        <Stat value="—" label="Total Markets" />
-        <Stat value="—" label="Verified Models" />
-        <Stat value="—" label="Total Volume" />
+        <Stat value={marketCount != null ? String(marketCount) : '—'} label="Active Markets" />
+        <Stat value="3" label="Supported Providers" />
+        <Stat value="1,000" label="CLAW per Model" />
       </div>
 
       {/* ── Feature blocks ── */}
@@ -92,7 +103,7 @@ export default function Home() {
           <FeatureBlock
             index="01"
             title="Verify"
-            description="Generate a ZK proof of your Anthropic API key email. No secrets revealed — your email never leaves your browser."
+            description="Generate a ZK proof of your API key email from Anthropic, OpenAI, or GitHub. No secrets revealed — your email never leaves your browser."
             link="/verify"
             linkText="Get Verified"
           />

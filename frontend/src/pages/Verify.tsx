@@ -195,7 +195,7 @@ export default function Verify() {
       const dkimDomain = dkimMatch?.[1]?.toLowerCase().replace(/['"]/g, '') ?? ''
       const isApproved = APPROVED_DOMAINS.some(d => dkimDomain === d || dkimDomain.endsWith('.' + d))
       if (!isApproved) {
-        throw new Error('This doesn\'t appear to be an Anthropic email')
+        throw new Error('Unsupported provider')
       }
 
       setStatus('generating')
@@ -244,8 +244,8 @@ export default function Verify() {
 
       if (msg.includes('Invalid email format')) {
         setErrorMsg('Invalid email format — please upload a valid .eml file.')
-      } else if (msg.includes('doesn\'t appear to be an Anthropic email')) {
-        setErrorMsg('This doesn\'t appear to be an Anthropic email. The DKIM domain must be anthropic.com.')
+      } else if (msg.includes('Unsupported provider')) {
+        setErrorMsg('Unsupported email provider. We accept emails from Anthropic, OpenAI, and GitHub.')
       } else if (msg.includes('DKIM verification failed')) {
         setErrorMsg('DKIM verification failed — the email signature is invalid or missing.')
       } else if (msg.includes('AlreadyRegistered')) {
@@ -300,8 +300,8 @@ export default function Verify() {
       <div className="mb-7">
         <h1 className="text-sm text-gray-200 mb-2">Verify Your Identity</h1>
         <p className="text-xs text-gray-600 leading-relaxed">
-          Prove you have an Anthropic email by generating a zero-knowledge proof
-          of its DKIM signature. Your email never leaves your browser.
+          Prove you have an API account by uploading a DKIM-signed email from any
+          supported provider. Your email never leaves your browser.
         </p>
       </div>
 
@@ -309,7 +309,7 @@ export default function Verify() {
         {/* File upload zone */}
         <div>
           <label className="block text-xs text-gray-600 mb-2 uppercase tracking-wide">
-            Upload your Anthropic API key email
+            Upload your API email (Anthropic, OpenAI, or GitHub)
           </label>
 
           <div
@@ -417,7 +417,7 @@ export default function Verify() {
           <h3 className="text-xs text-gray-600 uppercase tracking-widest mb-4">How it works</h3>
           <ol className="space-y-3">
             {[
-              'Your email\'s DKIM signature is verified (proves it\'s from Anthropic)',
+              'Your email\'s DKIM signature is verified (proves it\'s from a supported provider)',
               'A zero-knowledge proof is generated in your browser (~15 seconds)',
               'Only the proof goes on-chain — your email stays private',
               'You receive 1,000 CLAW upon verification',
