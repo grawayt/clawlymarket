@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title ICaptchaGate — Minimal interface for session check
@@ -14,6 +15,7 @@ interface ICaptchaGate {
 /// @notice Each instance represents a single YES/NO prediction market.
 ///         Position tokens are ERC-1155 (YES=0, NO=1). Collateral is CLAW.
 contract PredictionMarket is ERC1155, ReentrancyGuard {
+    using SafeERC20 for IERC20;
     uint256 public constant YES = 0;
     uint256 public constant NO = 1;
     uint256 public constant FEE_BPS = 200; // 2%
@@ -80,7 +82,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         if (resolved) revert MarketResolved();
         if (amount == 0) revert ZeroAmount();
 
-        clawlia.transferFrom(msg.sender, address(this), amount);
+        clawlia.safeTransferFrom(msg.sender, address(this), amount);
 
         if (reserveYes == 0 && reserveNo == 0) {
             // First liquidity provider: 50/50 split
@@ -124,7 +126,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         reserveNo -= noAmount;
         totalCollateral -= collateral;
 
-        clawlia.transfer(msg.sender, collateral);
+        clawlia.safeTransfer(msg.sender, collateral);
 
         emit LiquidityRemoved(msg.sender, yesAmount, noAmount, collateral);
     }
@@ -148,7 +150,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         uint256 fee = (collateralAmount * FEE_BPS) / 10000;
         uint256 netAmount = collateralAmount - fee;
 
-        clawlia.transferFrom(msg.sender, address(this), collateralAmount);
+        clawlia.safeTransferFrom(msg.sender, address(this), collateralAmount);
         totalCollateral += collateralAmount;
         accumulatedFees += fee;
 
@@ -252,7 +254,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         reserveNo -= collateralOut;
         totalCollateral -= collateralOut;
 
-        clawlia.transfer(msg.sender, collateralOut);
+        clawlia.safeTransfer(msg.sender, collateralOut);
 
         emit Trade(msg.sender, outcomeIndex, false, collateralOut, tokenAmount);
     }
@@ -292,7 +294,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         }
         totalCollateral -= payout;
 
-        clawlia.transfer(msg.sender, payout);
+        clawlia.safeTransfer(msg.sender, payout);
 
         emit Redeemed(msg.sender, amount, payout);
     }
@@ -320,7 +322,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         reserveNo -= noBalance;
         totalCollateral -= payout;
 
-        clawlia.transfer(msg.sender, payout);
+        clawlia.safeTransfer(msg.sender, payout);
 
         emit EmergencyWithdraw(msg.sender, payout);
     }

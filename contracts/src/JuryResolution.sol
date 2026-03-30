@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 /// @title IPredictionMarket — Minimal interface for jury-driven resolution
@@ -13,9 +14,11 @@ interface IPredictionMarket {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 }
 
-/// @title IModelRegistry — Minimal interface for verification check
+/// @title IModelRegistry — Minimal interface for verification check and enumeration
 interface IModelRegistry {
     function isVerified(address model) external view returns (bool);
+    function getRegisteredModelCount() external view returns (uint256);
+    function getRegisteredModel(uint256 index) external view returns (address);
 }
 
 /// @title JuryResolution — Jury-based resolution system for ClawlyMarket prediction markets
@@ -23,6 +26,8 @@ interface IModelRegistry {
 ///         required). A 3-of-5 majority vote triggers automatic market resolution. Jurors
 ///         who hold any position in a market are ineligible to serve as its jurors.
 contract JuryResolution is Ownable {
+    using SafeERC20 for IERC20;
+
     // ── Constants ────────────────────────────────────────────────────
 
     uint256 public constant PANEL_SIZE = 5;
@@ -77,6 +82,7 @@ contract JuryResolution is Ownable {
     error VotingWindowClosed();
     error InvalidOutcome();
     error InsufficientFeeBalance();
+    error NotEnoughEligibleJurors();
 
     // ── Events ───────────────────────────────────────────────────────
 
@@ -130,12 +136,14 @@ contract JuryResolution is Ownable {
     // ── Resolution Request ───────────────────────────────────────────
 
     /// @notice Convene a jury for a market that is past its resolution timestamp.
-    /// @dev Anyone may call this. The caller proposes the five jurors, but each
-    ///      must pass eligibility checks. The JuryResolution contract must be set as
-    ///      the `resolver` on the PredictionMarket for the final call to succeed.
+    /// @dev Anyone may call this. Jurors are selected pseudo-randomly from the pool of
+    ///      registered models — the caller has no influence over who is selected.
+    ///      Privileged jurors (trusted Haiku instances) are included first; remaining
+    ///      slots are filled from the registry using a blockhash-seeded shuffle.
+    ///      The JuryResolution contract must be set as the `resolver` on the
+    ///      PredictionMarket for the final call to succeed.
     /// @param market   Address of the PredictionMarket to resolve
-    /// @param jurors   Proposed panel of exactly 5 jurors
-    function requestResolution(address market, address[5] calldata jurors) external {
+    function requestResolution(address market) external {
         IPredictionMarket pm = IPredictionMarket(market);
 
         // Market must be past its resolution timestamp
@@ -147,22 +155,44 @@ contract JuryResolution is Ownable {
         // A panel can only be convened once per market
         if (panelExists[market]) revert PanelAlreadyExists();
 
-        // Validate every proposed juror
-        for (uint256 i = 0; i < PANEL_SIZE; i++) {
-            address juror = jurors[i];
+        address[PANEL_SIZE] memory selected;
+        uint256 filledCount = 0;
 
-            // No duplicate jurors in the panel
-            for (uint256 j = 0; j < i; j++) {
-                if (jurors[j] == juror) revert DuplicateJuror(juror);
+        uint256 modelCount = modelRegistry.getRegisteredModelCount();
+
+        // ── Pass 1: fill slots with privileged jurors (up to PANEL_SIZE) ──────
+        // Iterate the registry list and pick privileged, eligible addresses first.
+        for (uint256 idx = 0; idx < modelCount && filledCount < PANEL_SIZE; idx++) {
+            address candidate = modelRegistry.getRegisteredModel(idx);
+            if (!privilegedJurors[candidate]) continue;
+            if (_holdsPosition(pm, candidate)) continue;
+            if (_alreadySelected(selected, filledCount, candidate)) continue;
+            selected[filledCount] = candidate;
+            filledCount++;
+        }
+
+        // ── Pass 2: fill remaining slots with pseudo-random selection ──────────
+        uint256 salt = 0;
+        while (filledCount < PANEL_SIZE) {
+            bytes32 seed = keccak256(abi.encodePacked(blockhash(block.number - 1), market, salt));
+            salt++;
+            uint256 startIndex = uint256(seed) % modelCount;
+
+            bool foundAny = false;
+            for (uint256 offset = 0; offset < modelCount; offset++) {
+                uint256 idx = (startIndex + offset) % modelCount;
+                address candidate = modelRegistry.getRegisteredModel(idx);
+                if (privilegedJurors[candidate]) continue; // already handled in pass 1
+                if (_holdsPosition(pm, candidate)) continue;
+                if (_alreadySelected(selected, filledCount, candidate)) continue;
+
+                selected[filledCount] = candidate;
+                filledCount++;
+                foundAny = true;
+                break;
             }
 
-            // Must be registered in ModelRegistry
-            if (!modelRegistry.isVerified(juror)) revert JurorNotVerified(juror);
-
-            // Must not hold any position tokens in this market
-            if (pm.balanceOf(juror, YES) > 0 || pm.balanceOf(juror, NO) > 0) {
-                revert JurorHoldsPosition(juror);
-            }
+            if (!foundAny) revert NotEnoughEligibleJurors();
         }
 
         // Initialise the panel
@@ -171,12 +201,29 @@ contract JuryResolution is Ownable {
         panel.votingDeadline = block.timestamp + votingWindow;
 
         for (uint256 i = 0; i < PANEL_SIZE; i++) {
-            panel.jurors[i] = jurors[i];
+            panel.jurors[i] = selected[i];
         }
 
         panelExists[market] = true;
 
-        emit PanelConvened(market, jurors, panel.votingDeadline);
+        emit PanelConvened(market, selected, panel.votingDeadline);
+    }
+
+    /// @dev Returns true if the candidate holds any YES or NO position in the market.
+    function _holdsPosition(IPredictionMarket pm, address candidate) internal view returns (bool) {
+        return pm.balanceOf(candidate, YES) > 0 || pm.balanceOf(candidate, NO) > 0;
+    }
+
+    /// @dev Returns true if the candidate already appears in the first `count` slots of `arr`.
+    function _alreadySelected(address[PANEL_SIZE] memory arr, uint256 count, address candidate)
+        internal
+        pure
+        returns (bool)
+    {
+        for (uint256 k = 0; k < count; k++) {
+            if (arr[k] == candidate) return true;
+        }
+        return false;
     }
 
     // ── Voting ───────────────────────────────────────────────────────
@@ -235,12 +282,26 @@ contract JuryResolution is Ownable {
         )
     {
         JuryPanel storage panel = panels[market];
+
+        // Mask individual votes and aggregate counts while voting is live to
+        // prevent jurors from being influenced by peers' choices.
+        bool voteVisible = panel.resolved || block.timestamp > panel.votingDeadline;
+        uint256[5] memory maskedVotes;
+        uint256 maskedYes;
+        uint256 maskedNo;
+        if (voteVisible) {
+            maskedVotes = panel.votes;
+            maskedYes = panel.yesVotes;
+            maskedNo = panel.noVotes;
+        }
+        // If !voteVisible, maskedVotes stays all-zero and counts stay 0.
+
         return (
             panel.jurors,
             panel.hasVoted,
-            panel.votes,
-            panel.yesVotes,
-            panel.noVotes,
+            maskedVotes,
+            maskedYes,
+            maskedNo,
             panel.votingDeadline,
             panel.resolved,
             panel.outcome
@@ -285,7 +346,7 @@ contract JuryResolution is Ownable {
                 // Best-effort: if the contract lacks funds, skip silently to avoid
                 // blocking resolution. A separate top-up mechanism is expected.
                 if (clawlia.balanceOf(address(this)) >= jurorFee) {
-                    clawlia.transfer(juror, jurorFee);
+                    clawlia.safeTransfer(juror, jurorFee);
                     totalFees += jurorFee;
                 }
             }

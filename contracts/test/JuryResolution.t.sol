@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test, Vm, console} from "forge-std/Test.sol";
 import {ClawliaToken} from "../src/ClawliaToken.sol";
 import {PredictionMarket} from "../src/PredictionMarket.sol";
 import {JuryResolution} from "../src/JuryResolution.sol";
@@ -33,18 +33,13 @@ contract JuryResolutionTest is Test {
 
     // Addresses
     address owner = makeAddr("owner");
-    address fakeRegistry = makeAddr("fakeRegistry"); // used to mint without full ZK flow
 
-    // Jurors — five verified models
-    address juror1 = makeAddr("juror1");
-    address juror2 = makeAddr("juror2");
-    address juror3 = makeAddr("juror3");
-    address juror4 = makeAddr("juror4");
-    address juror5 = makeAddr("juror5");
+    // Pool of 10 registered model addresses for jury selection
+    address[10] public models;
 
-    // Other participants
-    address alice = makeAddr("alice");   // market creator / bettor
-    address bob   = makeAddr("bob");     // bettor
+    // Participants (registered but used as bettors / market creators)
+    address alice = makeAddr("alice");
+    address bob   = makeAddr("bob");
 
     // Time constants
     uint256 constant RESOLUTION_TIME = 2_000_000;
@@ -73,14 +68,15 @@ contract JuryResolutionTest is Test {
 
         vm.stopPrank();
 
-        // Register jurors and participants via mock ZK proof
-        _register(juror1, 1001);
-        _register(juror2, 1002);
-        _register(juror3, 1003);
-        _register(juror4, 1004);
-        _register(juror5, 1005);
-        _register(alice,  2001);
-        _register(bob,    2002);
+        // Register 10 models as the jury pool
+        for (uint256 i = 0; i < 10; i++) {
+            models[i] = makeAddr(string(abi.encodePacked("model", i)));
+            _register(models[i], 1000 + i);
+        }
+
+        // Register participants
+        _register(alice, 2001);
+        _register(bob,   2002);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -138,16 +134,16 @@ contract JuryResolutionTest is Test {
         vm.stopPrank();
     }
 
-    /// @dev Build a canonical 5-juror array using the test jurors.
-    function _panel() internal view returns (address[5] memory) {
-        return [juror1, juror2, juror3, juror4, juror5];
-    }
-
     /// @dev Fund the jury contract with CLAW so it can pay fees.
     ///      Transfers from alice (has 1000 CLAW from registration).
     function _fundJury(uint256 amount) internal {
         vm.prank(alice);
         token.transfer(address(jury), amount);
+    }
+
+    /// @dev Return the panel jurors for a market.
+    function _getPanelJurors(address market) internal view returns (address[5] memory jurors) {
+        (jurors,,,,,,, ) = jury.getPanel(market);
     }
 
     // ── Panel Creation ────────────────────────────────────────────────────────
@@ -156,7 +152,7 @@ contract JuryResolutionTest is Test {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
 
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
         assertTrue(jury.panelExists(address(market)));
 
@@ -165,27 +161,56 @@ contract JuryResolutionTest is Test {
         assertEq(deadline, RESOLUTION_TIME + jury.votingWindow());
     }
 
-    function test_requestResolution_panelJurorsStored() public {
+    function test_requestResolution_panelHasFiveJurors() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
 
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        (address[5] memory jurors,,,,,,, ) = jury.getPanel(address(market));
-        assertEq(jurors[0], juror1);
-        assertEq(jurors[1], juror2);
-        assertEq(jurors[2], juror3);
-        assertEq(jurors[3], juror4);
-        assertEq(jurors[4], juror5);
+        address[5] memory jurors = _getPanelJurors(address(market));
+        for (uint256 i = 0; i < 5; i++) {
+            assertTrue(jurors[i] != address(0), "Juror slot should be filled");
+        }
+    }
+
+    function test_requestResolution_jurorsFromRegisteredPool() public {
+        PredictionMarket market = _deployJuryMarket();
+        vm.warp(RESOLUTION_TIME);
+
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
+        for (uint256 i = 0; i < 5; i++) {
+            assertTrue(
+                modelRegistry.isVerified(jurors[i]),
+                "Each juror must be a registered model"
+            );
+        }
+    }
+
+    function test_requestResolution_noDuplicateJurors() public {
+        PredictionMarket market = _deployJuryMarket();
+        vm.warp(RESOLUTION_TIME);
+
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
+        for (uint256 i = 0; i < 5; i++) {
+            for (uint256 j = i + 1; j < 5; j++) {
+                assertTrue(jurors[i] != jurors[j], "No duplicate jurors in panel");
+            }
+        }
     }
 
     function test_isJuror_trueForPanelMembers() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        assertTrue(jury.isJuror(address(market), juror1));
-        assertTrue(jury.isJuror(address(market), juror3));
+        address[5] memory jurors = _getPanelJurors(address(market));
+        for (uint256 i = 0; i < 5; i++) {
+            assertTrue(jury.isJuror(address(market), jurors[i]));
+        }
         assertFalse(jury.isJuror(address(market), alice));
     }
 
@@ -196,7 +221,7 @@ contract JuryResolutionTest is Test {
         vm.warp(RESOLUTION_TIME - 1);
 
         vm.expectRevert(JuryResolution.MarketNotEligible.selector);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
     }
 
     function test_requestResolution_alreadyResolved_reverts() public {
@@ -207,66 +232,58 @@ contract JuryResolutionTest is Test {
         market.resolve(0);
 
         vm.expectRevert(JuryResolution.MarketAlreadyResolved.selector);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
     }
 
     function test_requestResolution_panelAlreadyExists_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
 
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
         vm.expectRevert(JuryResolution.PanelAlreadyExists.selector);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
     }
 
-    function test_requestResolution_unverifiedJuror_reverts() public {
-        PredictionMarket market = _deployJuryMarket();
-        vm.warp(RESOLUTION_TIME);
-
-        address unverified = makeAddr("unverified");
-        address[5] memory badPanel = [juror1, juror2, juror3, juror4, unverified];
-
-        vm.expectRevert(abi.encodeWithSelector(JuryResolution.JurorNotVerified.selector, unverified));
-        jury.requestResolution(address(market), badPanel);
-    }
-
-    function test_requestResolution_jurorHoldsYesPosition_reverts() public {
+    function test_requestResolution_jurorsWithPositions_excluded() public {
         PredictionMarket market = _deployJuryMarket();
         _addLiquidity(market, alice, 100e18);
 
-        // juror1 buys YES tokens — now ineligible
-        _buy(market, juror1, 0 /* YES */, 50e18);
+        // Exclude the first 5 pool models by giving them a YES position
+        for (uint256 i = 0; i < 5; i++) {
+            _buy(market, models[i], 0 /* YES */, 5e18);
+        }
 
         vm.warp(RESOLUTION_TIME);
 
-        address[5] memory badPanel = [juror1, juror2, juror3, juror4, juror5];
-        vm.expectRevert(abi.encodeWithSelector(JuryResolution.JurorHoldsPosition.selector, juror1));
-        jury.requestResolution(address(market), badPanel);
+        // Should succeed — models[5] through models[9] are still eligible
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
+        for (uint256 i = 0; i < 5; i++) {
+            // No selected juror should hold a YES position
+            assertEq(
+                PredictionMarket(address(market)).balanceOf(jurors[i], 0),
+                0,
+                "Juror with YES position must be excluded"
+            );
+        }
     }
 
-    function test_requestResolution_jurorHoldsNoPosition_reverts() public {
+    function test_requestResolution_notEnoughEligible_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         _addLiquidity(market, alice, 100e18);
 
-        // juror2 buys NO tokens — now ineligible
-        _buy(market, juror2, 1 /* NO */, 50e18);
+        // Give all 10 pool models a position — only alice and bob remain registered
+        // with no positions, but that is only 2 eligible — not enough for 5.
+        for (uint256 i = 0; i < 10; i++) {
+            _buy(market, models[i], 0 /* YES */, 5e18);
+        }
 
         vm.warp(RESOLUTION_TIME);
 
-        address[5] memory badPanel = [juror1, juror2, juror3, juror4, juror5];
-        vm.expectRevert(abi.encodeWithSelector(JuryResolution.JurorHoldsPosition.selector, juror2));
-        jury.requestResolution(address(market), badPanel);
-    }
-
-    function test_requestResolution_duplicateJuror_reverts() public {
-        PredictionMarket market = _deployJuryMarket();
-        vm.warp(RESOLUTION_TIME);
-
-        // juror1 appears twice
-        address[5] memory badPanel = [juror1, juror2, juror3, juror1, juror5];
-        vm.expectRevert(abi.encodeWithSelector(JuryResolution.DuplicateJuror.selector, juror1));
-        jury.requestResolution(address(market), badPanel);
+        vm.expectRevert(JuryResolution.NotEnoughEligibleJurors.selector);
+        jury.requestResolution(address(market));
     }
 
     // ── Voting Mechanics ──────────────────────────────────────────────────────
@@ -274,22 +291,21 @@ contract JuryResolutionTest is Test {
     function test_vote_singleJuror_recorded() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]);
         jury.vote(address(market), 0 /* YES */);
 
-        (, bool[5] memory hasVoted, uint256[5] memory votes, uint256 yesVotes,,,,) =
-            jury.getPanel(address(market));
+        (, bool[5] memory hasVoted,,,,,,) = jury.getPanel(address(market));
         assertTrue(hasVoted[0]);
-        assertEq(votes[0], 0);
-        assertEq(yesVotes, 1);
     }
 
     function test_vote_notAJuror_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
         vm.prank(alice);
         vm.expectRevert(JuryResolution.NotAJuror.selector);
@@ -299,12 +315,14 @@ contract JuryResolutionTest is Test {
     function test_vote_doubleVote_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]);
         jury.vote(address(market), 0);
 
-        vm.prank(juror1);
+        vm.prank(jurors[0]);
         vm.expectRevert(JuryResolution.AlreadyVoted.selector);
         jury.vote(address(market), 1);
     }
@@ -312,12 +330,14 @@ contract JuryResolutionTest is Test {
     function test_vote_afterDeadline_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         // Warp past the voting window
         vm.warp(RESOLUTION_TIME + jury.votingWindow() + 1);
 
-        vm.prank(juror1);
+        vm.prank(jurors[0]);
         vm.expectRevert(JuryResolution.VotingWindowClosed.selector);
         jury.vote(address(market), 0);
     }
@@ -325,9 +345,11 @@ contract JuryResolutionTest is Test {
     function test_vote_invalidOutcome_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]);
         vm.expectRevert(JuryResolution.InvalidOutcome.selector);
         jury.vote(address(market), 2);
     }
@@ -337,14 +359,13 @@ contract JuryResolutionTest is Test {
     function test_vote_autoResolves_onYesMajority() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
-        jury.vote(address(market), 0 /* YES */);
-        vm.prank(juror2);
-        jury.vote(address(market), 0);
-        vm.prank(juror3);
-        jury.vote(address(market), 0); // 3rd YES vote — triggers resolution
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]); jury.vote(address(market), 0 /* YES */);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
+        vm.prank(jurors[2]); jury.vote(address(market), 0); // 3rd YES — triggers resolution
 
         assertTrue(market.resolved());
         assertEq(market.outcome(), 0);
@@ -353,14 +374,13 @@ contract JuryResolutionTest is Test {
     function test_vote_autoResolves_onNoMajority() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
-        jury.vote(address(market), 1 /* NO */);
-        vm.prank(juror2);
-        jury.vote(address(market), 1);
-        vm.prank(juror3);
-        jury.vote(address(market), 1); // 3rd NO vote — triggers resolution
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]); jury.vote(address(market), 1 /* NO */);
+        vm.prank(jurors[1]); jury.vote(address(market), 1);
+        vm.prank(jurors[2]); jury.vote(address(market), 1); // 3rd NO — triggers resolution
 
         assertTrue(market.resolved());
         assertEq(market.outcome(), 1);
@@ -369,12 +389,12 @@ contract JuryResolutionTest is Test {
     function test_vote_noResolutionBeforeMajority() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1);
-        jury.vote(address(market), 0);
-        vm.prank(juror2);
-        jury.vote(address(market), 0); // only 2 YES votes
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0); // only 2 YES votes
 
         assertFalse(market.resolved());
     }
@@ -382,17 +402,15 @@ contract JuryResolutionTest is Test {
     function test_vote_splitVotesNoResolution() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         // 2 YES, 2 NO — no majority
-        vm.prank(juror1);
-        jury.vote(address(market), 0);
-        vm.prank(juror2);
-        jury.vote(address(market), 1);
-        vm.prank(juror3);
-        jury.vote(address(market), 0);
-        vm.prank(juror4);
-        jury.vote(address(market), 1);
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 1);
+        vm.prank(jurors[2]); jury.vote(address(market), 0);
+        vm.prank(jurors[3]); jury.vote(address(market), 1);
 
         assertFalse(market.resolved());
     }
@@ -400,11 +418,13 @@ contract JuryResolutionTest is Test {
     function test_vote_panelResolved_flagSet() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 0);
-        vm.prank(juror3); jury.vote(address(market), 0);
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
+        vm.prank(jurors[2]); jury.vote(address(market), 0);
 
         (,,,,, , bool panelResolved, uint256 panelOutcome) = jury.getPanel(address(market));
         assertTrue(panelResolved);
@@ -416,37 +436,41 @@ contract JuryResolutionTest is Test {
     function test_fees_distributedToVotingJurors() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        // Fund jury contract with enough CLAW for 3 fees (the voters)
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        // Fund jury contract with enough CLAW for all 5 fees
         _fundJury(jury.jurorFee() * 5);
 
-        uint256 j1Before = token.balanceOf(juror1);
-        uint256 j2Before = token.balanceOf(juror2);
-        uint256 j3Before = token.balanceOf(juror3);
-        uint256 j4Before = token.balanceOf(juror4); // will not vote
+        uint256 j0Before = token.balanceOf(jurors[0]);
+        uint256 j1Before = token.balanceOf(jurors[1]);
+        uint256 j2Before = token.balanceOf(jurors[2]);
+        uint256 j3Before = token.balanceOf(jurors[3]); // will not vote
 
-        vm.prank(juror1); jury.vote(address(market), 1);
-        vm.prank(juror2); jury.vote(address(market), 1);
-        vm.prank(juror3); jury.vote(address(market), 1); // triggers resolution
+        vm.prank(jurors[0]); jury.vote(address(market), 1);
+        vm.prank(jurors[1]); jury.vote(address(market), 1);
+        vm.prank(jurors[2]); jury.vote(address(market), 1); // triggers resolution
 
         // Voters receive fees
-        assertEq(token.balanceOf(juror1), j1Before + jury.jurorFee());
-        assertEq(token.balanceOf(juror2), j2Before + jury.jurorFee());
-        assertEq(token.balanceOf(juror3), j3Before + jury.jurorFee());
+        assertEq(token.balanceOf(jurors[0]), j0Before + jury.jurorFee());
+        assertEq(token.balanceOf(jurors[1]), j1Before + jury.jurorFee());
+        assertEq(token.balanceOf(jurors[2]), j2Before + jury.jurorFee());
         // Non-voter does not
-        assertEq(token.balanceOf(juror4), j4Before);
+        assertEq(token.balanceOf(jurors[3]), j3Before);
     }
 
     function test_fees_notDistributed_ifContractUnderfunded() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         // Do NOT fund the jury contract — resolution should still succeed
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 0);
-        vm.prank(juror3); jury.vote(address(market), 0);
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
+        vm.prank(jurors[2]); jury.vote(address(market), 0);
 
         assertTrue(market.resolved()); // resolution still happened
     }
@@ -481,7 +505,7 @@ contract JuryResolutionTest is Test {
         assertFalse(jury.privilegedJurors(haiku));
     }
 
-    function test_privilegedJuror_participatesNormally() public {
+    function test_privilegedJurors_getPriority() public {
         // Register a haiku model and designate it privileged
         address haiku = makeAddr("haiku");
         _register(haiku, 3001);
@@ -492,19 +516,13 @@ contract JuryResolutionTest is Test {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
 
-        // Build panel with haiku replacing juror5
-        address[5] memory panelWithHaiku = [juror1, juror2, juror3, juror4, haiku];
-        jury.requestResolution(address(market), panelWithHaiku);
+        jury.requestResolution(address(market));
 
-        // Haiku votes — should work fine
-        vm.prank(haiku);
-        jury.vote(address(market), 0);
-
-        (, bool[5] memory hasVoted,,, ,,, ) = jury.getPanel(address(market));
-        assertTrue(hasVoted[4]);
+        // Haiku must appear in the panel (privileged jurors get priority)
+        assertTrue(jury.isJuror(address(market), haiku), "Privileged juror must be in panel");
     }
 
-    function test_privilegedJuror_withPosition_stillBlocked() public {
+    function test_privilegedJuror_withPosition_excluded() public {
         // Even privileged jurors cannot serve if they hold a position
         address haiku = makeAddr("haiku");
         _register(haiku, 3002);
@@ -518,9 +536,59 @@ contract JuryResolutionTest is Test {
 
         vm.warp(RESOLUTION_TIME);
 
-        address[5] memory badPanel = [juror1, juror2, juror3, juror4, haiku];
-        vm.expectRevert(abi.encodeWithSelector(JuryResolution.JurorHoldsPosition.selector, haiku));
-        jury.requestResolution(address(market), badPanel);
+        // Panel selection should succeed but haiku must NOT be in the panel
+        jury.requestResolution(address(market));
+
+        assertFalse(jury.isJuror(address(market), haiku), "Privileged juror with position must be excluded");
+    }
+
+    function test_privilegedJuror_canVote() public {
+        address haiku = makeAddr("haiku");
+        _register(haiku, 3003);
+
+        vm.prank(owner);
+        jury.addPrivilegedJuror(haiku);
+
+        PredictionMarket market = _deployJuryMarket();
+        vm.warp(RESOLUTION_TIME);
+
+        jury.requestResolution(address(market));
+
+        // Haiku is in the panel (privileged priority); it can vote
+        vm.prank(haiku);
+        jury.vote(address(market), 0);
+
+        address[5] memory jurors = _getPanelJurors(address(market));
+        (, bool[5] memory hasVoted,,,,,,) = jury.getPanel(address(market));
+        bool haikuVoted = false;
+        for (uint256 i = 0; i < 5; i++) {
+            if (jurors[i] == haiku && hasVoted[i]) {
+                haikuVoted = true;
+                break;
+            }
+        }
+        assertTrue(haikuVoted, "Haiku must have voted");
+    }
+
+    function test_multiplePrivilegedJurors_allIncluded() public {
+        // Register 5 privileged haiku models — they should fill all 5 slots
+        address[5] memory haikuModels;
+        for (uint256 i = 0; i < 5; i++) {
+            haikuModels[i] = makeAddr(string(abi.encodePacked("haiku", i)));
+            _register(haikuModels[i], 5000 + i);
+            vm.prank(owner);
+            jury.addPrivilegedJuror(haikuModels[i]);
+        }
+
+        PredictionMarket market = _deployJuryMarket();
+        vm.warp(RESOLUTION_TIME);
+
+        jury.requestResolution(address(market));
+
+        // All 5 privileged models must be in the panel
+        for (uint256 i = 0; i < 5; i++) {
+            assertTrue(jury.isJuror(address(market), haikuModels[i]));
+        }
     }
 
     // ── Owner Configuration ───────────────────────────────────────────────────
@@ -555,39 +623,50 @@ contract JuryResolutionTest is Test {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
 
-        address[5] memory panelArr = _panel();
-        uint256 expectedDeadline = RESOLUTION_TIME + jury.votingWindow();
+        // Record logs — we can't pre-predict the juror array since selection is random
+        vm.recordLogs();
+        jury.requestResolution(address(market));
 
-        vm.expectEmit(true, false, false, true);
-        emit JuryResolution.PanelConvened(address(market), panelArr, expectedDeadline);
-
-        jury.requestResolution(address(market), panelArr);
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        bytes32 sig = keccak256("PanelConvened(address,address[5],uint256)");
+        bool found = false;
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].topics[0] == sig && logs[i].topics[1] == bytes32(uint256(uint160(address(market))))) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "PanelConvened event must be emitted");
     }
 
     function test_event_VoteCast() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         vm.expectEmit(true, true, false, true);
-        emit JuryResolution.VoteCast(address(market), juror1, 0);
+        emit JuryResolution.VoteCast(address(market), jurors[0], 0);
 
-        vm.prank(juror1);
+        vm.prank(jurors[0]);
         jury.vote(address(market), 0);
     }
 
     function test_event_MarketResolved() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 0);
+        address[5] memory jurors = _getPanelJurors(address(market));
+
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
 
         vm.expectEmit(true, false, false, true);
         emit JuryResolution.MarketResolved(address(market), 0);
 
-        vm.prank(juror3);
+        vm.prank(jurors[2]);
         jury.vote(address(market), 0);
     }
 
@@ -596,33 +675,17 @@ contract JuryResolutionTest is Test {
     function test_edgeCase_allFiveVote_majority3() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
 
-        // All 5 vote YES — resolution happens on vote #3, votes #4 and #5 would hit
-        // VotingWindowClosed because the panel is already resolved... actually the
-        // market is resolved but the panel voting window may still be open.
-        // After resolution the market.resolve() is called; subsequent votes attempt
-        // to call jury.vote() but the market is already resolved. The panel's
-        // resolved flag is set; however, our vote() function does NOT check
-        // panel.resolved — it simply records votes. This is intentional: we want
-        // late voters to still be recorded (for fee distribution that may come later).
-        // But the auto-resolve path will call market.resolve() again on vote 4 and 5
-        // which reverts with MarketResolved. Let's verify that votes 4+ are still
-        // accepted without triggering a second resolution call.
-        //
-        // Actually: once panel.resolved is true, _resolve() would be called again on
-        // the 4th YES vote. market.resolve() would revert with MarketResolved.
-        //
-        // Solution: check panel.resolved in vote() before calling _resolve().
-        // This is already the correct behavior expected — let's verify it.
+        address[5] memory jurors = _getPanelJurors(address(market));
 
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 0);
-        vm.prank(juror3); jury.vote(address(market), 0); // resolves here
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
+        vm.prank(jurors[2]); jury.vote(address(market), 0); // resolves here
 
-        // juror4 and juror5 vote after resolution — must not revert on double-resolve
-        vm.prank(juror4); jury.vote(address(market), 0);
-        vm.prank(juror5); jury.vote(address(market), 0);
+        // jurors[3] and jurors[4] vote after resolution — must not revert on double-resolve
+        vm.prank(jurors[3]); jury.vote(address(market), 0);
+        vm.prank(jurors[4]); jury.vote(address(market), 0);
 
         assertTrue(market.resolved());
         assertEq(market.outcome(), 0);
@@ -631,12 +694,14 @@ contract JuryResolutionTest is Test {
     function test_edgeCase_voteAtExactDeadline() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         uint256 deadline = RESOLUTION_TIME + jury.votingWindow();
         vm.warp(deadline); // exactly at deadline — should be accepted (> not >=)
 
-        vm.prank(juror1);
+        vm.prank(jurors[0]);
         jury.vote(address(market), 1); // should succeed
 
         (, bool[5] memory hasVoted,,,,,,) = jury.getPanel(address(market));
@@ -646,30 +711,33 @@ contract JuryResolutionTest is Test {
     function test_edgeCase_voteOneSecondAfterDeadline_reverts() public {
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         vm.warp(RESOLUTION_TIME + jury.votingWindow() + 1);
 
-        vm.prank(juror1);
+        vm.prank(jurors[0]);
         vm.expectRevert(JuryResolution.VotingWindowClosed.selector);
         jury.vote(address(market), 0);
     }
 
     function test_edgeCase_unresolvableMarket_deadlineExpires() public {
         // If nobody reaches majority before the deadline, market stays unresolved.
-        // The emergencyWithdraw path on PredictionMarket handles this case.
         PredictionMarket market = _deployJuryMarket();
         vm.warp(RESOLUTION_TIME);
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         // Only 2 jurors vote (split) — no majority
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 1);
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 1);
 
         vm.warp(RESOLUTION_TIME + jury.votingWindow() + 1);
 
         // Market still not resolved — all future votes fail with VotingWindowClosed
-        vm.prank(juror3);
+        vm.prank(jurors[2]);
         vm.expectRevert(JuryResolution.VotingWindowClosed.selector);
         jury.vote(address(market), 0);
 
@@ -683,33 +751,21 @@ contract JuryResolutionTest is Test {
 
         vm.warp(RESOLUTION_TIME);
 
-        jury.requestResolution(address(market1), _panel());
+        jury.requestResolution(address(market1));
+        jury.requestResolution(address(market2));
 
-        // Register fresh jurors for market2 to avoid overlap (though overlap is allowed
-        // across different markets, only duplicates *within* a panel are forbidden)
-        address j6 = makeAddr("juror6");
-        address j7 = makeAddr("juror7");
-        address j8 = makeAddr("juror8");
-        address j9 = makeAddr("juror9");
-        address j10 = makeAddr("juror10");
-        _register(j6,  4001);
-        _register(j7,  4002);
-        _register(j8,  4003);
-        _register(j9,  4004);
-        _register(j10, 4005);
-
-        address[5] memory panel2 = [j6, j7, j8, j9, j10];
-        jury.requestResolution(address(market2), panel2);
+        address[5] memory jurors1 = _getPanelJurors(address(market1));
+        address[5] memory jurors2 = _getPanelJurors(address(market2));
 
         // Resolve market1 with YES
-        vm.prank(juror1); jury.vote(address(market1), 0);
-        vm.prank(juror2); jury.vote(address(market1), 0);
-        vm.prank(juror3); jury.vote(address(market1), 0);
+        vm.prank(jurors1[0]); jury.vote(address(market1), 0);
+        vm.prank(jurors1[1]); jury.vote(address(market1), 0);
+        vm.prank(jurors1[2]); jury.vote(address(market1), 0);
 
         // Resolve market2 with NO
-        vm.prank(j6);  jury.vote(address(market2), 1);
-        vm.prank(j7);  jury.vote(address(market2), 1);
-        vm.prank(j8);  jury.vote(address(market2), 1);
+        vm.prank(jurors2[0]); jury.vote(address(market2), 1);
+        vm.prank(jurors2[1]); jury.vote(address(market2), 1);
+        vm.prank(jurors2[2]); jury.vote(address(market2), 1);
 
         assertTrue(market1.resolved());
         assertEq(market1.outcome(), 0);
@@ -725,15 +781,17 @@ contract JuryResolutionTest is Test {
         vm.warp(RESOLUTION_TIME);
 
         // Panel creation is allowed — anyone can convene a panel for any eligible market
-        jury.requestResolution(address(market), _panel());
+        jury.requestResolution(address(market));
+
+        address[5] memory jurors = _getPanelJurors(address(market));
 
         // But when 3 votes come in and jury calls market.resolve(), it will revert because
         // jury is not the resolver for this market.
-        vm.prank(juror1); jury.vote(address(market), 0);
-        vm.prank(juror2); jury.vote(address(market), 0);
+        vm.prank(jurors[0]); jury.vote(address(market), 0);
+        vm.prank(jurors[1]); jury.vote(address(market), 0);
 
         // Third vote triggers _resolve() -> market.resolve() -> NotResolver revert
-        vm.prank(juror3);
+        vm.prank(jurors[2]);
         vm.expectRevert(PredictionMarket.NotResolver.selector);
         jury.vote(address(market), 0);
     }

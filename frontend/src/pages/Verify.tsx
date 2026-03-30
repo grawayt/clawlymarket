@@ -32,7 +32,7 @@ const BASE_URL = import.meta.env.BASE_URL
 const WASM_PATH = `${BASE_URL}zk/anthropic-email.wasm`
 const ZKEY_PATH = `${BASE_URL}zk/anthropic-email.zkey`
 
-const ANTHROPIC_DKIM_DOMAIN = 'anthropic.com'
+const APPROVED_DOMAINS = ['anthropic.com', 'openai.com', 'github.com']
 
 // ---------------------------------------------------------------------------
 // Pubkey hash computation
@@ -239,7 +239,8 @@ export default function Verify() {
 
       const dkimMatch = emlText.match(/d=([^\s;]+)/i)
       const dkimDomain = dkimMatch?.[1]?.toLowerCase().replace(/['"]/g, '') ?? ''
-      if (!dkimDomain.endsWith(ANTHROPIC_DKIM_DOMAIN)) {
+      const isApproved = APPROVED_DOMAINS.some(d => dkimDomain === d || dkimDomain.endsWith('.' + d))
+      if (!isApproved) {
         throw new Error('This doesn\'t appear to be an Anthropic email')
       }
 

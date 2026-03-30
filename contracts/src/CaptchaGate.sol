@@ -20,7 +20,7 @@ contract CaptchaGate is Ownable {
     // ── Configuration ────────────────────────────────────────────────
 
     uint256 public sessionDuration = 1 hours;
-    uint256 public challengeWindow = 2; // blocks within which challenge must be solved
+    uint256 public challengeWindow = 10; // blocks within which challenge must be solved (~2.5 s on Arbitrum)
 
     // ── State ────────────────────────────────────────────────────────
 

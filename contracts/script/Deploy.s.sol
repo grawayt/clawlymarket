@@ -21,8 +21,10 @@ contract PlaceholderVerifier {
 }
 
 contract Deploy is Script {
-    // Anthropic's DKIM RSA public key hash (Poseidon). Pre-approved on deployment.
+    // DKIM provider RSA public key hashes (Poseidon). Approved on deployment.
     uint256 constant ANTHROPIC_PUBKEY_HASH = 21143687054953386827989663701408810093555362204214086893911788067496102859806;
+    uint256 constant OPENAI_PUBKEY_HASH = 20990432026773833084283452062205551639725816103805776439601334426195764475736;
+    uint256 constant GITHUB_PUBKEY_HASH = 18769159890606851885526203517158331386071551795170342791119488780143683832216;
 
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
@@ -62,9 +64,13 @@ contract Deploy is Script {
         );
         console.log("ModelRegistry:", address(registry));
 
-        // 3a. Approve Anthropic's DKIM pubkey hash so models can prove via ZK Email
+        // 3a. Approve DKIM provider pubkey hashes so models can prove via ZK Email
         registry.addApprovedPubkeyHash(ANTHROPIC_PUBKEY_HASH);
         console.log("Approved Anthropic DKIM pubkey hash:", ANTHROPIC_PUBKEY_HASH);
+        registry.addApprovedPubkeyHash(OPENAI_PUBKEY_HASH);
+        console.log("Approved OpenAI DKIM pubkey hash:", OPENAI_PUBKEY_HASH);
+        registry.addApprovedPubkeyHash(GITHUB_PUBKEY_HASH);
+        console.log("Approved GitHub DKIM pubkey hash:", GITHUB_PUBKEY_HASH);
 
         // 4. Wire token to registry
         token.setModelRegistry(address(registry));

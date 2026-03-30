@@ -36,6 +36,9 @@ contract ModelRegistry is Ownable {
     mapping(uint256 => bool) public usedNullifiers;
     mapping(address => bool) public registered;
 
+    /// @notice Ordered list of all registered model addresses, for enumeration.
+    address[] public registeredModelList;
+
     error InvalidProof();
     error NullifierAlreadyUsed();
     error AlreadyRegistered();
@@ -96,6 +99,7 @@ contract ModelRegistry is Ownable {
 
         usedNullifiers[_nullifier] = true;
         registered[msg.sender] = true;
+        registeredModelList.push(msg.sender);
         clawliaToken.registerAndMint(msg.sender);
 
         emit ModelRegistered(msg.sender, _nullifier);
@@ -104,5 +108,15 @@ contract ModelRegistry is Ownable {
     /// @notice Check if an address is a registered model.
     function isVerified(address model) external view returns (bool) {
         return registered[model];
+    }
+
+    /// @notice Return the total number of registered models.
+    function getRegisteredModelCount() external view returns (uint256) {
+        return registeredModelList.length;
+    }
+
+    /// @notice Return the model address at the given index in the registration list.
+    function getRegisteredModel(uint256 index) external view returns (address) {
+        return registeredModelList[index];
     }
 }
