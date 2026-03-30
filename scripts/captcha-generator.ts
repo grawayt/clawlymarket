@@ -19,7 +19,6 @@
  *   ethers.solidityPackedKeccak256(['string','string','string','string','string','string'], answers)
  */
 
-import { ethers } from "ethers";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -64,7 +63,7 @@ interface HashesFile {
 function makeMathChallenge(setIndex: number, slot: number): Challenge {
   // Deterministic but varied parameter generation without needing a hash library.
   // We use simple LCG-style mixing so parameters differ across sets.
-  const mix = (n: number) => (((n * 6364136223846793005n) + 1442695040888963407n) & 0xFFFFFFFFFFFFn);
+  const mix = (n: bigint) => (((n * 6364136223846793005n) + 1442695040888963407n) & 0xFFFFFFFFFFFFn);
 
   const seed = BigInt(setIndex * 1000 + slot * 100 + 7);
   const a = Number(mix(seed) % 9000n) + 1000;           // [1000, 9999]
@@ -261,12 +260,24 @@ function makeFormatChallenge(setIndex: number): Challenge {
 /**
  * Computes keccak256(abi.encodePacked(a0, a1, a2, a3, a4, a5))
  * matching the Solidity contract's verification logic exactly.
+ *
+ * For string types, abi.encodePacked simply concatenates the UTF-8 bytes
+ * (no length prefix, no padding) — equivalent to Buffer.concat of toUtf8Bytes.
+ *
+ * Uses @noble/hashes/sha3 keccak_256 (available via snarkjs transitive deps).
  */
 function computeAnswerHash(answers: string[]): string {
-  return ethers.solidityPackedKeccak256(
-    answers.map(() => "string"),
-    answers
+  // Resolve @noble/hashes relative to process.cwd() (circuits/) so the module
+  // can be found even though this script file lives one level up in scripts/.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const nobleHashes = require(
+    require("path").resolve(process.cwd(), "node_modules/@noble/hashes/sha3")
   );
+  const keccak_256: (data: Uint8Array) => Uint8Array = nobleHashes.keccak_256;
+  const parts = answers.map((a) => Buffer.from(a, "utf8"));
+  const packed = Buffer.concat(parts);
+  const result: Uint8Array = keccak_256(packed);
+  return "0x" + Buffer.from(result).toString("hex");
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────

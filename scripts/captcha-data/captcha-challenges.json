@@ -1,0 +1,3507 @@
+{
+  "generatedAt": "2026-03-30T19:11:18.787Z",
+  "totalSets": 100,
+  "challengesPerSet": 6,
+  "sets": [
+    {
+      "setId": 0,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7322 * 4167 + 1012) mod 9377",
+          "answer": "8405"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2102 * 7947 + 4792) mod 9199",
+          "answer": "4002"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(7) return?",
+          "answer": "73"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. No Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 8, 16, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (100+200), product (10*10), mod (1000 mod 100). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":300,\"product\":100,\"mod\":0}"
+        }
+      ]
+    },
+    {
+      "setId": 1,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1154 * 6999 + 3844) mod 9649",
+          "answer": "4477"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2278 * 8123 + 4968) mod 8293",
+          "answer": "7479"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(14) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. All Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 5, 8, 11, ?",
+          "answer": "14"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (137+253), product (21*27), mod (1097 mod 143). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":390,\"product\":567,\"mod\":96}"
+        }
+      ]
+    },
+    {
+      "setId": 2,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1330 * 7175 + 4020) mod 9433",
+          "answer": "574"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2454 * 8299 + 5144) mod 9649",
+          "answer": "1851"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(11) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ls are Ss. Some Ts are Ls. Can a T be a S? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 16, 64, 256, ?",
+          "answer": "1024"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (174+306), product (32*44), mod (1194 mod 186). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":480,\"product\":1408,\"mod\":78}"
+        }
+      ]
+    },
+    {
+      "setId": 3,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1506 * 7351 + 4196) mod 9227",
+          "answer": "2402"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5286 * 2131 + 7976) mod 9043",
+          "answer": "4864"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(8) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. Some Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 9, 14, 19, ?",
+          "answer": "24"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (211+359), product (43*61), mod (1291 mod 229). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":570,\"product\":2623,\"mod\":146}"
+        }
+      ]
+    },
+    {
+      "setId": 4,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1682 * 7527 + 4372) mod 9011",
+          "answer": "4331"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5462 * 2307 + 8152) mod 9733",
+          "answer": "4751"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(5) return?",
+          "answer": "44"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. No Hs are Ks. Is it necessarily impossible for an G to be a K? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 24, 48, ?",
+          "answer": "96"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (248+412), product (54*78), mod (1388 mod 272). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":660,\"product\":4212,\"mod\":28}"
+        }
+      ]
+    },
+    {
+      "setId": 5,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1858 * 7703 + 4548) mod 9689",
+          "answer": "6069"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5638 * 2483 + 8328) mod 9491",
+          "answer": "8257"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(12) return?",
+          "answer": "21"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. No Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 13, 20, 27, ?",
+          "answer": "34"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (285+465), product (65*95), mod (1485 mod 315). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":750,\"product\":6175,\"mod\":225}"
+        }
+      ]
+    },
+    {
+      "setId": 6,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (2034 * 7879 + 7380) mod 9091",
+          "answer": "5833"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5814 * 2659 + 8504) mod 9311",
+          "answer": "2359"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(9) return?",
+          "answer": "84"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. All Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 12, 48, 192, ?",
+          "answer": "768"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (322+518), product (76*22), mod (1582 mod 358). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":840,\"product\":1672,\"mod\":150}"
+        }
+      ]
+    },
+    {
+      "setId": 7,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (4866 * 1711 + 7556) mod 8191",
+          "answer": "3035"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5990 * 2835 + 8680) mod 9091",
+          "answer": "8342"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(6) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ds are Es. Some Fs are Ds. Can a F be a E? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 17, 26, 35, ?",
+          "answer": "44"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (359+571), product (87*39), mod (1679 mod 401). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":930,\"product\":3393,\"mod\":75}"
+        }
+      ]
+    },
+    {
+      "setId": 8,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5042 * 1887 + 7732) mod 9533",
+          "answer": "8052"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6166 * 3011 + 2512) mod 9377",
+          "answer": "1878"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(13) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. Some Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 10, 20, 40, ?",
+          "answer": "80"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (396+624), product (98*56), mod (1776 mod 444). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1020,\"product\":5488,\"mod\":0}"
+        }
+      ]
+    },
+    {
+      "setId": 9,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5218 * 2063 + 7908) mod 9341",
+          "answer": "2469"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (8998 * 5843 + 2688) mod 9161",
+          "answer": "3023"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(10) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. No Vs are Ws. Is it necessarily impossible for an U to be a W? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 12, 14, 16, ?",
+          "answer": "18"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (433+677), product (19*73), mod (1873 mod 487). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1110,\"product\":1387,\"mod\":412}"
+        }
+      ]
+    },
+    {
+      "setId": 10,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5394 * 2239 + 8084) mod 9133",
+          "answer": "2291"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9174 * 6019 + 2864) mod 8269",
+          "answer": "788"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(7) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. No Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 32, 128, ?",
+          "answer": "512"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (470+730), product (30*90), mod (1970 mod 530). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1200,\"product\":2700,\"mod\":380}"
+        }
+      ]
+    },
+    {
+      "setId": 11,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5570 * 2415 + 8260) mod 9413",
+          "answer": "8633"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9350 * 6195 + 3040) mod 9623",
+          "answer": "5453"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(14) return?",
+          "answer": "13"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. All Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 6, 10, 14, ?",
+          "answer": "18"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (507+783), product (41*17), mod (2067 mod 573). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1290,\"product\":697,\"mod\":348}"
+        }
+      ]
+    },
+    {
+      "setId": 12,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8402 * 5247 + 2092) mod 9199",
+          "answer": "5778"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9526 * 6371 + 3216) mod 9413",
+          "answer": "7751"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(11) return?",
+          "answer": "70"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. Some Ks are Gs. Can a K be a H? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 16, 32, ?",
+          "answer": "64"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (544+836), product (52*34), mod (2164 mod 616). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1380,\"product\":1768,\"mod\":316}"
+        }
+      ]
+    },
+    {
+      "setId": 13,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8578 * 5423 + 2268) mod 8293",
+          "answer": "5325"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9702 * 6547 + 3392) mod 9199",
+          "answer": "3291"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(8) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. Some Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 10, 16, 22, ?",
+          "answer": "28"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (581+889), product (63*51), mod (2261 mod 659). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1470,\"product\":3213,\"mod\":284}"
+        }
+      ]
+    },
+    {
+      "setId": 14,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8754 * 5599 + 2444) mod 9649",
+          "answer": "8819"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3534 * 9379 + 6224) mod 9463",
+          "answer": "2721"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(5) return?",
+          "answer": "4"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ms are Ns. No Ns are Os. Is it necessarily impossible for an M to be a O? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 24, 96, 384, ?",
+          "answer": "1536"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (618+942), product (74*68), mod (2358 mod 702). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1560,\"product\":5032,\"mod\":252}"
+        }
+      ]
+    },
+    {
+      "setId": 15,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8930 * 5775 + 2620) mod 9433",
+          "answer": "3159"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3710 * 9555 + 6400) mod 9277",
+          "answer": "8033"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(12) return?",
+          "answer": "1"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. No Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 14, 22, 30, ?",
+          "answer": "38"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (655+995), product (85*85), mod (2455 mod 745). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1650,\"product\":7225,\"mod\":220}"
+        }
+      ]
+    },
+    {
+      "setId": 16,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9106 * 5951 + 2796) mod 9227",
+          "answer": "2431"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3886 * 9731 + 6576) mod 9043",
+          "answer": "3416"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(9) return?",
+          "answer": "65"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. All Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 6, 12, 24, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (692+248), product (96*12), mod (2552 mod 788). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":940,\"product\":1152,\"mod\":188}"
+        }
+      ]
+    },
+    {
+      "setId": 17,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9282 * 8783 + 5628) mod 9491",
+          "answer": "1744"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4062 * 9907 + 6752) mod 9733",
+          "answer": "3031"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(6) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. Some Ws are Us. Can a W be a V? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 18, 28, 38, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (729+301), product (17*29), mod (2649 mod 831). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1030,\"product\":493,\"mod\":156}"
+        }
+      ]
+    },
+    {
+      "setId": 18,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3114 * 8959 + 5804) mod 9311",
+          "answer": "8374"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4238 * 1083 + 6928) mod 9491",
+          "answer": "3038"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(13) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. Some Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 20, 80, 320, ?",
+          "answer": "1280"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (766+354), product (28*46), mod (2746 mod 874). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1120,\"product\":1288,\"mod\":124}"
+        }
+      ]
+    },
+    {
+      "setId": 19,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3290 * 9135 + 5980) mod 9091",
+          "answer": "5284"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4414 * 1259 + 9760) mod 8233",
+          "answer": "1478"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(10) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No As are Bs. No Bs are Cs. Is it necessarily impossible for an A to be a C? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 13, 16, 19, ?",
+          "answer": "22"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (803+407), product (39*63), mod (2843 mod 917). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1210,\"product\":2457,\"mod\":92}"
+        }
+      ]
+    },
+    {
+      "setId": 20,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3466 * 9311 + 6156) mod 8191",
+          "answer": "5542"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7246 * 4091 + 9936) mod 9587",
+          "answer": "731"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(7) return?",
+          "answer": "90"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. No Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 8, 16, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (840+460), product (50*80), mod (2940 mod 960). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1300,\"product\":4000,\"mod\":60}"
+        }
+      ]
+    },
+    {
+      "setId": 21,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3642 * 9487 + 6332) mod 9533",
+          "answer": "861"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7422 * 4267 + 1112) mod 9377",
+          "answer": "4657"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(14) return?",
+          "answer": "87"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. All Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 7, 12, 17, ?",
+          "answer": "22"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (877+513), product (61*97), mod (3037 mod 103). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1390,\"product\":5917,\"mod\":50}"
+        }
+      ]
+    },
+    {
+      "setId": 22,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3818 * 9663 + 6508) mod 8269",
+          "answer": "3564"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7598 * 4443 + 1288) mod 9161",
+          "answer": "917"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(11) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ms are Ns. Some Os are Ms. Can a O be a N? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 16, 64, 256, ?",
+          "answer": "1024"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (914+566), product (72*24), mod (3134 mod 146). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1480,\"product\":1728,\"mod\":68}"
+        }
+      ]
+    },
+    {
+      "setId": 23,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (6650 * 3495 + 9340) mod 9623",
+          "answer": "1922"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7774 * 4619 + 1464) mod 8269",
+          "answer": "5572"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(8) return?",
+          "answer": "1"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. Some Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 11, 18, 25, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (951+619), product (83*41), mod (3231 mod 189). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1570,\"product\":3403,\"mod\":18}"
+        }
+      ]
+    },
+    {
+      "setId": 24,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (6826 * 3671 + 9516) mod 9413",
+          "answer": "943"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7950 * 4795 + 1640) mod 9227",
+          "answer": "5153"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(5) return?",
+          "answer": "85"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ps are Qs. No Qs are Rs. Is it necessarily impossible for an P to be a R? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 24, 48, ?",
+          "answer": "96"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (988+672), product (94*58), mod (3328 mod 232). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1660,\"product\":5452,\"mod\":80}"
+        }
+      ]
+    },
+    {
+      "setId": 25,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7002 * 3847 + 9692) mod 9199",
+          "answer": "2515"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (1782 * 7627 + 4472) mod 9011",
+          "answer": "7198"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(12) return?",
+          "answer": "17"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. No Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 15, 24, 33, ?",
+          "answer": "42"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (125+725), product (15*75), mod (3425 mod 275). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":850,\"product\":1125,\"mod\":125}"
+        }
+      ]
+    },
+    {
+      "setId": 26,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7178 * 4023 + 9868) mod 8293",
+          "answer": "2443"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (1958 * 7803 + 4648) mod 9689",
+          "answer": "3369"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(9) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. All Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 12, 48, 192, ?",
+          "answer": "768"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (162+778), product (26*92), mod (3522 mod 318). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":940,\"product\":2392,\"mod\":24}"
+        }
+      ]
+    },
+    {
+      "setId": 27,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7354 * 4199 + 1044) mod 9649",
+          "answer": "3690"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2134 * 7979 + 4824) mod 9463",
+          "answer": "8073"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(6) return?",
+          "answer": "29"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No As are Bs. Some Cs are As. Can a C be a B? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 10, 12, 14, ?",
+          "answer": "16"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (199+831), product (37*19), mod (3619 mod 361). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1030,\"product\":703,\"mod\":9}"
+        }
+      ]
+    },
+    {
+      "setId": 28,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7530 * 7031 + 3876) mod 9043",
+          "answer": "541"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2310 * 8155 + 5000) mod 9277",
+          "answer": "1463"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(13) return?",
+          "answer": "84"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. Some Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 10, 20, 40, ?",
+          "answer": "80"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (236+884), product (48*36), mod (3716 mod 404). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1120,\"product\":1728,\"mod\":80}"
+        }
+      ]
+    },
+    {
+      "setId": 29,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1362 * 7207 + 4052) mod 9733",
+          "answer": "9122"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2486 * 8331 + 5176) mod 9043",
+          "answer": "7572"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(10) return?",
+          "answer": "27"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Xs are Ys. No Ys are Zs. Is it necessarily impossible for an X to be a Z? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 14, 18, 22, ?",
+          "answer": "26"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (273+937), product (59*53), mod (3813 mod 447). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1210,\"product\":3127,\"mod\":237}"
+        }
+      ]
+    },
+    {
+      "setId": 30,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1538 * 7383 + 4228) mod 9491",
+          "answer": "8046"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2662 * 2163 + 8008) mod 9341",
+          "answer": "2517"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(7) return?",
+          "answer": "44"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. No Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 32, 128, ?",
+          "answer": "512"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (310+990), product (70*70), mod (3910 mod 490). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1300,\"product\":4900,\"mod\":480}"
+        }
+      ]
+    },
+    {
+      "setId": 31,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1714 * 7559 + 4404) mod 9311",
+          "answer": "8929"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5494 * 2339 + 8184) mod 9133",
+          "answer": "8519"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(14) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. All Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 14, 20, ?",
+          "answer": "26"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (347+243), product (81*87), mod (4007 mod 533). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":590,\"product\":7047,\"mod\":276}"
+        }
+      ]
+    },
+    {
+      "setId": 32,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1890 * 7735 + 4580) mod 9091",
+          "answer": "5402"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5670 * 2515 + 8360) mod 8233",
+          "answer": "621"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(11) return?",
+          "answer": "93"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ps are Qs. Some Rs are Ps. Can a R be a Q? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 16, 32, ?",
+          "answer": "64"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (384+296), product (92*14), mod (4104 mod 576). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":680,\"product\":1288,\"mod\":72}"
+        }
+      ]
+    },
+    {
+      "setId": 33,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (2066 * 7911 + 4756) mod 9377",
+          "answer": "4771"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5846 * 2691 + 8536) mod 9587",
+          "answer": "7855"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(8) return?",
+          "answer": "17"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. Some Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 12, 20, 28, ?",
+          "answer": "36"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (421+349), product (13*31), mod (4201 mod 619). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":770,\"product\":403,\"mod\":487}"
+        }
+      ]
+    },
+    {
+      "setId": 34,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (4898 * 1743 + 7588) mod 9161",
+          "answer": "6750"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6022 * 2867 + 8712) mod 9377",
+          "answer": "1352"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(5) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ls are Ss. No Ss are Ts. Is it necessarily impossible for an L to be a T? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 24, 96, 384, ?",
+          "answer": "1536"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (458+402), product (24*48), mod (4298 mod 662). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":860,\"product\":1152,\"mod\":326}"
+        }
+      ]
+    },
+    {
+      "setId": 35,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5074 * 1919 + 7764) mod 8269",
+          "answer": "3888"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6198 * 3043 + 8888) mod 9649",
+          "answer": "5607"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(12) return?",
+          "answer": "37"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. No Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 16, 26, 36, ?",
+          "answer": "46"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (495+455), product (35*65), mod (4395 mod 705). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":950,\"product\":2275,\"mod\":165}"
+        }
+      ]
+    },
+    {
+      "setId": 36,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5250 * 2095 + 7940) mod 9623",
+          "answer": "7601"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9030 * 5875 + 2720) mod 9433",
+          "answer": "2778"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(9) return?",
+          "answer": "64"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. All Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 6, 12, 24, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (532+508), product (46*82), mod (4492 mod 748). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1040,\"product\":3772,\"mod\":4}"
+        }
+      ]
+    },
+    {
+      "setId": 37,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5426 * 2271 + 8116) mod 9413",
+          "answer": "8945"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9206 * 6051 + 2896) mod 9227",
+          "answer": "5003"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(6) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Xs are Ys. Some Zs are Xs. Can a Z be a Y? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 11, 14, 17, ?",
+          "answer": "20"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (569+561), product (57*99), mod (4589 mod 791). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1130,\"product\":5643,\"mod\":634}"
+        }
+      ]
+    },
+    {
+      "setId": 38,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5602 * 2447 + 8292) mod 9199",
+          "answer": "677"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9382 * 6227 + 3072) mod 9011",
+          "answer": "6473"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(13) return?",
+          "answer": "64"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. Some Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 20, 80, 320, ?",
+          "answer": "1280"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (606+614), product (68*26), mod (4686 mod 834). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1220,\"product\":1768,\"mod\":516}"
+        }
+      ]
+    },
+    {
+      "setId": 39,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8434 * 5279 + 2124) mod 9463",
+          "answer": "1795"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9558 * 6403 + 3248) mod 9689",
+          "answer": "7398"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(10) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ds are Es. No Es are Fs. Is it necessarily impossible for an D to be a F? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 15, 20, 25, ?",
+          "answer": "30"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (643+667), product (79*43), mod (4783 mod 877). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1310,\"product\":3397,\"mod\":398}"
+        }
+      ]
+    },
+    {
+      "setId": 40,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8610 * 5455 + 2300) mod 9277",
+          "answer": "399"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9734 * 6579 + 3424) mod 9463",
+          "answer": "7289"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(7) return?",
+          "answer": "73"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. No Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 8, 16, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (680+720), product (90*60), mod (4880 mod 920). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1400,\"product\":5400,\"mod\":280}"
+        }
+      ]
+    },
+    {
+      "setId": 41,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8786 * 5631 + 2476) mod 9043",
+          "answer": "2189"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9910 * 9411 + 6256) mod 8191",
+          "answer": "6540"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(14) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. All Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 9, 16, 23, ?",
+          "answer": "30"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (717+773), product (11*77), mod (4977 mod 963). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1490,\"product\":847,\"mod\":162}"
+        }
+      ]
+    },
+    {
+      "setId": 42,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8962 * 5807 + 2652) mod 9733",
+          "answer": "2635"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3742 * 9587 + 6432) mod 9533",
+          "answer": "8307"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(11) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ls are Ss. Some Ts are Ls. Can a T be a S? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 16, 64, 256, ?",
+          "answer": "1024"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (754+826), product (22*94), mod (5074 mod 106). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1580,\"product\":2068,\"mod\":92}"
+        }
+      ]
+    },
+    {
+      "setId": 43,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9138 * 5983 + 2828) mod 9491",
+          "answer": "7322"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3918 * 9763 + 6608) mod 9341",
+          "answer": "6647"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(8) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. Some Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 13, 22, 31, ?",
+          "answer": "40"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (791+879), product (33*21), mod (5171 mod 149). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1670,\"product\":693,\"mod\":105}"
+        }
+      ]
+    },
+    {
+      "setId": 44,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9314 * 6159 + 5660) mod 8233",
+          "answer": "3042"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4094 * 9939 + 6784) mod 9133",
+          "answer": "402"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(5) return?",
+          "answer": "44"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. No Hs are Ks. Is it necessarily impossible for an G to be a K? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 24, 48, ?",
+          "answer": "96"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (828+932), product (44*38), mod (5268 mod 192). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1760,\"product\":1672,\"mod\":84}"
+        }
+      ]
+    },
+    {
+      "setId": 45,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3146 * 8991 + 5836) mod 9587",
+          "answer": "285"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4270 * 1115 + 6960) mod 8233",
+          "answer": "1103"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(12) return?",
+          "answer": "21"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. No Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 8, 10, 12, ?",
+          "answer": "14"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (865+985), product (55*55), mod (5365 mod 235). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1850,\"product\":3025,\"mod\":195}"
+        }
+      ]
+    },
+    {
+      "setId": 46,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3322 * 9167 + 6012) mod 9377",
+          "answer": "2290"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4446 * 1291 + 9792) mod 9199",
+          "answer": "203"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(9) return?",
+          "answer": "84"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. All Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 12, 48, 192, ?",
+          "answer": "768"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (902+238), product (66*72), mod (5462 mod 278). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1140,\"product\":4752,\"mod\":180}"
+        }
+      ]
+    },
+    {
+      "setId": 47,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3498 * 9343 + 6188) mod 9161",
+          "answer": "1554"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7278 * 4123 + 9968) mod 8293",
+          "answer": "4795"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(6) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ds are Es. Some Fs are Ds. Can a F be a E? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 12, 16, 20, ?",
+          "answer": "24"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (939+291), product (77*89), mod (5559 mod 321). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1230,\"product\":6853,\"mod\":102}"
+        }
+      ]
+    },
+    {
+      "setId": 48,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3674 * 9519 + 6364) mod 8269",
+          "answer": "1300"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7454 * 4299 + 1144) mod 9649",
+          "answer": "1561"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(13) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. Some Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 10, 20, 40, ?",
+          "answer": "80"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (976+344), product (88*16), mod (5656 mod 364). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1320,\"product\":1408,\"mod\":196}"
+        }
+      ]
+    },
+    {
+      "setId": 49,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3850 * 9695 + 6540) mod 9623",
+          "answer": "4673"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7630 * 4475 + 1320) mod 9433",
+          "answer": "7543"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(10) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. No Vs are Ws. Is it necessarily impossible for an U to be a W? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 16, 22, 28, ?",
+          "answer": "34"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (113+397), product (99*33), mod (5753 mod 407). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":510,\"product\":3267,\"mod\":55}"
+        }
+      ]
+    },
+    {
+      "setId": 50,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (6682 * 3527 + 9372) mod 9011",
+          "answer": "4010"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7806 * 4651 + 1496) mod 9227",
+          "answer": "8184"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(7) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. No Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 32, 128, ?",
+          "answer": "512"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (150+450), product (20*50), mod (5850 mod 450). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":600,\"product\":1000,\"mod\":0}"
+        }
+      ]
+    },
+    {
+      "setId": 51,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (6858 * 3703 + 9548) mod 9689",
+          "answer": "164"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7982 * 4827 + 1672) mod 9011",
+          "answer": "8761"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(14) return?",
+          "answer": "13"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. All Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 10, 18, 26, ?",
+          "answer": "34"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (187+503), product (31*67), mod (5947 mod 493). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":690,\"product\":2077,\"mod\":31}"
+        }
+      ]
+    },
+    {
+      "setId": 52,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7034 * 3879 + 9724) mod 9463",
+          "answer": "3318"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (1814 * 7659 + 4504) mod 9311",
+          "answer": "5918"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(11) return?",
+          "answer": "70"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. Some Ks are Gs. Can a K be a H? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 16, 32, ?",
+          "answer": "64"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (224+556), product (42*84), mod (6044 mod 536). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":780,\"product\":3528,\"mod\":148}"
+        }
+      ]
+    },
+    {
+      "setId": 53,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7210 * 4055 + 9900) mod 9277",
+          "answer": "5346"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (1990 * 7835 + 4680) mod 9091",
+          "answer": "5265"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(8) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. Some Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 14, 24, 34, ?",
+          "answer": "44"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (261+609), product (53*11), mod (6141 mod 579). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":870,\"product\":583,\"mod\":351}"
+        }
+      ]
+    },
+    {
+      "setId": 54,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7386 * 4231 + 1076) mod 9043",
+          "answer": "7677"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2166 * 8011 + 4856) mod 8191",
+          "answer": "8144"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(5) return?",
+          "answer": "4"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ms are Ns. No Ns are Os. Is it necessarily impossible for an M to be a O? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 24, 96, 384, ?",
+          "answer": "1536"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (298+662), product (64*28), mod (6238 mod 622). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":960,\"product\":1792,\"mod\":18}"
+        }
+      ]
+    },
+    {
+      "setId": 55,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7562 * 4407 + 3908) mod 9341",
+          "answer": "954"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2342 * 8187 + 5032) mod 9533",
+          "answer": "8123"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(12) return?",
+          "answer": "1"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. No Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 9, 12, 15, ?",
+          "answer": "18"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (335+715), product (75*45), mod (6335 mod 665). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1050,\"product\":3375,\"mod\":350}"
+        }
+      ]
+    },
+    {
+      "setId": 56,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1394 * 7239 + 4084) mod 9133",
+          "answer": "3285"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2518 * 8363 + 5208) mod 9341",
+          "answer": "8628"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(9) return?",
+          "answer": "65"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. All Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 6, 12, 24, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (372+768), product (86*62), mod (6432 mod 708). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1140,\"product\":5332,\"mod\":60}"
+        }
+      ]
+    },
+    {
+      "setId": 57,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1570 * 7415 + 4260) mod 8233",
+          "answer": "4348"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2694 * 8539 + 8040) mod 9623",
+          "answer": "3513"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(6) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. Some Ws are Us. Can a W be a V? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 13, 18, 23, ?",
+          "answer": "28"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (409+821), product (97*79), mod (6529 mod 751). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1230,\"product\":7663,\"mod\":521}"
+        }
+      ]
+    },
+    {
+      "setId": 58,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1746 * 7591 + 4436) mod 9587",
+          "answer": "9088"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5526 * 2371 + 8216) mod 9413",
+          "answer": "7466"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(13) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. Some Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 20, 80, 320, ?",
+          "answer": "1280"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (446+874), product (18*96), mod (6626 mod 794). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1320,\"product\":1728,\"mod\":274}"
+        }
+      ]
+    },
+    {
+      "setId": 59,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1922 * 7767 + 4612) mod 9377",
+          "answer": "4602"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5702 * 2547 + 8392) mod 9199",
+          "answer": "6165"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(10) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No As are Bs. No Bs are Cs. Is it necessarily impossible for an A to be a C? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 17, 24, 31, ?",
+          "answer": "38"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (483+927), product (29*23), mod (6723 mod 837). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1410,\"product\":667,\"mod\":27}"
+        }
+      ]
+    },
+    {
+      "setId": 60,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (2098 * 7943 + 4788) mod 9649",
+          "answer": "5379"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5878 * 2723 + 8568) mod 8293",
+          "answer": "579"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(7) return?",
+          "answer": "90"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. No Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 8, 16, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (520+980), product (40*40), mod (6820 mod 880). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1500,\"product\":1600,\"mod\":660}"
+        }
+      ]
+    },
+    {
+      "setId": 61,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (4930 * 1775 + 7620) mod 9433",
+          "answer": "4546"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6054 * 2899 + 8744) mod 9649",
+          "answer": "7759"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(14) return?",
+          "answer": "87"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. All Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 11, 20, 29, ?",
+          "answer": "38"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (557+233), product (51*57), mod (6917 mod 923). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":790,\"product\":2907,\"mod\":456}"
+        }
+      ]
+    },
+    {
+      "setId": 62,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5106 * 1951 + 7796) mod 9227",
+          "answer": "4442"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6230 * 3075 + 8920) mod 9433",
+          "answer": "7747"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(11) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ms are Ns. Some Os are Ms. Can a O be a N? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 16, 64, 256, ?",
+          "answer": "1024"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (594+286), product (62*74), mod (7014 mod 966). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":880,\"product\":4588,\"mod\":252}"
+        }
+      ]
+    },
+    {
+      "setId": 63,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5282 * 2127 + 7972) mod 9011",
+          "answer": "6069"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9062 * 5907 + 2752) mod 9733",
+          "answer": "486"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(8) return?",
+          "answer": "1"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. Some Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 6, 8, 10, ?",
+          "answer": "12"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (631+339), product (73*91), mod (7111 mod 109). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":970,\"product\":6643,\"mod\":26}"
+        }
+      ]
+    },
+    {
+      "setId": 64,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5458 * 2303 + 8148) mod 9689",
+          "answer": "1600"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9238 * 6083 + 2928) mod 9491",
+          "answer": "1471"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(5) return?",
+          "answer": "85"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ps are Qs. No Qs are Rs. Is it necessarily impossible for an P to be a R? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 24, 48, ?",
+          "answer": "96"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (668+392), product (84*18), mod (7208 mod 152). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1060,\"product\":1512,\"mod\":64}"
+        }
+      ]
+    },
+    {
+      "setId": 65,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5634 * 2479 + 8324) mod 9463",
+          "answer": "7622"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9414 * 6259 + 3104) mod 9311",
+          "answer": "5322"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(12) return?",
+          "answer": "17"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. No Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 10, 14, 18, ?",
+          "answer": "22"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (705+445), product (95*35), mod (7305 mod 195). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1150,\"product\":3325,\"mod\":90}"
+        }
+      ]
+    },
+    {
+      "setId": 66,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5810 * 5311 + 2156) mod 8191",
+          "answer": "3569"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9590 * 6435 + 3280) mod 9091",
+          "answer": "5222"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(9) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. All Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 12, 48, 192, ?",
+          "answer": "768"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (742+498), product (16*52), mod (7402 mod 238). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1240,\"product\":832,\"mod\":24}"
+        }
+      ]
+    },
+    {
+      "setId": 67,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8642 * 5487 + 2332) mod 9533",
+          "answer": "3844"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9766 * 6611 + 3456) mod 8191",
+          "answer": "5020"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(6) return?",
+          "answer": "29"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No As are Bs. Some Cs are As. Can a C be a B? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 14, 20, 26, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (779+551), product (27*69), mod (7499 mod 281). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1330,\"product\":1863,\"mod\":193}"
+        }
+      ]
+    },
+    {
+      "setId": 68,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8818 * 5663 + 2508) mod 9341",
+          "answer": "1856"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9942 * 9443 + 6288) mod 9161",
+          "answer": "6666"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(13) return?",
+          "answer": "84"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. Some Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 10, 20, 40, ?",
+          "answer": "80"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (816+604), product (38*86), mod (7596 mod 324). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1420,\"product\":3268,\"mod\":144}"
+        }
+      ]
+    },
+    {
+      "setId": 69,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8994 * 5839 + 2684) mod 9133",
+          "answer": "3900"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3774 * 9619 + 6464) mod 8269",
+          "answer": "7660"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(10) return?",
+          "answer": "27"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Xs are Ys. No Ys are Zs. Is it necessarily impossible for an X to be a Z? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 18, 26, 34, ?",
+          "answer": "42"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (853+657), product (49*13), mod (7693 mod 367). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1510,\"product\":637,\"mod\":353}"
+        }
+      ]
+    },
+    {
+      "setId": 70,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9170 * 6015 + 2860) mod 8233",
+          "answer": "7543"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3950 * 9795 + 6640) mod 9623",
+          "answer": "2807"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(7) return?",
+          "answer": "44"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. No Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 32, 128, ?",
+          "answer": "512"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (890+710), product (60*30), mod (7790 mod 410). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1600,\"product\":1800,\"mod\":0}"
+        }
+      ]
+    },
+    {
+      "setId": 71,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9346 * 6191 + 3036) mod 9199",
+          "answer": "2412"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4126 * 9971 + 6816) mod 9413",
+          "answer": "2939"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(14) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. All Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 12, 22, 32, ?",
+          "answer": "42"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (927+763), product (71*47), mod (7887 mod 453). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1690,\"product\":3337,\"mod\":186}"
+        }
+      ]
+    },
+    {
+      "setId": 72,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3178 * 9023 + 5868) mod 8293",
+          "answer": "3768"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4302 * 1147 + 6992) mod 9199",
+          "answer": "1523"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(11) return?",
+          "answer": "93"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ps are Qs. Some Rs are Ps. Can a R be a Q? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 16, 32, ?",
+          "answer": "64"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (964+816), product (82*64), mod (7984 mod 496). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1780,\"product\":5248,\"mod\":48}"
+        }
+      ]
+    },
+    {
+      "setId": 73,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3354 * 9199 + 6044) mod 9649",
+          "answer": "1988"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4478 * 1323 + 7168) mod 9463",
+          "answer": "7724"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(8) return?",
+          "answer": "17"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. Some Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 7, 10, 13, ?",
+          "answer": "16"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (101+869), product (93*81), mod (8081 mod 539). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":970,\"product\":7533,\"mod\":535}"
+        }
+      ]
+    },
+    {
+      "setId": 74,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3530 * 9375 + 6220) mod 9433",
+          "answer": "9006"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7310 * 4155 + 1000) mod 9277",
+          "answer": "1152"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(5) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ls are Ss. No Ss are Ts. Is it necessarily impossible for an L to be a T? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 24, 96, 384, ?",
+          "answer": "1536"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (138+922), product (14*98), mod (8178 mod 582). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1060,\"product\":1372,\"mod\":30}"
+        }
+      ]
+    },
+    {
+      "setId": 75,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3706 * 9551 + 6396) mod 9227",
+          "answer": "7630"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7486 * 4331 + 1176) mod 9043",
+          "answer": "3887"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(12) return?",
+          "answer": "37"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. No Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 11, 16, 21, ?",
+          "answer": "26"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (175+975), product (25*25), mod (8275 mod 625). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1150,\"product\":625,\"mod\":150}"
+        }
+      ]
+    },
+    {
+      "setId": 76,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3882 * 9727 + 6572) mod 9011",
+          "answer": "1685"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7662 * 4507 + 1352) mod 9733",
+          "answer": "1302"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(9) return?",
+          "answer": "64"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Gs are Hs. All Hs are Ks. Is it possible for an G to be a K? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 6, 12, 24, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (212+228), product (36*42), mod (8372 mod 668). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":440,\"product\":1512,\"mod\":356}"
+        }
+      ]
+    },
+    {
+      "setId": 77,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (4058 * 3559 + 9404) mod 9311",
+          "answer": "1154"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (7838 * 4683 + 1528) mod 9491",
+          "answer": "5185"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(6) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Xs are Ys. Some Zs are Xs. Can a Z be a Y? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 15, 22, 29, ?",
+          "answer": "36"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (249+281), product (47*59), mod (8469 mod 711). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":530,\"product\":2773,\"mod\":648}"
+        }
+      ]
+    },
+    {
+      "setId": 78,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (6890 * 3735 + 9580) mod 9091",
+          "answer": "7109"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (8014 * 4859 + 1704) mod 9311",
+          "answer": "3128"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(13) return?",
+          "answer": "64"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. Some Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 20, 80, 320, ?",
+          "answer": "1280"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (286+334), product (58*76), mod (8566 mod 754). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":620,\"product\":4408,\"mod\":272}"
+        }
+      ]
+    },
+    {
+      "setId": 79,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7066 * 3911 + 9756) mod 8191",
+          "answer": "257"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (8190 * 7691 + 4536) mod 9587",
+          "answer": "7236"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(10) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ds are Es. No Es are Fs. Is it necessarily impossible for an D to be a F? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 19, 28, 37, ?",
+          "answer": "46"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (323+387), product (69*93), mod (8663 mod 797). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":710,\"product\":6417,\"mod\":693}"
+        }
+      ]
+    },
+    {
+      "setId": 80,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7242 * 4087 + 9932) mod 9533",
+          "answer": "8021"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2022 * 7867 + 4712) mod 9377",
+          "answer": "8394"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(7) return?",
+          "answer": "73"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. No Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 8, 16, ?",
+          "answer": "32"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (360+440), product (80*20), mod (8760 mod 840). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":800,\"product\":1600,\"mod\":360}"
+        }
+      ]
+    },
+    {
+      "setId": 81,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7418 * 4263 + 1108) mod 9341",
+          "answer": "4757"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2198 * 8043 + 4888) mod 9161",
+          "answer": "2672"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(14) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Us are Vs. All Vs are Ws. Is it possible for an U to be a W? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 4, 6, 8, ?",
+          "answer": "10"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (397+493), product (91*37), mod (8857 mod 883). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":890,\"product\":3367,\"mod\":27}"
+        }
+      ]
+    },
+    {
+      "setId": 82,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (7594 * 4439 + 3940) mod 9623",
+          "answer": "4337"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2374 * 8219 + 5064) mod 8269",
+          "answer": "2130"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(11) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ls are Ss. Some Ts are Ls. Can a T be a S? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 16, 64, 256, ?",
+          "answer": "1024"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (434+546), product (12*54), mod (8954 mod 926). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":980,\"product\":648,\"mod\":620}"
+        }
+      ]
+    },
+    {
+      "setId": 83,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1426 * 7271 + 4116) mod 9413",
+          "answer": "8849"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2550 * 8395 + 5240) mod 9623",
+          "answer": "1315"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(8) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. Some Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 12, 16, ?",
+          "answer": "20"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (471+599), product (23*71), mod (9051 mod 969). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1070,\"product\":1633,\"mod\":330}"
+        }
+      ]
+    },
+    {
+      "setId": 84,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1602 * 7447 + 4292) mod 9199",
+          "answer": "3283"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (2726 * 8571 + 5416) mod 9011",
+          "answer": "4439"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(5) return?",
+          "answer": "44"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. No Hs are Ks. Is it necessarily impossible for an G to be a K? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 24, 48, ?",
+          "answer": "96"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (508+652), product (34*88), mod (9148 mod 112). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1160,\"product\":2992,\"mod\":76}"
+        }
+      ]
+    },
+    {
+      "setId": 85,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1778 * 7623 + 4468) mod 8293",
+          "answer": "7400"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5558 * 2403 + 8248) mod 9689",
+          "answer": "2991"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(12) return?",
+          "answer": "21"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. No Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 12, 18, 24, ?",
+          "answer": "30"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (545+705), product (45*15), mod (9245 mod 155). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1250,\"product\":675,\"mod\":100}"
+        }
+      ]
+    },
+    {
+      "setId": 86,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (1954 * 7799 + 4644) mod 9649",
+          "answer": "8119"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5734 * 2579 + 8424) mod 9463",
+          "answer": "5741"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(9) return?",
+          "answer": "84"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ms are Ns. All Ns are Os. Is it possible for an M to be a O? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 12, 48, 192, ?",
+          "answer": "768"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (582+758), product (56*32), mod (9342 mod 198). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1340,\"product\":1792,\"mod\":36}"
+        }
+      ]
+    },
+    {
+      "setId": 87,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (2130 * 7975 + 4820) mod 9433",
+          "answer": "2737"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (5910 * 2755 + 8600) mod 9277",
+          "answer": "238"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(6) return?",
+          "answer": "41"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ds are Es. Some Fs are Ds. Can a F be a E? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 16, 24, 32, ?",
+          "answer": "40"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (619+811), product (67*49), mod (9439 mod 241). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1430,\"product\":3283,\"mod\":40}"
+        }
+      ]
+    },
+    {
+      "setId": 88,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (4962 * 1807 + 7652) mod 9733",
+          "answer": "160"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6086 * 2931 + 8776) mod 9043",
+          "answer": "5003"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(13) return?",
+          "answer": "45"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. Some Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 10, 20, 40, ?",
+          "answer": "80"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (656+864), product (78*66), mod (9536 mod 284). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1520,\"product\":5148,\"mod\":164}"
+        }
+      ]
+    },
+    {
+      "setId": 89,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5138 * 1983 + 7828) mod 9491",
+          "answer": "3148"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (6262 * 3107 + 8952) mod 9733",
+          "answer": "8719"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(10) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. No Vs are Ws. Is it necessarily impossible for an U to be a W? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 20, 30, 40, ?",
+          "answer": "50"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (693+917), product (89*83), mod (9633 mod 327). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1610,\"product\":7387,\"mod\":150}"
+        }
+      ]
+    },
+    {
+      "setId": 90,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5314 * 2159 + 8004) mod 9311",
+          "answer": "467"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9094 * 5939 + 2784) mod 9133",
+          "answer": "8621"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(7) return?",
+          "answer": "12"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. No Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 8, 32, 128, ?",
+          "answer": "512"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (730+970), product (10*10), mod (9730 mod 370). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1700,\"product\":100,\"mod\":110}"
+        }
+      ]
+    },
+    {
+      "setId": 91,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5490 * 2335 + 8180) mod 9091",
+          "answer": "9020"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9270 * 6115 + 2960) mod 8233",
+          "answer": "4805"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(14) return?",
+          "answer": "13"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All As are Bs. All Bs are Cs. Is it possible for an A to be a C? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 2, 5, 8, 11, ?",
+          "answer": "14"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (767+223), product (21*27), mod (9827 mod 413). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":990,\"product\":567,\"mod\":328}"
+        }
+      ]
+    },
+    {
+      "setId": 92,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5666 * 2511 + 8356) mod 8191",
+          "answer": "7915"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9446 * 6291 + 3136) mod 9587",
+          "answer": "7696"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 13 + 11) % 100; return x; } What does f(11) return?",
+          "answer": "70"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Gs are Hs. Some Ks are Gs. Can a K be a H? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 8, 16, 32, ?",
+          "answer": "64"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (804+276), product (32*44), mod (9924 mod 456). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1080,\"product\":1408,\"mod\":348}"
+        }
+      ]
+    },
+    {
+      "setId": 93,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (5842 * 2687 + 2188) mod 9161",
+          "answer": "6849"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9622 * 6467 + 3312) mod 9377",
+          "answer": "3014"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 17 + 1) % 100; return x; } What does f(8) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Xs are Ys. Some Ys are Zs. Is it possible for an X to be a Z? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 4, 9, 14, 19, ?",
+          "answer": "24"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (841+329), product (43*61), mod (1021 mod 499). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1170,\"product\":2623,\"mod\":23}"
+        }
+      ]
+    },
+    {
+      "setId": 94,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8674 * 5519 + 2364) mod 8269",
+          "answer": "4929"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9798 * 6643 + 3488) mod 9161",
+          "answer": "2697"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 19 + 5) % 100; return x; } What does f(5) return?",
+          "answer": "4"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Ms are Ns. No Ns are Os. Is it necessarily impossible for an M to be a O? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 24, 96, 384, ?",
+          "answer": "1536"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (878+382), product (54*78), mod (1118 mod 542). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1260,\"product\":4212,\"mod\":34}"
+        }
+      ]
+    },
+    {
+      "setId": 95,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (8850 * 5695 + 2540) mod 9623",
+          "answer": "7639"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (9974 * 6819 + 6320) mod 9433",
+          "answer": "7096"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 23 + 13) % 100; return x; } What does f(12) return?",
+          "answer": "1"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ds are Es. No Es are Fs. Is it possible for an D to be a F? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 6, 13, 20, 27, ?",
+          "answer": "34"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (915+435), product (65*95), mod (1215 mod 585). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1350,\"product\":6175,\"mod\":45}"
+        }
+      ]
+    },
+    {
+      "setId": 96,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9026 * 5871 + 2716) mod 9413",
+          "answer": "8585"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3806 * 9651 + 6496) mod 9227",
+          "answer": "5515"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 3 + 2) % 100; return x; } What does f(9) return?",
+          "answer": "65"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ps are Qs. All Qs are Rs. Is it possible for an P to be a R? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 3, 6, 12, 24, ?",
+          "answer": "48"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (952+488), product (76*22), mod (1312 mod 628). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1440,\"product\":1672,\"mod\":56}"
+        }
+      ]
+    },
+    {
+      "setId": 97,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9202 * 6047 + 2892) mod 9199",
+          "answer": "2635"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (3982 * 9827 + 6672) mod 9011",
+          "answer": "3013"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 5 + 7) % 100; return x; } What does f(6) return?",
+          "answer": "67"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No Us are Vs. Some Ws are Us. Can a W be a V? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 8, 17, 26, 35, ?",
+          "answer": "44"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (989+541), product (87*39), mod (1409 mod 671). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":1530,\"product\":3393,\"mod\":67}"
+        }
+      ]
+    },
+    {
+      "setId": 98,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (9378 * 6223 + 3068) mod 8293",
+          "answer": "4521"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4158 * 1003 + 6848) mod 9689",
+          "answer": "1363"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 7 + 17) % 100; return x; } What does f(13) return?",
+          "answer": "24"
+        },
+        {
+          "type": "logic",
+          "question": "Given: All Ls are Ss. Some Ss are Ts. Is it possible for an L to be a T? Answer YES or NO.",
+          "answer": "YES"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 5, 20, 80, 320, ?",
+          "answer": "1280"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (126+594), product (98*56), mod (1506 mod 714). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":720,\"product\":5488,\"mod\":78}"
+        }
+      ]
+    },
+    {
+      "setId": 99,
+      "challenges": [
+        {
+          "type": "math",
+          "question": "Compute: (3210 * 9055 + 5900) mod 9277",
+          "answer": "7609"
+        },
+        {
+          "type": "math",
+          "question": "Compute: (4334 * 1179 + 7024) mod 9463",
+          "answer": "6790"
+        },
+        {
+          "type": "code_trace",
+          "question": "function f(n) { let x = 1; for (let i = 0; i < n; i++) x = (x * 11 + 3) % 100; return x; } What does f(10) return?",
+          "answer": "81"
+        },
+        {
+          "type": "logic",
+          "question": "Given: No As are Bs. No Bs are Cs. Is it necessarily impossible for an A to be a C? Answer YES or NO.",
+          "answer": "NO"
+        },
+        {
+          "type": "pattern",
+          "question": "What is the next number: 10, 12, 14, 16, ?",
+          "answer": "18"
+        },
+        {
+          "type": "format",
+          "question": "Output a JSON string with exactly these keys in this order: sum (163+647), product (19*73), mod (1603 mod 757). No spaces. Example shape: {\"sum\":0,\"product\":0,\"mod\":0}",
+          "answer": "{\"sum\":810,\"product\":1387,\"mod\":89}"
+        }
+      ]
+    }
+  ]
+}
