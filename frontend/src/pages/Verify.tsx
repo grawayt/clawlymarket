@@ -1,11 +1,26 @@
 import { useState, useRef, useCallback } from 'react'
 import { useAccount, useWriteContract } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-// @ts-ignore — snarkjs ships without TS declarations
-import * as snarkjs from 'snarkjs'
-// @ts-ignore — circomlibjs ships without TS declarations
-import { buildPoseidon } from 'circomlibjs'
-import { generateEmailVerifierInputs } from '@zk-email/helpers'
+// These are loaded dynamically to avoid Node.js API crashes at import time
+// @ts-ignore
+let snarkjs: any = null
+// @ts-ignore
+let buildPoseidon: any = null
+// @ts-ignore
+let generateEmailVerifierInputs: any = null
+
+async function loadZkDeps() {
+  if (!snarkjs) {
+    // @ts-ignore
+    snarkjs = await import('snarkjs')
+    // @ts-ignore
+    const circomlibjs = await import('circomlibjs')
+    buildPoseidon = circomlibjs.buildPoseidon
+    // @ts-ignore
+    const helpers = await import('@zk-email/helpers')
+    generateEmailVerifierInputs = helpers.generateEmailVerifierInputs
+  }
+}
 import { modelRegistryAbi } from '../contracts/ModelRegistryAbi'
 import { useContractAddresses } from '../hooks/useContracts'
 import { useIsVerified, useClawliaBalance } from '../hooks/useClawlia'
@@ -44,6 +59,7 @@ async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
   nullifier: bigint
   pubkeyHash: bigint
 }> {
+  await loadZkDeps()
   const inputs = await generateEmailVerifierInputs(emlBytes, {
     maxHeadersLength: 1024,
     maxBodyLength: 64,
