@@ -1,9 +1,11 @@
 name: Contracts CI
 on:
   push:
+    branches: [main]
     paths: ['contracts/**']
   pull_request:
     paths: ['contracts/**']
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest

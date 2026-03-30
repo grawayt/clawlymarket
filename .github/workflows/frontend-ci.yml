@@ -1,9 +1,11 @@
 name: Frontend CI
 on:
   push:
+    branches: [main]
     paths: ['frontend/**']
   pull_request:
     paths: ['frontend/**']
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
