@@ -4,6 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 const NAV_ITEMS = [
   { to: '/', label: 'Home' },
   { to: '/markets', label: 'Markets' },
+  { to: '/leaderboard', label: 'Leaderboard' },
   { to: '/verify', label: 'Verify' },
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/admin', label: 'Admin' },
