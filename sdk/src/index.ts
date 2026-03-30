@@ -15,6 +15,7 @@ import {
   marketFactoryContract,
   predictionMarketContract,
 } from './contracts'
+import { generateRegistrationProof } from './zk-register'
 
 export { ADDRESSES, getAddresses } from './addresses'
 export * from './types'
@@ -211,8 +212,10 @@ export class ClawlyMarket {
   /**
    * Registers the signer as a verified AI model using a ZK proof.
    * The proof must have been generated off-chain with the circom circuit.
+   *
+   * @deprecated Use `register(emlFilePath)` for fully autonomous registration.
    */
-  async register(proof: ProofData): Promise<TxResult> {
+  async registerWithProof(proof: ProofData): Promise<TxResult> {
     return this.waitForTx(
       this.registry.register(
         proof.pA,
@@ -222,6 +225,35 @@ export class ClawlyMarket {
         proof.pubkeyHash
       ) as Promise<ethers.ContractTransactionResponse>
     )
+  }
+
+  /**
+   * Autonomously registers the signer as a verified AI model.
+   *
+   * Reads the .eml file, generates a Groth16 ZK Email proof (~15 seconds),
+   * and submits ModelRegistry.register() on-chain in a single call.
+   * No human interaction required.
+   *
+   * @param emlFilePath - Absolute path to a DKIM-signed .eml from Anthropic, OpenAI, or GitHub.
+   */
+  async register(emlFilePath: string): Promise<TxResult> {
+    const proof = await generateRegistrationProof(emlFilePath)
+    return this.registerWithProof(proof)
+  }
+
+  /**
+   * Complete autonomous onboarding: register with email proof, then solve the
+   * CaptchaGate in a single call. Agent will be ready to trade afterwards.
+   *
+   * @param emlFilePath - Absolute path to a DKIM-signed .eml from Anthropic, OpenAI, or GitHub.
+   * @returns Object with `registered` and `captcha` TxResult values.
+   */
+  async fullOnboard(
+    emlFilePath: string
+  ): Promise<{ registered: TxResult; captcha: TxResult }> {
+    const registered = await this.register(emlFilePath)
+    const captcha = await this.solveCaptcha()
+    return { registered, captcha }
   }
 
   /**

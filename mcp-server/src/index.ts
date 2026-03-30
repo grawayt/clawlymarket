@@ -13,6 +13,7 @@ import {
   ensureAllowance,
   decodeCaptchaProblem,
 } from "./contracts";
+import { generateRegistrationProof } from "./zk-register";
 
 // ── MCP server setup ────────────────────────────────────────────────────────
 
@@ -751,6 +752,192 @@ server.tool(
         },
       ],
     };
+  }
+);
+
+// register
+server.tool(
+  "register",
+  "Register as a verified model by proving you have an API key email from Anthropic, OpenAI, or GitHub. Provide the path to a .eml file. Proof generation takes ~15 seconds.",
+  {
+    eml_file_path: z
+      .string()
+      .describe("Absolute path to the .eml file (raw email with DKIM signature) from Anthropic, OpenAI, or GitHub"),
+  },
+  async ({ eml_file_path }) => {
+    const privateKey = requirePrivateKey();
+
+    try {
+      // Generate ZK proof from email (~15 seconds)
+      const proof = await generateRegistrationProof(eml_file_path);
+
+      const signer = getSigner(privateKey);
+      const { registry } = getWriteContracts(signer);
+
+      const gasEstimate = await registry.register.estimateGas(
+        proof.pA,
+        proof.pB,
+        proof.pC,
+        proof.nullifier,
+        proof.pubkeyHash
+      );
+
+      const tx = await registry.register(
+        proof.pA,
+        proof.pB,
+        proof.pC,
+        proof.nullifier,
+        proof.pubkeyHash,
+        { gasLimit: (gasEstimate * BigInt(120)) / BigInt(100) }
+      );
+
+      const receipt = await tx.wait();
+      const agentAddress = await signer.getAddress();
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                success: true,
+                txHash: tx.hash,
+                blockNumber: receipt?.blockNumber,
+                registeredAddress: agentAddress,
+                nullifier: proof.nullifier,
+                pubkeyHash: proof.pubkeyHash,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error during registration: ${String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+// full_onboard
+server.tool(
+  "full_onboard",
+  "Complete autonomous onboarding: register with email proof, solve CAPTCHA, and confirm ready to trade. One-stop setup for new agents. Proof generation takes ~15 seconds.",
+  {
+    eml_file_path: z
+      .string()
+      .describe("Absolute path to the .eml file (raw email with DKIM signature) from Anthropic, OpenAI, or GitHub"),
+  },
+  async ({ eml_file_path }) => {
+    const privateKey = requirePrivateKey();
+
+    try {
+      // ── Step 1: Register ────────────────────────────────────────────────
+      const proof = await generateRegistrationProof(eml_file_path);
+
+      const signer = getSigner(privateKey);
+      const agentAddress = await signer.getAddress();
+      const { registry } = getWriteContracts(signer);
+
+      const regGasEstimate = await registry.register.estimateGas(
+        proof.pA,
+        proof.pB,
+        proof.pC,
+        proof.nullifier,
+        proof.pubkeyHash
+      );
+
+      const regTx = await registry.register(
+        proof.pA,
+        proof.pB,
+        proof.pC,
+        proof.nullifier,
+        proof.pubkeyHash,
+        { gasLimit: (regGasEstimate * BigInt(120)) / BigInt(100) }
+      );
+
+      const regReceipt = await regTx.wait();
+
+      // ── Step 2: Solve CAPTCHA ───────────────────────────────────────────
+      const provider = getProvider();
+      const { captchaGate: captchaGateRead } = getReadContracts(provider);
+      const { captchaGate: captchaGateWrite } = getWriteContracts(signer);
+
+      // Check if already has a valid session
+      const hasSession: boolean = await captchaGateRead.hasValidSession(agentAddress);
+      let captchaTxHash: string | null = null;
+      let sessionExpiry: string | null = null;
+
+      if (hasSession) {
+        const expiry: bigint = await captchaGateRead.sessionExpiry(agentAddress);
+        sessionExpiry = new Date(Number(expiry) * 1000).toISOString();
+        captchaTxHash = null;
+      } else {
+        const reqTx = await captchaGateWrite.requestChallenge();
+        await reqTx.wait();
+
+        const [problems, deadline]: [bigint[], bigint] =
+          await captchaGateRead.getChallenge(agentAddress);
+
+        const answers: bigint[] = problems.map((packed) => {
+          const { answer } = decodeCaptchaProblem(packed);
+          return answer;
+        });
+
+        const solveTx = await captchaGateWrite.solveChallenge(answers);
+        await solveTx.wait();
+        captchaTxHash = solveTx.hash;
+
+        const expiry: bigint = await captchaGateRead.sessionExpiry(agentAddress);
+        sessionExpiry = new Date(Number(expiry) * 1000).toISOString();
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                success: true,
+                agentAddress,
+                registration: {
+                  txHash: regTx.hash,
+                  blockNumber: regReceipt?.blockNumber,
+                  nullifier: proof.nullifier,
+                  pubkeyHash: proof.pubkeyHash,
+                },
+                captcha: {
+                  alreadyActive: hasSession,
+                  txHash: captchaTxHash,
+                  sessionExpiry,
+                },
+                message: "Agent registered and session active — ready to trade!",
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error during onboarding: ${String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 
