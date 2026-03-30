@@ -10,6 +10,8 @@ remappings = [
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
 ]
 
+exclude_paths = ["lib/openzeppelin-contracts/certora"]
+
 [profile.default.fuzz]
 runs = 256
 

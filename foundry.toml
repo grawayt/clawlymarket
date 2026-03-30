@@ -1,0 +1,4 @@
+
+# Exclude OZ certora test files
+[profile.default]
+exclude_paths = ["lib/openzeppelin-contracts/certora"]

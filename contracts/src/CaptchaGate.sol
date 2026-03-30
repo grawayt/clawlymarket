@@ -143,6 +143,11 @@ contract CaptchaGate is Ownable {
         challengeWindow = _window;
     }
 
+    /// @notice Grant a permanent session to an address (owner only). Used for infrastructure contracts.
+    function grantSession(address addr) external onlyOwner {
+        sessionExpiry[addr] = type(uint256).max;
+    }
+
     // ── Internal ─────────────────────────────────────────────────────
 
     /// @dev Derive a math problem and its answer from a past block hash + user address + index.

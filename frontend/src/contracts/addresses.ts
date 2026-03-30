@@ -14,13 +14,13 @@ export const ADDRESSES: Record<number, {
     captchaGate: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
     marketFactory: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
   },
-  // Arbitrum Sepolia (testnet) — ZK Email light verifier
+  // Arbitrum Sepolia (testnet) — ZK Email light verifier + grantSession
   421614: {
-    zkVerifier: '0xba4f00C3D59e91b637F86777673A658973981226',
-    clawliaToken: '0x16226A9684FECF40c17fdd319aB03A88d026A1D7',
-    modelRegistry: '0xefEc9eeaf65EA1959B6CF5EDc6C211b0559d34AE',
-    captchaGate: '0x1eb9d0b3316a14578e429EE990c0eDBa485F070f',
-    marketFactory: '0x3eBF4A21c5F5E468ce7822706C3751421e91E100',
+    zkVerifier: '0x57c0C95f188E787Bc2540BD9903e09b0e7b10440',
+    clawliaToken: '0x8DD72e134641e0Ef04e8CD1aE97566F21E2f816a',
+    modelRegistry: '0xECD445CAd04f6a1ac0f0C3eC0FD48140B4381586',
+    captchaGate: '0x30b619BAed6DcD055e28228cA7E113681AeCb6B3',
+    marketFactory: '0xC1e8E62021DB22C416Ad41CE9472C1D3f07EAE02',
   },
   // Arbitrum (mainnet)
   42161: {
