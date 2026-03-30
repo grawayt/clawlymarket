@@ -87,7 +87,7 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] overflow-hidden">
+    <div className="border border-[#1a1a1a]">
       {/* Header — always visible */}
       <button
         type="button"
@@ -95,14 +95,14 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
           if (open && (isSuccess || writeError)) handleReset()
           else setOpen((v) => !v)
         }}
-        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-white/[0.03] transition-colors"
+        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-[#111] transition-colors"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-200">Send CLAW</span>
-          <span className="text-xs text-gray-500">peer-to-peer transfer</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-300">Send CLAW</span>
+          <span className="text-xs text-gray-600">peer-to-peer transfer</span>
         </div>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-gray-600 transition-transform ${open ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -114,23 +114,23 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
 
       {/* Collapsible body */}
       {open && (
-        <div className="px-6 pb-6 border-t border-white/[0.05]">
+        <div className="px-6 pb-6 border-t border-[#1a1a1a]">
           {/* Success state */}
           {isSuccess && txHash && (
             <div className="mt-5">
-              <div className="rounded-xl border border-green-500/25 bg-green-500/[0.07] p-4">
-                <p className="text-sm font-semibold text-green-400 mb-1">
+              <div className="border border-green-900 p-4">
+                <p className="text-xs text-green-400 mb-1">
                   Sent {parseFloat(amount).toLocaleString(undefined, { maximumFractionDigits: 4 })} CLAW
                   {' '}to {truncateAddr(recipient)}
                 </p>
-                <p className="text-xs text-gray-600 font-mono break-all mt-1">
+                <p className="text-xs text-gray-700 break-all mt-1">
                   tx: {txHash}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleReset}
-                className="mt-3 text-xs text-gray-500 underline hover:text-gray-300 transition-colors"
+                className="mt-3 text-xs text-gray-600 underline hover:text-gray-400 transition-colors"
               >
                 Send another transfer
               </button>
@@ -140,14 +140,14 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
           {/* Error state */}
           {writeError && !isSuccess && (
             <div className="mt-5">
-              <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] p-4">
-                <p className="text-sm font-semibold text-red-400 mb-1">Transfer failed</p>
-                <p className="text-xs text-gray-400">{parseTransferError(writeError)}</p>
+              <div className="border border-red-900 bg-red-950/20 p-4">
+                <p className="text-xs text-red-400 mb-1">Transfer failed</p>
+                <p className="text-xs text-gray-500">{parseTransferError(writeError)}</p>
               </div>
               <button
                 type="button"
                 onClick={() => { resetWrite() }}
-                className="mt-3 text-xs text-gray-500 underline hover:text-gray-300 transition-colors"
+                className="mt-3 text-xs text-gray-600 underline hover:text-gray-400 transition-colors"
               >
                 Try again
               </button>
@@ -159,7 +159,7 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
             <div className="mt-5 space-y-4">
               {/* Recipient */}
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-gray-600 mb-1.5 uppercase tracking-wide">
                   Recipient address
                 </label>
                 <input
@@ -168,10 +168,10 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value.trim())}
                   disabled={isSubmitting}
-                  className={`w-full rounded-lg bg-[#070710] border px-3 py-2.5 text-sm font-mono text-gray-200 placeholder-gray-700 focus:outline-none focus:border-red-500/50 disabled:opacity-50 transition-colors ${
+                  className={`w-full border bg-[#0a0a0a] px-3 py-2.5 text-xs text-gray-200 placeholder-gray-700 focus:outline-none focus:border-[#444] disabled:opacity-50 transition-colors ${
                     recipient && !recipientValid
-                      ? 'border-red-500/50'
-                      : 'border-white/[0.07]'
+                      ? 'border-red-900'
+                      : 'border-[#222]'
                   }`}
                 />
                 {recipient && !recipientValid && (
@@ -181,7 +181,7 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
 
               {/* Amount */}
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-gray-600 mb-1.5 uppercase tracking-wide">
                   Amount
                   <span className="ml-2 text-gray-700 normal-case">
                     max {clawBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} CLAW
@@ -196,17 +196,17 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     disabled={isSubmitting}
-                    className={`w-full rounded-lg bg-[#070710] border px-3 py-2.5 pr-16 text-sm text-gray-200 placeholder-gray-700 focus:outline-none focus:border-red-500/50 disabled:opacity-50 transition-colors ${
+                    className={`w-full border bg-[#0a0a0a] px-3 py-2.5 pr-16 text-xs text-gray-200 placeholder-gray-700 focus:outline-none focus:border-[#444] disabled:opacity-50 transition-colors ${
                       amount && !amountValid
-                        ? 'border-red-500/50'
-                        : 'border-white/[0.07]'
+                        ? 'border-red-900'
+                        : 'border-[#222]'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setAmount(String(clawBalance))}
                     disabled={isSubmitting || clawBalance <= 0}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-red-500 hover:text-red-400 font-semibold disabled:opacity-30 transition-colors"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-red-500 hover:text-red-400 disabled:opacity-30 transition-colors"
                   >
                     MAX
                   </button>
@@ -222,7 +222,7 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
 
               {/* Reason */}
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">
+                <label className="block text-xs text-gray-600 mb-1.5 uppercase tracking-wide">
                   Reason
                   <span className="ml-2 text-gray-700 normal-case">(optional, not stored on-chain)</span>
                 </label>
@@ -232,7 +232,7 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full rounded-lg bg-[#070710] border border-white/[0.07] px-3 py-2.5 text-sm text-gray-200 placeholder-gray-700 focus:outline-none focus:border-red-500/50 disabled:opacity-50 transition-colors"
+                  className="w-full border border-[#222] bg-[#0a0a0a] px-3 py-2.5 text-xs text-gray-200 placeholder-gray-700 focus:outline-none focus:border-[#444] disabled:opacity-50 transition-colors"
                 />
               </div>
 
@@ -241,12 +241,12 @@ export function TransferPanel({ clawBalance }: TransferPanelProps) {
                 type="button"
                 onClick={handleSend}
                 disabled={!canSubmit || isSubmitting}
-                className="w-full rounded-lg bg-red-600 hover:bg-red-500 disabled:bg-gray-800 disabled:text-gray-600 text-white font-semibold text-sm py-3 transition-colors shadow-lg shadow-red-900/20 disabled:shadow-none"
+                className="w-full border border-red-700 text-red-400 text-xs py-2.5 hover:bg-red-900/20 hover:text-red-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isWritePending
                   ? 'Confirm in wallet…'
                   : isConfirming
-                    ? 'Clawing through the chain…'
+                    ? 'Confirming transaction…'
                     : 'Send CLAW'}
               </button>
 

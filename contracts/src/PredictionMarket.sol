@@ -246,6 +246,7 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         // Apply fee — fee stays in reserves, benefiting LPs
         uint256 fee = (collateralOut * FEE_BPS) / 10000;
         collateralOut -= fee;
+        accumulatedFees += fee;
 
         if (collateralOut < minCollateralOut) revert SlippageExceeded();
 
@@ -325,6 +326,16 @@ contract PredictionMarket is ERC1155, ReentrancyGuard {
         clawlia.safeTransfer(msg.sender, payout);
 
         emit EmergencyWithdraw(msg.sender, payout);
+    }
+
+    // ── Fee Withdrawal ───────────────────────────────────────────────
+
+    /// @notice Withdraw accumulated protocol fees. Only callable by the resolver.
+    function withdrawFees(address recipient) external {
+        require(msg.sender == resolver, "Only resolver");
+        uint256 fees = accumulatedFees;
+        accumulatedFees = 0;
+        clawlia.safeTransfer(recipient, fees);
     }
 
     // ── View Functions ───────────────────────────────────────────────

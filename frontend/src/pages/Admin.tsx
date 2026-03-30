@@ -37,29 +37,25 @@ function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Status badge
+// Status text
 // ---------------------------------------------------------------------------
 
-function StatusBadge({ resolved, readyToResolve }: { resolved?: boolean; readyToResolve: boolean }) {
+function StatusText({ resolved, readyToResolve }: { resolved?: boolean; readyToResolve: boolean }) {
   if (resolved) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-700/50 text-gray-400 border border-gray-600/30">
-        Resolved
-      </span>
-    )
+    return <span className="text-gray-600 text-xs">resolved</span>
   }
   if (readyToResolve) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-500/15 text-yellow-300 border border-yellow-500/25">
-        <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-        Ready to Resolve
+      <span className="text-yellow-400 text-xs flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
+        ready
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-500/15 text-green-300 border border-green-500/25">
-      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-      Open
+    <span className="text-green-400 text-xs flex items-center gap-1">
+      <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+      open
     </span>
   )
 }
@@ -123,10 +119,10 @@ function MarketRow({ index, address }: MarketRowProps) {
 
   if (isLoading) {
     return (
-      <tr className="border-b border-white/[0.04]">
-        <td className="px-4 py-3 text-gray-600 text-sm">{index + 1}</td>
+      <tr className="border-b border-[#1a1a1a]">
+        <td className="px-4 py-3 text-gray-700 text-xs">{index + 1}</td>
         <td className="px-4 py-3" colSpan={6}>
-          <div className="h-4 bg-gray-800/60 rounded animate-pulse w-2/3" />
+          <div className="h-3 bg-[#1a1a1a] w-2/3" />
         </td>
       </tr>
     )
@@ -134,38 +130,38 @@ function MarketRow({ index, address }: MarketRowProps) {
 
   return (
     <>
-      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-        <td className="px-4 py-3 text-gray-600 text-sm tabular-nums">{index + 1}</td>
-        <td className="px-4 py-3 text-gray-200 text-sm max-w-[260px]">
+      <tr className="border-b border-[#1a1a1a] hover:bg-[#111] transition-colors">
+        <td className="px-4 py-3 text-gray-700 text-xs tabular-nums">{index + 1}</td>
+        <td className="px-4 py-3 text-gray-300 text-xs max-w-[260px]">
           <span title={question} className="line-clamp-2">
             {question
               ? question.length > 70
                 ? question.slice(0, 70) + '…'
                 : question
-              : <span className="text-gray-600 italic">—</span>}
+              : <span className="text-gray-700 italic">—</span>}
           </span>
         </td>
         <td className="px-4 py-3">
-          <StatusBadge resolved={resolved} readyToResolve={readyToResolve} />
+          <StatusText resolved={resolved} readyToResolve={readyToResolve} />
         </td>
-        <td className="px-4 py-3 text-sm">
+        <td className="px-4 py-3 text-xs">
           {resolved && outcome != null ? (
-            <span className={`font-semibold ${outcome === 0n ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`${outcome === 0n ? 'text-green-400' : 'text-red-400'}`}>
               {outcome === 0n ? 'YES' : 'NO'}
             </span>
           ) : (
             <span className="text-gray-700">—</span>
           )}
         </td>
-        <td className="px-4 py-3 text-gray-400 text-sm tabular-nums">
+        <td className="px-4 py-3 text-gray-500 text-xs tabular-nums">
           {totalCollateral != null
             ? `${parseFloat(formatEther(totalCollateral)).toLocaleString()} CLAW`
             : '—'}
         </td>
-        <td className="px-4 py-3 text-gray-500 text-sm">
+        <td className="px-4 py-3 text-gray-600 text-xs">
           {resolutionDate ? resolutionDate.toLocaleDateString() : '—'}
         </td>
-        <td className="px-4 py-3 text-gray-600 text-xs font-mono">
+        <td className="px-4 py-3 text-gray-700 text-xs">
           {resolver ? truncateAddress(resolver) : '—'}
         </td>
         <td className="px-4 py-3">
@@ -174,28 +170,28 @@ function MarketRow({ index, address }: MarketRowProps) {
               <button
                 onClick={() => handleResolve(0n)}
                 disabled={resolveStatus === 'pending'}
-                className="rounded-lg bg-green-600/80 hover:bg-green-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="border border-green-900 px-2.5 py-1 text-xs text-green-400 hover:bg-green-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 {resolveStatus === 'pending' ? <Spinner className="h-3 w-3" /> : 'YES'}
               </button>
               <button
                 onClick={() => handleResolve(1n)}
                 disabled={resolveStatus === 'pending'}
-                className="rounded-lg bg-red-600/80 hover:bg-red-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                className="border border-red-900 px-2.5 py-1 text-xs text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
               >
                 {resolveStatus === 'pending' ? <Spinner className="h-3 w-3" /> : 'NO'}
               </button>
             </div>
           )}
           {resolveStatus === 'success' && (
-            <span className="text-xs text-green-400 font-medium">Resolved!</span>
+            <span className="text-xs text-green-400">Resolved</span>
           )}
         </td>
       </tr>
       {resolveStatus === 'error' && resolveError && (
-        <tr className="border-b border-white/[0.04]">
+        <tr className="border-b border-[#1a1a1a]">
           <td colSpan={8} className="px-4 pb-3">
-            <p className="text-xs text-red-400 bg-red-500/[0.07] border border-red-500/25 rounded-lg px-3 py-2">
+            <p className="text-xs text-red-400 border border-red-900 bg-red-950/20 px-3 py-2">
               {resolveError}
             </p>
           </td>
@@ -298,31 +294,28 @@ function PubkeyHashSection() {
   const isPending = addStatus === 'pending' || removeStatus === 'pending'
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
-      <h2 className="text-sm font-semibold text-gray-200 mb-5 flex items-center gap-2">
-        <span className="w-1 h-4 rounded-full bg-indigo-500/70 block" />
-        DKIM Pubkey Hash Management
-      </h2>
+    <div className="border border-[#1a1a1a] p-6">
+      <h2 className="text-xs text-gray-500 uppercase tracking-widest mb-5">DKIM Pubkey Hash Management</h2>
 
       <div className="mb-5">
         <p className="text-xs text-gray-600 mb-2">Anthropic DKIM Pubkey Hash</p>
-        <div className="rounded-lg border border-white/[0.06] bg-[#070710] px-3 py-3">
-          <code className="text-xs text-gray-400 font-mono break-all">{ANTHROPIC_PUBKEY_HASH.toString()}</code>
+        <div className="border border-[#1a1a1a] bg-[#080808] px-3 py-3">
+          <code className="text-xs text-gray-500 break-all">{ANTHROPIC_PUBKEY_HASH.toString()}</code>
           <div className="mt-2">
             {anthropicApproved === true && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <span className="flex items-center gap-1.5 text-xs text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
                 Approved
               </span>
             )}
             {anthropicApproved === false && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+              <span className="flex items-center gap-1.5 text-xs text-red-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
                 Not approved
               </span>
             )}
             {anthropicApproved == null && (
-              <span className="text-xs text-gray-600">Loading...</span>
+              <span className="text-xs text-gray-700">Loading...</span>
             )}
           </div>
         </div>
@@ -330,13 +323,13 @@ function PubkeyHashSection() {
 
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Pubkey Hash (decimal or 0x hex)</label>
+          <label className="block text-xs text-gray-600 mb-1.5 uppercase tracking-wide">Pubkey Hash (decimal or 0x hex)</label>
           <input
             type="text"
             value={hashInput}
             onChange={(e) => setHashInput(e.target.value)}
             placeholder="e.g. 21143687... or 0x2e8b..."
-            className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 font-mono placeholder-gray-700 focus:border-red-500/50 focus:outline-none transition-colors"
+            className="w-full border border-[#222] bg-[#0a0a0a] px-3 py-2.5 text-xs text-gray-200 placeholder-gray-700 focus:border-[#444] focus:outline-none transition-colors"
           />
         </div>
 
@@ -344,19 +337,19 @@ function PubkeyHashSection() {
           <button
             onClick={handleAdd}
             disabled={!hashInput.trim() || isPending}
-            className="rounded-lg bg-green-600/80 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+            className="border border-green-900 px-4 py-2.5 text-xs text-green-400 hover:bg-green-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {addStatus === 'pending' && <Spinner />}
-            {addStatus === 'pending' ? 'Pinching hash into registry...' : 'Approve Hash'}
+            {addStatus === 'pending' && <Spinner className="h-3 w-3" />}
+            {addStatus === 'pending' ? 'Approving...' : 'Approve Hash'}
           </button>
 
           <button
             onClick={handleRemove}
             disabled={!hashInput.trim() || isPending}
-            className="rounded-lg bg-red-600/80 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+            className="border border-red-900 px-4 py-2.5 text-xs text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {removeStatus === 'pending' && <Spinner />}
-            {removeStatus === 'pending' ? 'Clawing hash out...' : 'Remove Hash'}
+            {removeStatus === 'pending' && <Spinner className="h-3 w-3" />}
+            {removeStatus === 'pending' ? 'Removing...' : 'Remove Hash'}
           </button>
         </div>
 
@@ -413,35 +406,32 @@ function WhitelistSection() {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
-      <h2 className="text-sm font-semibold text-gray-200 mb-5 flex items-center gap-2">
-        <span className="w-1 h-4 rounded-full bg-red-500/70 block" />
-        Whitelist Management
-      </h2>
-      <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+    <div className="border border-[#1a1a1a] p-6">
+      <h2 className="text-xs text-gray-500 uppercase tracking-widest mb-5">Whitelist Management</h2>
+      <p className="text-xs text-gray-600 mb-5 leading-relaxed">
         Manually whitelist an address so it can hold and transfer CLAW tokens.
         Infrastructure contracts are whitelisted automatically.
       </p>
 
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">Address to whitelist</label>
+          <label className="block text-xs text-gray-600 mb-1.5 uppercase tracking-wide">Address to whitelist</label>
           <input
             type="text"
             value={addrInput}
             onChange={(e) => setAddrInput(e.target.value)}
             placeholder="0x..."
-            className="w-full rounded-lg border border-white/[0.07] bg-[#070710] px-3 py-2.5 text-sm text-gray-200 font-mono placeholder-gray-700 focus:border-red-500/50 focus:outline-none transition-colors"
+            className="w-full border border-[#222] bg-[#0a0a0a] px-3 py-2.5 text-xs text-gray-200 placeholder-gray-700 focus:border-[#444] focus:outline-none transition-colors"
           />
         </div>
 
         <button
           onClick={handleWhitelist}
           disabled={!addrInput.trim() || status === 'pending'}
-          className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500 active:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-red-900/20"
+          className="border border-red-700 px-4 py-2.5 text-xs text-red-400 hover:bg-red-900/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {status === 'pending' && <Spinner />}
-          {status === 'pending' ? 'Snapping address to whitelist...' : 'Whitelist Address'}
+          {status === 'pending' ? 'Whitelisting...' : 'Whitelist Address'}
         </button>
 
         {message && (
@@ -497,8 +487,8 @@ export default function Admin() {
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
-        <p className="text-gray-500 text-sm">Connect your wallet to access the admin panel.</p>
+        <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
+        <p className="text-gray-600 text-xs">Connect your wallet to access the admin panel.</p>
         <ConnectButton />
       </div>
     )
@@ -507,10 +497,10 @@ export default function Admin() {
   if (!addrs) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
-        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-8 text-center max-w-md">
-          <p className="text-gray-400">Unsupported network.</p>
-          <p className="text-gray-600 text-sm mt-2">Switch to Anvil local, Arbitrum Sepolia, or Arbitrum.</p>
+        <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
+        <div className="border border-[#1a1a1a] p-8 text-center max-w-md">
+          <p className="text-gray-500 text-xs">Unsupported network.</p>
+          <p className="text-gray-700 text-xs mt-2">Switch to Anvil local, Arbitrum Sepolia, or Arbitrum.</p>
         </div>
       </div>
     )
@@ -519,13 +509,13 @@ export default function Admin() {
   if (owner != null && !isOwner) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
-        <div className="rounded-xl border border-red-500/20 bg-red-500/[0.05] p-8 text-center max-w-md">
-          <p className="text-red-400 text-base font-semibold mb-2">Admin access required</p>
-          <p className="text-gray-500 text-sm">This page is restricted to the contract owner.</p>
+        <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
+        <div className="border border-red-900 p-8 text-center max-w-md">
+          <p className="text-red-400 text-xs mb-2">Admin access required</p>
+          <p className="text-gray-600 text-xs">This page is restricted to the contract owner.</p>
           <div className="mt-4 space-y-1">
-            <p className="text-gray-600 text-xs font-mono">Owner: {owner ? truncateAddress(owner) : '—'}</p>
-            <p className="text-gray-600 text-xs font-mono">You: {address ? truncateAddress(address) : '—'}</p>
+            <p className="text-gray-700 text-xs">Owner: {owner ? truncateAddress(owner) : '—'}</p>
+            <p className="text-gray-700 text-xs">You: {address ? truncateAddress(address) : '—'}</p>
           </div>
         </div>
       </div>
@@ -537,47 +527,42 @@ export default function Admin() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Admin Dashboard</h1>
-          <p className="text-gray-600 text-sm mt-0.5">ClawlyMarket system management</p>
+          <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
+          <p className="text-gray-600 text-xs mt-0.5">ClawlyMarket system management</p>
         </div>
-        <span className="text-xs text-gray-500 font-mono bg-white/[0.04] border border-white/[0.07] rounded-lg px-3 py-1.5">
+        <span className="text-xs text-gray-600 border border-[#1a1a1a] px-3 py-1.5">
           {address ? truncateAddress(address) : '—'}
         </span>
       </div>
 
       {/* System Overview */}
       <section>
-        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">System Overview</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <h2 className="text-xs text-gray-600 uppercase tracking-widest mb-3">System Overview</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1a1a1a]">
           {[
             {
               label: 'Total Markets',
               value: marketCount != null ? marketCount.toString() : '—',
-              accent: 'text-white',
-              border: 'border-l-indigo-500',
             },
             {
               label: 'CLAW Supply',
               value: totalSupply != null ? parseFloat(formatEther(totalSupply)).toLocaleString() : '—',
               sub: totalSupply != null ? 'CLAW' : undefined,
-              accent: 'text-white',
-              border: 'border-l-red-500',
             },
             {
               label: 'Anthropic Key',
               value: anthropicApproved === true ? 'Approved' : anthropicApproved === false ? 'Not Approved' : '—',
-              accent: anthropicApproved === true ? 'text-green-400' : anthropicApproved === false ? 'text-red-400' : 'text-gray-500',
-              border: anthropicApproved === true ? 'border-l-green-500' : 'border-l-gray-700',
+              color: anthropicApproved === true ? 'text-green-400' : anthropicApproved === false ? 'text-red-400' : 'text-gray-600',
               span: 'lg:col-span-2',
             },
-          ].map(({ label, value, sub, accent, border, span }) => (
+          ].map(({ label, value, sub, color, span }) => (
             <div
               key={label}
-              className={`rounded-xl border border-white/[0.06] border-l-2 ${border} bg-[#0d0d18] p-4 ${span ?? ''}`}
+              className={`bg-[#0a0a0a] p-4 ${span ?? ''}`}
             >
               <p className="text-xs text-gray-600 mb-1">{label}</p>
-              <p className={`text-xl font-bold tabular-nums ${accent}`}>{value}</p>
-              {sub && <p className="text-xs text-gray-600 mt-0.5">{sub}</p>}
+              <p className={`text-xl tabular-nums ${color ?? 'text-white'}`}>{value}</p>
+              {sub && <p className="text-xs text-gray-700 mt-0.5">{sub}</p>}
             </div>
           ))}
         </div>
@@ -585,23 +570,23 @@ export default function Admin() {
 
       {/* Markets Management */}
       <section>
-        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Markets Management</h2>
-        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] overflow-x-auto">
+        <h2 className="text-xs text-gray-600 uppercase tracking-widest mb-3">Markets Management</h2>
+        <div className="border border-[#1a1a1a] overflow-x-auto">
           {marketsLoading ? (
             <div className="p-8 text-center flex items-center justify-center gap-2 text-gray-600">
               <Spinner className="h-4 w-4 text-red-500" />
-              <p className="text-sm">Scuttling through markets...</p>
+              <p className="text-xs">Loading markets...</p>
             </div>
           ) : markets.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-gray-600 text-sm">No markets deployed yet.</p>
+              <p className="text-gray-700 text-xs">No markets deployed yet.</p>
             </div>
           ) : (
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-white/[0.06]">
+                <tr className="border-b border-[#1a1a1a]">
                   {['#', 'Question', 'Status', 'Outcome', 'Collateral', 'Resolves', 'Resolver', 'Actions'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-widest whitespace-nowrap">
+                    <th key={h} className="px-4 py-3 text-xs text-gray-600 uppercase tracking-widest whitespace-nowrap">
                       {h}
                     </th>
                   ))}

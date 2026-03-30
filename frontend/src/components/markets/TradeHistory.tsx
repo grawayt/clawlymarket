@@ -12,7 +12,7 @@ function TxLink({ hash }: { hash: `0x${string}` }) {
       href={`https://arbiscan.io/tx/${hash}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-red-400 hover:text-red-300 font-mono text-xs transition-colors"
+      className="text-red-400 hover:text-red-300 text-xs transition-colors"
       title={hash}
     >
       {short}
@@ -27,29 +27,25 @@ function TradeRow({ trade }: { trade: TradeEvent }) {
   const tokens = parseFloat(formatEther(trade.tokenAmount))
 
   return (
-    <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-      <td className="py-2.5 px-3 text-gray-600 text-xs font-mono tabular-nums">
+    <tr className="border-b border-[#1a1a1a] hover:bg-[#111] transition-colors">
+      <td className="py-2.5 px-3 text-gray-700 text-xs tabular-nums">
         #{trade.blockNumber.toString()}
       </td>
       <td className="py-2.5 px-3">
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-          trade.isBuy
-            ? 'bg-green-500/10 text-green-400 border-green-500/25'
-            : 'bg-red-500/10 text-red-400 border-red-500/25'
-        }`}>
+        <span className={`text-xs ${trade.isBuy ? 'text-green-400' : 'text-red-400'}`}>
           {type}
         </span>
       </td>
       <td className="py-2.5 px-3">
-        <span className={`text-xs font-bold ${outcome === 'YES' ? 'text-green-400' : 'text-red-400'}`}>
+        <span className={`text-xs ${outcome === 'YES' ? 'text-green-400' : 'text-red-400'}`}>
           {outcome}
         </span>
       </td>
-      <td className="py-2.5 px-3 text-gray-300 text-xs tabular-nums">
-        {collateral.toLocaleString(undefined, { maximumFractionDigits: 4 })}
-        <span className="text-gray-600 ml-1">CLAW</span>
-      </td>
       <td className="py-2.5 px-3 text-gray-400 text-xs tabular-nums">
+        {collateral.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+        <span className="text-gray-700 ml-1">CLAW</span>
+      </td>
+      <td className="py-2.5 px-3 text-gray-600 text-xs tabular-nums">
         {tokens.toLocaleString(undefined, { maximumFractionDigits: 4 })}
       </td>
       <td className="py-2.5 px-3">
@@ -74,31 +70,28 @@ export function TradeHistory({ marketAddress, title = 'Trade History' }: TradeHi
   const tableHeaders = ['Block', 'Type', 'Outcome', 'Amount', 'Tokens', 'Tx']
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+    <div className="border border-[#1a1a1a] p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-          <span className="w-1 h-4 rounded-full bg-indigo-500/70 block" />
-          {title}
-        </h2>
+        <h2 className="text-xs text-gray-500 uppercase tracking-widest">{title}</h2>
         {trades.length > 0 && (
           <span className="text-xs text-gray-700 tabular-nums">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-gray-600 text-sm">Loading trades...</p>
+        <p className="text-gray-700 text-xs">Loading trades...</p>
       ) : error ? (
-        <p className="text-red-400 text-sm">Failed to load trade history.</p>
+        <p className="text-red-400 text-xs">Failed to load trade history.</p>
       ) : trades.length === 0 ? (
-        <p className="text-gray-600 text-sm">No trades yet.</p>
+        <p className="text-gray-700 text-xs">No trades yet.</p>
       ) : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06]">
+                <tr className="border-b border-[#1a1a1a]">
                   {tableHeaders.map((h) => (
-                    <th key={h} className="pb-2.5 px-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wide">{h}</th>
+                    <th key={h} className="pb-2.5 px-3 text-left text-xs text-gray-600 uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -139,31 +132,28 @@ export function UserTradeHistory({ marketAddress, title = 'Recent Activity' }: U
   const tableHeaders = ['Block', 'Type', 'Outcome', 'Amount', 'Tokens', 'Tx']
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-6">
+    <div className="border border-[#1a1a1a] p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-          <span className="w-1 h-4 rounded-full bg-red-500/70 block" />
-          {title}
-        </h2>
+        <h2 className="text-xs text-gray-500 uppercase tracking-widest">{title}</h2>
         {trades.length > 0 && (
           <span className="text-xs text-gray-700 tabular-nums">{trades.length} trade{trades.length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
       {isLoading ? (
-        <p className="text-gray-600 text-sm">Loading activity...</p>
+        <p className="text-gray-700 text-xs">Loading activity...</p>
       ) : error ? (
-        <p className="text-red-400 text-sm">Failed to load activity.</p>
+        <p className="text-red-400 text-xs">Failed to load activity.</p>
       ) : trades.length === 0 ? (
-        <p className="text-gray-600 text-sm">No trading activity yet.</p>
+        <p className="text-gray-700 text-xs">No trading activity yet.</p>
       ) : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06]">
+                <tr className="border-b border-[#1a1a1a]">
                   {tableHeaders.map((h) => (
-                    <th key={h} className="pb-2.5 px-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wide">{h}</th>
+                    <th key={h} className="pb-2.5 px-3 text-left text-xs text-gray-600 uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>

@@ -29,6 +29,7 @@ contract Deploy is Script {
     function run() external {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerKey);
+        require(block.chainid != 42161 || vm.envOr("DEPLOY_TO_MAINNET", false), "Set DEPLOY_TO_MAINNET=true for mainnet");
         bool useRealVerifier = vm.envOr("USE_REAL_VERIFIER", true);
         // PlaceholderVerifier is only safe on local devnet (chainId 31337)
         if (!useRealVerifier) {

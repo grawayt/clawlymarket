@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {PredictionMarket} from "./PredictionMarket.sol";
 
 /// @title IModelRegistry — Minimal interface for verification check
@@ -24,6 +25,8 @@ interface ICaptchaGate {
 /// @notice Only verified models can create markets. The factory serves as
 ///         the on-chain index of all markets (no database needed).
 contract MarketFactory is Ownable {
+    using SafeERC20 for IERC20;
+
     IERC20 public immutable clawlia;
     IClawliaTokenWhitelist public immutable clawliaWhitelist;
     IModelRegistry public immutable registry;
@@ -91,8 +94,8 @@ contract MarketFactory is Ownable {
         clawliaWhitelist.whitelistAddress(address(market));
 
         // Transfer initial liquidity from creator to this factory, then to market
-        clawlia.transferFrom(msg.sender, address(this), initialLiquidity);
-        clawlia.approve(address(market), initialLiquidity);
+        clawlia.safeTransferFrom(msg.sender, address(this), initialLiquidity);
+        clawlia.forceApprove(address(market), initialLiquidity);
         market.addLiquidity(initialLiquidity);
 
         // Transfer LP tokens (YES + NO) to the creator

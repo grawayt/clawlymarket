@@ -203,8 +203,8 @@ function formatDate(ts: number): string {
   return d.toLocaleString();
 }
 
-function formatEther(wei: string): string {
-  return ethers.utils.formatEther(wei);
+function formatEther(wei: string | bigint): string {
+  return ethers.formatEther(wei);
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -227,7 +227,7 @@ async function main(): Promise<void> {
   info(`RPC: ${rpc}`);
 
   // Set up provider
-  const provider = new ethers.providers.JsonRpcProvider(rpc);
+  const provider = new ethers.JsonRpcProvider(rpc);
 
   // Check deployer key
   if (!args.deployerKey) {
@@ -296,11 +296,11 @@ async function main(): Promise<void> {
   const balanceEther = formatEther(balance);
   info(`Deployer CLAW balance: ${balanceEther} CLAW`);
 
-  const initialLiquidity = ethers.utils.parseEther('100');
-  const totalNeeded = initialLiquidity.mul(MARKET_SEEDS.length);
-  const totalNeededEther = formatEther(totalNeeded.toString());
+  const initialLiquidity = ethers.parseEther('100');
+  const totalNeeded = initialLiquidity * BigInt(MARKET_SEEDS.length);
+  const totalNeededEther = formatEther(totalNeeded);
 
-  if (balance.lt(totalNeeded)) {
+  if (balance < totalNeeded) {
     warn(`Insufficient balance. Need ${totalNeededEther}, have ${balanceEther}`);
     log(`\nTo fund deployer: register more models via ZK Email to mint additional CLAW.`);
     die('Insufficient CLAW to seed all markets.');
@@ -309,7 +309,7 @@ async function main(): Promise<void> {
 
   // Get minimum liquidity required
   const minLiquidity = await factory.MIN_LIQUIDITY();
-  info(`Factory min liquidity: ${formatEther(minLiquidity.toString())} CLAW`);
+  info(`Factory min liquidity: ${formatEther(minLiquidity)} CLAW`);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Display markets to be created

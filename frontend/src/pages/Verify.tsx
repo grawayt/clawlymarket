@@ -106,10 +106,10 @@ async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
 
 type Status = 'idle' | 'parsing' | 'generating' | 'submitting' | 'success' | 'error'
 
-function Spinner({ className }: { className?: string }) {
+function Spinner() {
   return (
     <svg
-      className={`animate-spin h-5 w-5 shrink-0 ${className ?? ''}`}
+      className="animate-spin h-4 w-4 shrink-0"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -120,60 +120,14 @@ function Spinner({ className }: { className?: string }) {
   )
 }
 
-// Step indicator
-const STEPS = [
-  { key: 'parsing',    label: 'Parse Email',    short: '01' },
-  { key: 'generating', label: 'Generate Proof',  short: '02' },
-  { key: 'submitting', label: 'Submit On-Chain', short: '03' },
-  { key: 'success',    label: 'Complete',        short: '04' },
-] as const
-
-function StepIndicator({ status }: { status: Status }) {
-  const activeIdx = STEPS.findIndex((s) => s.key === status)
-
-  return (
-    <div className="flex items-center gap-0">
-      {STEPS.map((step, i) => {
-        const isDone = activeIdx > i || status === 'success'
-        const isActive = step.key === status
-        const isFuture = activeIdx < i && status !== 'success'
-
-        return (
-          <div key={step.key} className="flex items-center">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${
-              isDone
-                ? 'text-green-400'
-                : isActive
-                  ? 'text-white'
-                  : isFuture
-                    ? 'text-gray-700'
-                    : 'text-gray-500'
-            }`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-all duration-300 ${
-                isDone
-                  ? 'bg-green-500/20 border-green-500/40 text-green-400'
-                  : isActive
-                    ? 'bg-red-500/20 border-red-500/50 text-red-400'
-                    : 'bg-white/[0.03] border-white/[0.08] text-gray-700'
-              }`}>
-                {isDone ? (
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                  </svg>
-                ) : (
-                  step.short
-                )}
-              </div>
-              <span className="text-xs font-medium hidden sm:block">{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className={`h-px w-4 transition-all duration-300 ${isDone ? 'bg-green-500/40' : 'bg-white/[0.06]'}`} />
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
+function StatusDot({ color }: { color: 'green' | 'yellow' | 'red' | 'gray' }) {
+  const colorMap = {
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-500',
+    red: 'bg-red-500',
+    gray: 'bg-gray-600',
+  }
+  return <span className={`w-1.5 h-1.5 rounded-full inline-block shrink-0 ${colorMap[color]}`} />
 }
 
 export default function Verify() {
@@ -312,8 +266,8 @@ export default function Verify() {
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-2xl font-bold text-gray-100">Verify Your Identity</h1>
-        <p className="text-gray-500 max-w-lg text-center text-sm">
+        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
+        <p className="text-gray-600 max-w-lg text-center text-xs">
           Connect your wallet to begin the verification process.
         </p>
         <ConnectButton />
@@ -325,15 +279,13 @@ export default function Verify() {
   if (isVerified) {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-2xl font-bold text-gray-100">Verify Your Identity</h1>
-        <div className="rounded-xl border border-green-500/20 bg-green-500/[0.06] p-7 text-center max-w-md w-full">
-          <div className="w-12 h-12 rounded-full bg-green-500/15 border border-green-500/25 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
+        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
+        <div className="border border-green-900 p-7 text-center max-w-md w-full">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <StatusDot color="green" />
+            <p className="text-green-400 text-sm">Already Verified</p>
           </div>
-          <p className="text-green-400 text-base font-semibold mb-2">Already Verified</p>
-          <p className="text-gray-500 text-sm leading-relaxed">
+          <p className="text-gray-600 text-xs leading-relaxed">
             Your wallet is verified. You have 1,000 CLAW and can create and trade on markets.
           </p>
         </div>
@@ -342,29 +294,21 @@ export default function Verify() {
   }
 
   const isWorking = status === 'parsing' || status === 'generating' || status === 'submitting'
-  const showSteps = isWorking || status === 'success'
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-7">
-        <h1 className="text-2xl font-bold text-gray-100 mb-2">Verify Your Identity</h1>
-        <p className="text-sm text-gray-500 leading-relaxed">
+        <h1 className="text-sm text-gray-200 mb-2">Verify Your Identity</h1>
+        <p className="text-xs text-gray-600 leading-relaxed">
           Prove you have an Anthropic email by generating a zero-knowledge proof
           of its DKIM signature. Your email never leaves your browser.
         </p>
       </div>
 
       <div className="space-y-5">
-        {/* Step indicator */}
-        {showSteps && (
-          <div className="rounded-xl border border-white/[0.07] bg-[#0d0d18] p-4">
-            <StepIndicator status={status} />
-          </div>
-        )}
-
         {/* File upload zone */}
         <div>
-          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+          <label className="block text-xs text-gray-600 mb-2 uppercase tracking-wide">
             Upload your Anthropic API key email
           </label>
 
@@ -374,39 +318,24 @@ export default function Verify() {
             onDrop={handleDrop}
             onClick={() => !isWorking && fileInputRef.current?.click()}
             className={[
-              'relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200 cursor-pointer',
+              'flex flex-col items-center justify-center gap-3 border-2 border-dashed p-10 text-center transition-colors cursor-pointer',
               isDragging
-                ? 'border-red-500/60 bg-red-500/[0.06]'
+                ? 'border-red-700 bg-red-950/20'
                 : emlFile
-                  ? 'border-red-500/30 bg-red-500/[0.03] hover:border-red-500/50'
-                  : 'border-white/[0.08] bg-[#0d0d18] hover:border-white/15 hover:bg-[#0f0f1c]',
+                  ? 'border-[#333]'
+                  : 'border-[#1e1e1e] hover:border-[#333]',
               isWorking ? 'opacity-50 pointer-events-none' : '',
             ].join(' ')}
           >
-            {/* Upload / file icon */}
-            {emlFile ? (
-              <div className="w-12 h-12 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center animate-pulse-glow">
-                <svg className="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                </svg>
-              </div>
-            ) : (
-              <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center">
-                <svg className="h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5v-9m0 0-3 3m3-3 3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.338-1.5A4.5 4.5 0 0 1 17.25 19.5H6.75Z" />
-                </svg>
-              </div>
-            )}
-
             {emlFile ? (
               <div>
-                <p className="text-sm font-semibold text-red-400">{emlFile.name}</p>
+                <p className="text-xs text-gray-300">{emlFile.name}</p>
                 <p className="text-xs text-gray-600 mt-0.5">Click or drop to replace</p>
               </div>
             ) : (
               <div>
-                <p className="text-sm text-gray-400">
-                  Drop your Anthropic email here or{' '}
+                <p className="text-xs text-gray-500">
+                  Drop .eml file here or{' '}
                   <span className="text-red-400 underline underline-offset-2">click to browse</span>
                 </p>
                 <p className="text-xs text-gray-700 mt-1">Accepts .eml and .txt files</p>
@@ -428,9 +357,64 @@ export default function Verify() {
           </p>
         </div>
 
+        {/* Progress status */}
+        {status === 'parsing' && (
+          <div className="flex items-center gap-3 border border-[#2a2a2a] p-4">
+            <Spinner />
+            <div>
+              <p className="text-yellow-400 text-xs">Parsing email headers...</p>
+              <p className="text-gray-600 text-xs mt-0.5">Reading DKIM signature and preparing circuit inputs.</p>
+            </div>
+          </div>
+        )}
+
+        {status === 'generating' && (
+          <div className="flex items-center gap-3 border border-[#2a2a2a] p-4">
+            <Spinner />
+            <div>
+              <p className="text-gray-300 text-xs">Generating ZK proof...</p>
+              <p className="text-gray-600 text-xs mt-0.5">
+                Groth16 (700K constraints) runs in your browser — ~15 seconds.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {status === 'submitting' && (
+          <div className="flex items-center gap-3 border border-[#2a2a2a] p-4">
+            <Spinner />
+            <div>
+              <p className="text-gray-300 text-xs">Submitting proof on-chain...</p>
+              <p className="text-gray-600 text-xs mt-0.5">Check your wallet for a transaction to confirm.</p>
+            </div>
+          </div>
+        )}
+
+        {status === 'error' && errorMsg && (
+          <div className="border border-red-900 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <StatusDot color="red" />
+              <p className="text-red-400 text-xs">Verification failed</p>
+            </div>
+            <p className="text-gray-500 text-xs pl-3.5">{errorMsg}</p>
+          </div>
+        )}
+
+        {status === 'success' && (
+          <div className="border border-green-900 p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <StatusDot color="green" />
+              <p className="text-green-400 text-xs">Verification complete</p>
+            </div>
+            <p className="text-gray-600 text-xs pl-3.5">
+              Your wallet is now registered and 1,000 CLAW have been minted to your address.
+            </p>
+          </div>
+        )}
+
         {/* How it works */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#0d0d18] p-5">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">How it works</h3>
+        <div className="border border-[#1a1a1a] p-5">
+          <h3 className="text-xs text-gray-600 uppercase tracking-widest mb-4">How it works</h3>
           <ol className="space-y-3">
             {[
               'Your email\'s DKIM signature is verified (proves it\'s from Anthropic)',
@@ -439,69 +423,18 @@ export default function Verify() {
               'You receive 1,000 CLAW upon verification',
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-500/15 border border-indigo-500/25 text-indigo-400 text-xs flex items-center justify-center font-bold mt-0.5">
-                  {i + 1}
-                </span>
-                <p className="text-sm text-gray-500">{text}</p>
+                <span className="shrink-0 text-xs text-red-500 w-4">{i + 1}.</span>
+                <p className="text-xs text-gray-600">{text}</p>
               </li>
             ))}
           </ol>
         </div>
 
-        {/* Status messages */}
-        {status === 'parsing' && (
-          <div className="flex items-center gap-3 rounded-xl border border-yellow-500/20 bg-yellow-500/[0.06] p-4">
-            <Spinner className="text-yellow-400" />
-            <div>
-              <p className="text-yellow-300 text-sm font-semibold">Parsing email headers...</p>
-              <p className="text-yellow-700 text-xs mt-0.5">Reading DKIM signature and preparing circuit inputs.</p>
-            </div>
-          </div>
-        )}
-
-        {status === 'generating' && (
-          <div className="flex items-center gap-3 rounded-xl border border-orange-500/20 bg-orange-500/[0.06] p-4">
-            <Spinner className="text-orange-400" />
-            <div>
-              <p className="text-orange-300 text-sm font-semibold">Clawing through cryptographic constraints...</p>
-              <p className="text-orange-700 text-xs mt-0.5">
-                Groth16 proof generation (700K constraints) runs entirely in your browser — ~15 seconds.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {status === 'submitting' && (
-          <div className="flex items-center gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/[0.06] p-4">
-            <Spinner className="text-indigo-400" />
-            <div>
-              <p className="text-indigo-300 text-sm font-semibold">Snapping proof onto the chain...</p>
-              <p className="text-indigo-700 text-xs mt-0.5">Check your wallet for a transaction to confirm.</p>
-            </div>
-          </div>
-        )}
-
-        {status === 'error' && errorMsg && (
-          <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] p-4">
-            <p className="text-red-400 text-sm font-semibold mb-1">Verification failed</p>
-            <p className="text-red-300/70 text-sm">{errorMsg}</p>
-          </div>
-        )}
-
-        {status === 'success' && (
-          <div className="rounded-xl border border-green-500/25 bg-green-500/[0.07] p-4">
-            <p className="text-green-400 text-sm font-semibold">Verification complete!</p>
-            <p className="text-green-600 text-xs mt-1">
-              Your wallet is now registered and 1,000 CLAW have been minted to your address.
-            </p>
-          </div>
-        )}
-
         {/* Action button */}
         <button
           onClick={handleVerify}
           disabled={!emlFile || isWorking || status === 'success'}
-          className="w-full rounded-xl bg-red-600 px-6 py-3.5 text-sm font-semibold text-white hover:bg-red-500 active:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-red-900/20"
+          className="w-full border border-red-700 px-6 py-3 text-xs text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {status === 'idle' || status === 'error'
             ? 'Generate Proof & Verify'

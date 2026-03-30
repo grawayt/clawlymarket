@@ -99,7 +99,7 @@ export class ClawlyMarket {
     const owner = this.signer.address
     const allowance: bigint = await this.token.allowance(owner, spender)
     if (allowance < amount) {
-      const tx = await this.token.approve(spender, ethers.MaxUint256)
+      const tx = await this.token.approve(spender, amount)
       await tx.wait()
     }
   }
@@ -275,12 +275,17 @@ export class ClawlyMarket {
       this.signer.address
     ) as Promise<{ problems: bigint[]; deadline: bigint }>)
 
-    // Step 3: solve (each problem pair sums to answer — contract stores [a0, b0, a1, b1, a2, b2, ...]
-    // The CaptchaGate stores 5 uint256 problems. Based on the contract logic each element IS the answer
-    // (it's a proof-of-humanity gate, not a security gate — the answers equal the problems themselves
-    // when interpreted as the expected sum per the on-chain check).
-    // We submit the problems array directly as the answers, which satisfies the on-chain assertion.
-    const answers: bigint[] = [...problems]
+    // Step 3: decode each packed problem and compute the answer
+    // Each problem is packed as: a (bits 63-48) | b (bits 47-32) | c (bits 31-16) | mod (bits 15-0)
+    // answer = (a * b + c) % mod
+    const answers = problems.map((p: bigint) => {
+      const mask = 0xffffn
+      const a = (p >> 48n) & mask
+      const b = (p >> 32n) & mask
+      const c = (p >> 16n) & mask
+      const mod = p & mask
+      return (a * b + c) % mod
+    })
 
     return this.waitForTx(
       this.captcha.solveChallenge(answers) as Promise<ethers.ContractTransactionResponse>
@@ -335,6 +340,10 @@ export class ClawlyMarket {
 
     await this.ensureApproval(market, amountWei)
 
+    // Apply fee before estimating to match what the contract uses
+    const FEE_BPS = 200n
+    const netAmount = amountWei - (amountWei * FEE_BPS) / 10000n
+
     // Estimate output to apply slippage tolerance
     const m = this.market(market)
     const [rYes, rNo]: [bigint, bigint] = await Promise.all([
@@ -343,9 +352,9 @@ export class ClawlyMarket {
     ])
     const reserveIn = outcomeIndex === YES_INDEX ? rNo : rYes
     const reserveOut = outcomeIndex === YES_INDEX ? rYes : rNo
-    // FPMM constant-product: tokensOut = reserveOut - k / (reserveIn + amountWei)
+    // FPMM constant-product: tokensOut = reserveOut - k / (reserveIn + netAmount)
     const k = reserveIn * reserveOut
-    const estimatedOut = reserveOut - k / (reserveIn + amountWei)
+    const estimatedOut = reserveOut - k / (reserveIn + netAmount)
     const minTokensOut = (estimatedOut * BigInt(10000 - slippageBps)) / 10000n
 
     return this.waitForTx(

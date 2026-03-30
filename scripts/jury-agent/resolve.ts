@@ -38,7 +38,7 @@ const PREDICTION_MARKET_ABI = [
 ];
 
 const JURY_RESOLUTION_ABI = [
-  "function requestResolution(address market, address[5] calldata jurors) external",
+  "function requestResolution(address market) external",
   "function vote(address market, uint256 _outcome) external",
   "function panelExists(address market) external view returns (bool)",
   "function getPanel(address market) external view returns (address[5], bool[5], uint256[5], uint256, uint256, uint256, bool, uint256)",
@@ -268,8 +268,7 @@ async function resolveMarket(
     return;
   }
 
-  const panel = eligibleAddresses.slice(0, 5) as [string, string, string, string, string];
-  const eligibleWallets = jurorWallets.filter((w) => panel.includes(w.address));
+  const eligibleWallets = jurorWallets.filter((w) => eligibleAddresses.includes(w.address));
 
   // 3. Connect the first juror wallet to call requestResolution
   const caller = eligibleWallets[0].connect(provider);
@@ -279,7 +278,8 @@ async function resolveMarket(
   const panelAlreadyExists = await juryContract.panelExists(market.address) as boolean;
   if (!panelAlreadyExists) {
     console.log(`\n  Scuttling requestResolution on-chain...`);
-    const tx = await juryContract.requestResolution(market.address, panel);
+    // Contract selects jurors internally — no panel argument needed
+    const tx = await juryContract.requestResolution(market.address);
     const receipt = await tx.wait();
     console.log(`  Panel convened. tx: ${receipt.hash}`);
   } else {

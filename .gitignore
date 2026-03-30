@@ -33,3 +33,9 @@ scripts/jury-agent/.env
 *.swp
 *.swo
 .DS_Store
+# Test email files (contain personal info)
+circuits/test/*.eml
+circuits/test/*.json
+circuits/sample-email.eml.rtfd/
+circuits/test/ant_email.eml.rtfd/
+frontend/public/zk/demo-tree.json

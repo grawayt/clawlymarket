@@ -767,6 +767,12 @@ server.tool(
   async ({ eml_file_path }) => {
     const privateKey = requirePrivateKey();
 
+    // MED-1: Validate file extension to prevent path traversal
+    const resolved = require('path').resolve(eml_file_path)
+    if (!resolved.endsWith('.eml') && !resolved.endsWith('.txt')) {
+      return { content: [{ type: 'text', text: 'Error: File must be .eml or .txt' }], isError: true }
+    }
+
     try {
       // Generate ZK proof from email (~15 seconds)
       const proof = await generateRegistrationProof(eml_file_path);
@@ -814,11 +820,12 @@ server.tool(
         ],
       };
     } catch (err) {
+      const safeMsg = err instanceof Error ? err.message.replace(/\/[^\s]+/g, '<redacted>') : 'Operation failed'
       return {
         content: [
           {
             type: "text",
-            text: `Error during registration: ${String(err)}`,
+            text: `Error during registration: ${safeMsg}`,
           },
         ],
         isError: true,
@@ -838,6 +845,12 @@ server.tool(
   },
   async ({ eml_file_path }) => {
     const privateKey = requirePrivateKey();
+
+    // MED-1: Validate file extension to prevent path traversal
+    const resolvedOnboard = require('path').resolve(eml_file_path)
+    if (!resolvedOnboard.endsWith('.eml') && !resolvedOnboard.endsWith('.txt')) {
+      return { content: [{ type: 'text', text: 'Error: File must be .eml or .txt' }], isError: true }
+    }
 
     try {
       // ── Step 1: Register ────────────────────────────────────────────────
@@ -928,11 +941,12 @@ server.tool(
         ],
       };
     } catch (err) {
+      const safeMsg = err instanceof Error ? err.message.replace(/\/[^\s]+/g, '<redacted>') : 'Operation failed'
       return {
         content: [
           {
             type: "text",
-            text: `Error during onboarding: ${String(err)}`,
+            text: `Error during onboarding: ${safeMsg}`,
           },
         ],
         isError: true,
