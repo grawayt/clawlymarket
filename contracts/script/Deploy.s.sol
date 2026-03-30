@@ -7,6 +7,7 @@ import {ModelRegistry} from "../src/ModelRegistry.sol";
 import {MarketFactory} from "../src/MarketFactory.sol";
 import {CaptchaGate} from "../src/CaptchaGate.sol";
 import {Groth16Verifier} from "../src/ZKVerifier.sol";
+import {ZKEmailGroth16Verifier} from "../src/ZKEmailVerifier.sol";
 
 /// @notice Placeholder verifier for testnet only.
 ///         Set USE_REAL_VERIFIER=true in the environment to deploy the real Groth16Verifier instead.
@@ -44,9 +45,9 @@ contract Deploy is Script {
         // 1. Deploy ZK Verifier — real Groth16Verifier or testnet placeholder depending on USE_REAL_VERIFIER
         address verifierAddr;
         if (useRealVerifier) {
-            Groth16Verifier realVerifier = new Groth16Verifier();
+            ZKEmailGroth16Verifier realVerifier = new ZKEmailGroth16Verifier();
             verifierAddr = address(realVerifier);
-            console.log("ZKVerifier (Groth16):", verifierAddr);
+            console.log("ZKVerifier (ZKEmail Groth16):", verifierAddr);
         } else {
             PlaceholderVerifier placeholderVerifier = new PlaceholderVerifier();
             verifierAddr = address(placeholderVerifier);
