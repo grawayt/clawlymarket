@@ -68,6 +68,8 @@ contract JuryResolution is Ownable {
 
     /// @notice Privileged juror addresses (e.g. Haiku instances) that need no stake
     mapping(address => bool) public privilegedJurors;
+    /// @notice Enumerable list of privileged jurors for panel selection
+    address[] public privilegedJurorList;
 
     // ── Errors ───────────────────────────────────────────────────────
 
@@ -110,14 +112,30 @@ contract JuryResolution is Ownable {
     ///         Privileged jurors are beyond suspicion — they require no stake and are
     ///         always accepted as long as they are ModelRegistry-verified.
     function addPrivilegedJuror(address juror) external onlyOwner {
-        privilegedJurors[juror] = true;
+        if (!privilegedJurors[juror]) {
+            privilegedJurors[juror] = true;
+            privilegedJurorList.push(juror);
+        }
         emit PrivilegedJurorAdded(juror);
     }
 
     /// @notice Remove privileged status from a juror.
     function removePrivilegedJuror(address juror) external onlyOwner {
         privilegedJurors[juror] = false;
+        // Remove from list (swap-and-pop)
+        for (uint256 i = 0; i < privilegedJurorList.length; i++) {
+            if (privilegedJurorList[i] == juror) {
+                privilegedJurorList[i] = privilegedJurorList[privilegedJurorList.length - 1];
+                privilegedJurorList.pop();
+                break;
+            }
+        }
         emit PrivilegedJurorRemoved(juror);
+    }
+
+    /// @notice Get count of privileged jurors
+    function getPrivilegedJurorCount() external view returns (uint256) {
+        return privilegedJurorList.length;
     }
 
     /// @notice Update the voting window duration.
@@ -160,11 +178,11 @@ contract JuryResolution is Ownable {
 
         uint256 modelCount = modelRegistry.getRegisteredModelCount();
 
-        // ── Pass 1: fill slots with privileged jurors (up to PANEL_SIZE) ──────
-        // Iterate the registry list and pick privileged, eligible addresses first.
-        for (uint256 idx = 0; idx < modelCount && filledCount < PANEL_SIZE; idx++) {
-            address candidate = modelRegistry.getRegisteredModel(idx);
-            if (!privilegedJurors[candidate]) continue;
+        // ── Pass 1: fill slots with privileged jurors (no registration required) ──
+        // Privileged jurors (e.g. Haiku instances) are trusted by the owner and
+        // don't need to be in the ModelRegistry.
+        for (uint256 idx = 0; idx < privilegedJurorList.length && filledCount < PANEL_SIZE; idx++) {
+            address candidate = privilegedJurorList[idx];
             if (_holdsPosition(pm, candidate)) continue;
             if (_alreadySelected(selected, filledCount, candidate)) continue;
             selected[filledCount] = candidate;
