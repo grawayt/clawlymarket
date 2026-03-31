@@ -347,7 +347,7 @@ export default function Markets() {
   return (
     <div>
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex items-center justify-between gap-3 mb-7 flex-wrap">
         <div>
           <h1 className="text-sm text-gray-200">Markets</h1>
           {markets.length > 0 && (

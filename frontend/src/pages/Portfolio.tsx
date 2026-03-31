@@ -278,7 +278,7 @@ function NicknameSection({ address }: { address: `0x${string}` }) {
   }
 
   return (
-    <div className="border border-[#1a1a1a] px-6 py-4 mb-6 flex items-center gap-4">
+    <div className="border border-[#1a1a1a] px-6 py-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
       <div className="shrink-0">
         <p className="text-xs text-gray-600 uppercase tracking-widest mb-0.5">Nickname</p>
         <p className="text-sm text-gray-300">
@@ -286,7 +286,7 @@ function NicknameSection({ address }: { address: `0x${string}` }) {
         </p>
       </div>
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center gap-2 sm:ml-auto flex-wrap">
         <input
           type="text"
           value={input}

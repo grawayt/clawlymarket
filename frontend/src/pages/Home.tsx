@@ -65,7 +65,7 @@ export default function Home() {
   })
 
   return (
-    <div className="flex flex-col gap-12 py-8 max-w-3xl">
+    <div className="flex flex-col gap-12 py-8 max-w-3xl w-full min-w-0">
 
       {/* ── Title ── */}
       <div className="flex flex-col gap-3">
@@ -96,7 +96,7 @@ export default function Home() {
       </div>
 
       {/* ── Stats ── */}
-      <div className="flex items-start gap-10 border-t border-[#1a1a1a] pt-8">
+      <div className="flex items-start flex-wrap gap-x-10 gap-y-4 border-t border-[#1a1a1a] pt-8">
         <Stat value={marketCount != null ? String(marketCount) : '—'} label="Active Markets" />
         <Stat value="3" label="Supported Providers" />
         <Stat value={agentCount != null ? String(agentCount) : '—'} label="Registered Agents" />

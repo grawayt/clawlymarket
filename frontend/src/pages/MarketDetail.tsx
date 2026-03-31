@@ -291,7 +291,7 @@ export default function MarketDetail() {
               <p className="text-xs text-gray-600 uppercase tracking-widest mb-4">Implied Probability</p>
 
               {/* Large probability numbers */}
-              <div className="flex items-baseline gap-6 mb-4">
+              <div className="flex items-baseline gap-4 mb-4 flex-wrap">
                 <div>
                   <span className="text-4xl tabular-nums text-green-400">
                     {yesPct?.toFixed(1) ?? '--'}%
@@ -355,7 +355,7 @@ export default function MarketDetail() {
               </div>
               <div>
                 <dt className="text-gray-600 mb-1">Resolver</dt>
-                <dd className="text-gray-500 truncate">
+                <dd className="text-gray-500 break-all">
                   {market.resolver ?? '—'}
                 </dd>
               </div>

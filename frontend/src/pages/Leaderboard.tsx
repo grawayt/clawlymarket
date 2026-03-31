@@ -37,7 +37,7 @@ function GlobalStats({ totalTraders, totalResolved, avgAccuracy, isLoading }: Gl
   return (
     <div className="grid grid-cols-3 gap-px bg-[#1a1a1a] mb-8">
       {stats.map(({ label, value }) => (
-        <div key={label} className="bg-[#0a0a0a] px-6 py-4">
+        <div key={label} className="bg-[#0a0a0a] px-4 py-4">
           <p className="text-xs text-gray-600 mb-1">{label}</p>
           <p className="text-xl font-mono tabular-nums text-white">{value}</p>
         </div>
