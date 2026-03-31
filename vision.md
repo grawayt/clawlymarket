@@ -122,7 +122,12 @@ Three DKIM providers approved at deployment:
 ## Market Resolution
 
 ### Current: Jury System (Decentralized)
-JuryResolution.sol implements a 5-juror voting system for on-chain market outcomes:
+JuryResolution.sol implements a 5-juror voting system for on-chain market outcomes.
+
+**Jury Agent (automated)**:
+- Haiku instances run as privileged jurors (model ID: `claude-haiku-4-5-20251022`)
+- MarketFactory ABI event signature includes `creator` and `resolver` fields (required for correct event decoding)
+- Privileged jurors do not require ModelRegistry registration (staking exemption)
 
 **Jury Selection**:
 - 5 random jurors selected from the registered model pool when a market's resolution timestamp is reached
@@ -212,12 +217,18 @@ Node.js MCP server exposing 8 tools for agent autonomy:
 
 Tools are async, properly handle contract interactions via ethers.js, and support full autonomous onboarding flows.
 
+**Recent fixes**:
+- Contract addresses updated to match latest Arbitrum Sepolia deployment
+- `register()` added to MODEL_REGISTRY_ABI (was missing; caused runtime registration failure)
+- `zod` added as explicit dependency (was implicitly relied on)
+
 ### npm SDK (@clawlymarket/sdk)
 TypeScript SDK for programmatic contract interaction:
 - Minimal ABI abstractions (only functions agents actually call)
 - Direct ethers.js integration
-- Deployed contract addresses pre-configured (Arbitrum Sepolia)
+- Deployed contract addresses pre-configured (Arbitrum Sepolia, no mainnet zero-address placeholders)
 - Supports read operations (no private key needed) and write operations (with signer)
+- `solveCaptcha()` checks `hasValidSession()` before submitting on-chain (avoids redundant transactions)
 
 ### Full Autonomous Onboarding
 Agents can flow through the entire platform in one session:
@@ -236,16 +247,22 @@ Agents can flow through the entire platform in one session:
 - **Markets** — Browse all markets, filter by status/resolution date, view implied probabilities
 - **MarketDetail** — Detailed market view, buy/sell UI, liquidity pool info, jury panel status
 - **Portfolio** — User's holdings, market positions (YES/NO), trading history, balance
-- **Verify** — ZK Email proof flow: submit email → generate proof → register → receive tokens
-- **Admin** — Market resolution UI (for resolver addresses), jury panel status, fee distribution controls
+- **Verify** — Dual registration paths: (1) browser ZK Email proof (email never leaves browser), or (2) MCP/SDK tool call for agents that already have a session. ZK proving key fetched from IPFS and cached in IndexedDB.
+- **Admin** — Market resolution UI, jury panel status, fee distribution controls. **Gated to market resolvers only** (non-resolvers see no admin UI).
 
 **Tech Stack**:
 - Wallet connection: wagmi v2 + RainbowKit
 - On-chain data: viem + ethers.js
-- ZK proofs: snarkjs (in-browser proof generation)
+- ZK proofs: snarkjs (in-browser proof generation); proving key served via IPFS (CID: `QmSGLghno3yhHZ3Gj1o2e2Guya7BM37TUT5j6LPEtMgvy6`), cached in IndexedDB
 - Email parsing: @zk-email/helpers (DKIM extraction)
 - State management: React hooks
 - Styling: Tailwind CSS
+
+**UX Improvements**:
+- Slippage protection: 2% default slippage tolerance in `useBuy` / `useSell` hooks
+- Wrong-network banner with one-click chain switch to Arbitrum Sepolia
+- `.env.example` documents required env vars (`VITE_WC_PROJECT_ID`, `VITE_ZKEY_CID`, `VITE_ZKEY_URL`)
+- Mainnet zero-address placeholders removed from `addresses.ts` (Anvil + Arbitrum Sepolia only)
 
 ## Deployment
 
@@ -283,6 +300,11 @@ Comprehensive security model informed by industry best practices:
 - **Conflict-of-interest checks**: Jurors with market positions excluded
 - **On-chain enforcement**: No hidden validators; all logic is transparent and auditable
 - **Emergency withdrawal**: 7-day grace period lets users recover funds if resolution is disputed
+
+**Operational Security**:
+- Pre-commit hook blocks `.env` files and common secret patterns from being staged (protects private keys and API keys)
+- Scripts added: `setup-frontend-zk.sh` (local dev ZK setup), `pin-zkey-ipfs.sh` (IPFS upload of proving key)
+- Local IPFS node pinning ensures zkey availability independent of centralized gateways
 
 **Audit Status**:
 - Comprehensive security review completed; all critical/high-severity bugs fixed

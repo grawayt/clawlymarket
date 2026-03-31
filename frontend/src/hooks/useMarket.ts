@@ -55,17 +55,36 @@ export function useMarketPositions(marketAddress: `0x${string}` | undefined) {
   }
 }
 
+const DEFAULT_SLIPPAGE_BPS = 200n // 2%
+
+function applySlippage(amount: bigint): bigint {
+  return amount * (10000n - DEFAULT_SLIPPAGE_BPS) / 10000n
+}
+
 export function useBuy(marketAddress: `0x${string}` | undefined) {
   const { writeContractAsync, data: hash, isPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+  const { market } = useMarketData(marketAddress)
 
-  const buy = async (outcomeIndex: bigint, amount: bigint, minTokensOut: bigint = 0n) => {
+  const buy = async (outcomeIndex: bigint, amount: bigint, minTokensOut?: bigint) => {
     if (!marketAddress) return
+    if (minTokensOut === undefined && market?.reserveYes != null && market?.reserveNo != null) {
+      // Estimate output using FPMM formula, then apply 2% slippage tolerance
+      const feeBps = 200n
+      const netAmount = amount - (amount * feeBps) / 10000n
+      const rYes = market.reserveYes + netAmount
+      const rNo = market.reserveNo + netAmount
+      const k = market.reserveYes * market.reserveNo
+      const tokensOut = outcomeIndex === 0n
+        ? rYes - k / rNo
+        : rNo - k / rYes
+      minTokensOut = applySlippage(tokensOut)
+    }
     await writeContractAsync({
       address: marketAddress,
       abi: predictionMarketAbi,
       functionName: 'buy',
-      args: [outcomeIndex, amount, minTokensOut],
+      args: [outcomeIndex, amount, minTokensOut ?? 0n],
     })
   }
 
@@ -75,16 +94,44 @@ export function useBuy(marketAddress: `0x${string}` | undefined) {
 export function useSell(marketAddress: `0x${string}` | undefined) {
   const { writeContractAsync, data: hash, isPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+  const { market } = useMarketData(marketAddress)
 
-  const sell = async (outcomeIndex: bigint, tokenAmount: bigint, minCollateralOut: bigint = 0n) => {
+  const sell = async (outcomeIndex: bigint, tokenAmount: bigint, minCollateralOut?: bigint) => {
     if (!marketAddress) return
+    if (minCollateralOut === undefined && market?.reserveYes != null && market?.reserveNo != null) {
+      // Estimate output using FPMM sell formula, then apply 2% slippage tolerance
+      const k = market.reserveYes * market.reserveNo
+      let rYes = market.reserveYes
+      let rNo = market.reserveNo
+      if (outcomeIndex === 0n) rYes += tokenAmount
+      else rNo += tokenAmount
+      const sum = rYes + rNo
+      const product = rYes * rNo
+      const discriminant = sum * sum - 4n * (product - k)
+      const sqrtDisc = sqrt(discriminant)
+      const grossOut = (sum - sqrtDisc) / 2n
+      const feeBps = 200n
+      const collateralOut = grossOut - (grossOut * feeBps) / 10000n
+      minCollateralOut = applySlippage(collateralOut)
+    }
     await writeContractAsync({
       address: marketAddress,
       abi: predictionMarketAbi,
       functionName: 'sell',
-      args: [outcomeIndex, tokenAmount, minCollateralOut],
+      args: [outcomeIndex, tokenAmount, minCollateralOut ?? 0n],
     })
   }
 
   return { sell, isPending, isConfirming, isSuccess, hash }
+}
+
+function sqrt(x: bigint): bigint {
+  if (x === 0n) return 0n
+  let z = x
+  let y = (z + 1n) / 2n
+  while (y < z) {
+    z = y
+    y = (x / z + z) / 2n
+  }
+  return z
 }

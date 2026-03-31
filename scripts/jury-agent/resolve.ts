@@ -48,7 +48,7 @@ const JURY_RESOLUTION_ABI = [
 ];
 
 const MARKET_FACTORY_ABI = [
-  "event MarketCreated(address indexed market, string question, uint256 resolutionTimestamp)",
+  "event MarketCreated(address indexed market, address indexed creator, string question, uint256 resolutionTimestamp, address resolver)",
 ];
 
 // ── Types ────────────────────────────────────────────────────────────────────

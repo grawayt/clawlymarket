@@ -18,20 +18,13 @@ export const ADDRESSES: Record<number, ContractAddresses> = {
   },
   // Arbitrum Sepolia (testnet)
   421614: {
-    zkVerifier: '0xa1896930A4750F934fa38e1F0C38f1929d17387c',
-    clawliaToken: '0x8fe64d57a8AD52fd8eeA453990f1B6e010248335',
-    modelRegistry: '0xA9Fe2f7Af79253DAcFe4F3b52926B6E8b052d6cD',
-    captchaGate: '0x9f53a17Ce2D657eFB0ad09775cd4F50B2e92a75c',
-    marketFactory: '0xbCf3a698B01537c39AB97214E5cDF38Bfec1598A',
+    clawliaToken: '0x8DD72e134641e0Ef04e8CD1aE97566F21E2f816a',
+    modelRegistry: '0xECD445CAd04f6a1ac0f0C3eC0FD48140B4381586',
+    marketFactory: '0xC1e8E62021DB22C416Ad41CE9472C1D3f07EAE02',
+    captchaGate: '0x30b619BAed6DcD055e28228cA7E113681AeCb6B3',
+    zkVerifier: '0x57c0C95f188E787Bc2540BD9903e09b0e7b10440',
   },
-  // Arbitrum mainnet (not yet deployed)
-  42161: {
-    clawliaToken: '0x0000000000000000000000000000000000000000',
-    modelRegistry: '0x0000000000000000000000000000000000000000',
-    marketFactory: '0x0000000000000000000000000000000000000000',
-    zkVerifier: '0x0000000000000000000000000000000000000000',
-    captchaGate: '0x0000000000000000000000000000000000000000',
-  },
+  // Arbitrum mainnet — not yet deployed
 }
 
 /** Returns addresses for the given chain, throwing if unknown. */

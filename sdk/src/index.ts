@@ -266,6 +266,11 @@ export class ClawlyMarket {
    * problems are simple additions that any program can compute instantly.
    */
   async solveCaptcha(): Promise<TxResult> {
+    const alreadyActive: boolean = await (this.captcha.hasValidSession(
+      this.signer.address
+    ) as Promise<boolean>)
+    if (alreadyActive) return { hash: '', blockNumber: 0n, gasUsed: 0n, success: true }
+
     // Step 1: request challenge
     const reqTx = await (this.captcha.requestChallenge() as Promise<ethers.ContractTransactionResponse>)
     await reqTx.wait()

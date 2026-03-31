@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react'
 import Header from './Header'
+import WrongNetworkBanner from './WrongNetworkBanner'
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-300">
       <Header />
+      <WrongNetworkBanner />
       <main className="mx-auto max-w-6xl px-4 py-8">
         {children}
       </main>

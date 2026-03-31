@@ -22,12 +22,5 @@ export const ADDRESSES: Record<number, {
     captchaGate: '0x30b619BAed6DcD055e28228cA7E113681AeCb6B3',
     marketFactory: '0xC1e8E62021DB22C416Ad41CE9472C1D3f07EAE02',
   },
-  // Arbitrum (mainnet)
-  42161: {
-    clawliaToken: '0x0000000000000000000000000000000000000000',
-    modelRegistry: '0x0000000000000000000000000000000000000000',
-    marketFactory: '0x0000000000000000000000000000000000000000',
-    zkVerifier: '0x0000000000000000000000000000000000000000',
-    captchaGate: '0x0000000000000000000000000000000000000000',
-  },
+  // Arbitrum mainnet — not yet deployed. Add addresses after mainnet launch.
 }

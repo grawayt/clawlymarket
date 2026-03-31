@@ -67,9 +67,10 @@ function StatusText({ resolved, readyToResolve }: { resolved?: boolean; readyToR
 interface MarketRowProps {
   index: number
   address: `0x${string}`
+  connectedAddress?: `0x${string}`
 }
 
-function MarketRow({ index, address }: MarketRowProps) {
+function MarketRow({ index, address, connectedAddress }: MarketRowProps) {
   const { writeContractAsync } = useWriteContract()
   const [resolveStatus, setResolveStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle')
   const [resolveError, setResolveError] = useState('')
@@ -95,6 +96,10 @@ function MarketRow({ index, address }: MarketRowProps) {
   const nowSec = BigInt(Math.floor(Date.now() / 1000))
   const pastResolutionTime = resolutionTimestamp != null && resolutionTimestamp < nowSec
   const readyToResolve = !resolved && pastResolutionTime
+  const isResolver =
+    connectedAddress != null &&
+    resolver != null &&
+    connectedAddress.toLowerCase() === resolver.toLowerCase()
 
   const resolutionDate = resolutionTimestamp
     ? new Date(Number(resolutionTimestamp) * 1000)
@@ -165,7 +170,12 @@ function MarketRow({ index, address }: MarketRowProps) {
           {resolver ? truncateAddress(resolver) : '—'}
         </td>
         <td className="px-4 py-3">
-          {readyToResolve && resolveStatus !== 'success' && (
+          {!connectedAddress ? (
+            <span className="text-xs text-gray-700">Connect wallet</span>
+          ) : !isResolver && !resolved ? (
+            <span className="text-xs text-gray-700">Not your market</span>
+          ) : null}
+          {isResolver && readyToResolve && resolveStatus !== 'success' && (
             <div className="flex gap-2">
               <button
                 onClick={() => handleResolve(0n)}
@@ -488,7 +498,7 @@ export default function Admin() {
     return (
       <div className="flex flex-col items-center gap-6 py-16">
         <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
-        <p className="text-gray-600 text-xs">Connect your wallet to access the admin panel.</p>
+        <p className="text-gray-600 text-xs">Connect your wallet to access admin controls.</p>
         <ConnectButton />
       </div>
     )
@@ -594,7 +604,7 @@ export default function Admin() {
               </thead>
               <tbody>
                 {markets.map((addr, i) => (
-                  <MarketRow key={addr} index={i} address={addr} />
+                  <MarketRow key={addr} index={i} address={addr} connectedAddress={address} />
                 ))}
               </tbody>
             </table>

@@ -3,10 +3,10 @@ import { ethers } from "ethers";
 // ── Deployed addresses on Arbitrum Sepolia ──────────────────────────────────
 
 export const ADDRESSES = {
-  ClawliaToken: "0x8fe64d57a8AD52fd8eeA453990f1B6e010248335",
-  ModelRegistry: "0xA9Fe2f7Af79253DAcFe4F3b52926B6E8b052d6cD",
-  MarketFactory: "0xbCf3a698B01537c39AB97214E5cDF38Bfec1598A",
-  CaptchaGate: "0x9f53a17Ce2D657eFB0ad09775cd4F50B2e92a75c",
+  ClawliaToken: "0x8DD72e134641e0Ef04e8CD1aE97566F21E2f816a",
+  ModelRegistry: "0xECD445CAd04f6a1ac0f0C3eC0FD48140B4381586",
+  MarketFactory: "0xC1e8E62021DB22C416Ad41CE9472C1D3f07EAE02",
+  CaptchaGate: "0x30b619BAed6DcD055e28228cA7E113681AeCb6B3",
 } as const;
 
 export const RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc";
@@ -26,6 +26,7 @@ export const MODEL_REGISTRY_ABI = [
   "function getRegisteredModelCount() external view returns (uint256)",
   "function getRegisteredModel(uint256 index) external view returns (address)",
   "function registered(address) external view returns (bool)",
+  "function register(uint256[2] calldata pA, uint256[2][2] calldata pB, uint256[2] calldata pC, uint256 nullifier, uint256 pubkeyHash) external",
 ] as const;
 
 export const MARKET_FACTORY_ABI = [

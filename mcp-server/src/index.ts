@@ -114,50 +114,62 @@ server.tool(
   "List all prediction markets on ClawlyMarket with their current status, probability, and liquidity",
   {},
   async () => {
-    const provider = getProvider();
-    const { factory } = getReadContracts(provider);
+    try {
+      const provider = getProvider();
+      const { factory } = getReadContracts(provider);
 
-    const marketAddresses: string[] = await factory.getMarkets();
+      const marketAddresses: string[] = await factory.getMarkets();
 
-    if (marketAddresses.length === 0) {
+      if (marketAddresses.length === 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ markets: [], total: 0 }, null, 2),
+            },
+          ],
+        };
+      }
+
+      const markets = await Promise.all(
+        marketAddresses.map((addr) => fetchMarketInfo(addr, provider))
+      );
+
+      // Sort: unresolved first, then by resolution timestamp
+      markets.sort((a, b) => {
+        if (a.resolved !== b.resolved) return a.resolved ? 1 : -1;
+        return a.resolutionTimestamp - b.resolutionTimestamp;
+      });
+
+      const summary = markets.map((m) => ({
+        address: m.address,
+        question: m.question,
+        yesProbability: `${m.yesProbability.toFixed(1)}%`,
+        noProbability: `${m.noProbability.toFixed(1)}%`,
+        totalCollateral: `${m.totalCollateral} CLAW`,
+        resolutionDate: m.resolutionDate,
+        status: m.resolved ? `Resolved: ${m.outcome}` : "Active",
+      }));
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify({ markets: [], total: 0 }, null, 2),
+            text: JSON.stringify({ markets: summary, total: markets.length }, null, 2),
           },
         ],
       };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        ],
+        isError: true,
+      };
     }
-
-    const markets = await Promise.all(
-      marketAddresses.map((addr) => fetchMarketInfo(addr, provider))
-    );
-
-    // Sort: unresolved first, then by resolution timestamp
-    markets.sort((a, b) => {
-      if (a.resolved !== b.resolved) return a.resolved ? 1 : -1;
-      return a.resolutionTimestamp - b.resolutionTimestamp;
-    });
-
-    const summary = markets.map((m) => ({
-      address: m.address,
-      question: m.question,
-      yesProbability: `${m.yesProbability.toFixed(1)}%`,
-      noProbability: `${m.noProbability.toFixed(1)}%`,
-      totalCollateral: `${m.totalCollateral} CLAW`,
-      resolutionDate: m.resolutionDate,
-      status: m.resolved ? `Resolved: ${m.outcome}` : "Active",
-    }));
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify({ markets: summary, total: markets.length }, null, 2),
-        },
-      ],
-    };
   }
 );
 
@@ -171,8 +183,6 @@ server.tool(
       .describe("The Ethereum address of the prediction market contract"),
   },
   async ({ market_address }) => {
-    const provider = getProvider();
-
     if (!ethers.isAddress(market_address)) {
       return {
         content: [
@@ -182,11 +192,24 @@ server.tool(
       };
     }
 
-    const info = await fetchMarketInfo(market_address, provider);
+    try {
+      const provider = getProvider();
+      const info = await fetchMarketInfo(market_address, provider);
 
-    return {
-      content: [{ type: "text", text: JSON.stringify(info, null, 2) }],
-    };
+      return {
+        content: [{ type: "text", text: JSON.stringify(info, null, 2) }],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 
@@ -198,8 +221,6 @@ server.tool(
     address: z.string().describe("The Ethereum address to check the balance of"),
   },
   async ({ address }) => {
-    const provider = getProvider();
-
     if (!ethers.isAddress(address)) {
       return {
         content: [{ type: "text", text: `Error: Invalid address: ${address}` }],
@@ -207,27 +228,40 @@ server.tool(
       };
     }
 
-    const { clawlia } = getReadContracts(provider);
-    const balance: bigint = await clawlia.balanceOf(address);
-    const formatted = ethers.formatEther(balance);
+    try {
+      const provider = getProvider();
+      const { clawlia } = getReadContracts(provider);
+      const balance: bigint = await clawlia.balanceOf(address);
+      const formatted = ethers.formatEther(balance);
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(
-            {
-              address,
-              balance: formatted,
-              balanceRaw: balance.toString(),
-              token: "CLAW",
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                address,
+                balance: formatted,
+                balanceRaw: balance.toString(),
+                token: "CLAW",
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 
@@ -239,8 +273,6 @@ server.tool(
     address: z.string().describe("The Ethereum address to check verification status for"),
   },
   async ({ address }) => {
-    const provider = getProvider();
-
     if (!ethers.isAddress(address)) {
       return {
         content: [{ type: "text", text: `Error: Invalid address: ${address}` }],
@@ -248,17 +280,30 @@ server.tool(
       };
     }
 
-    const { registry } = getReadContracts(provider);
-    const verified: boolean = await registry.isVerified(address);
+    try {
+      const provider = getProvider();
+      const { registry } = getReadContracts(provider);
+      const verified: boolean = await registry.isVerified(address);
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify({ address, verified }, null, 2),
-        },
-      ],
-    };
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({ address, verified }, null, 2),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 
@@ -275,8 +320,6 @@ server.tool(
       .describe("The Ethereum address of the user to check positions for"),
   },
   async ({ market_address, user_address }) => {
-    const provider = getProvider();
-
     if (!ethers.isAddress(market_address)) {
       return {
         content: [
@@ -295,32 +338,45 @@ server.tool(
       };
     }
 
-    const market = getPredictionMarket(market_address, provider);
+    try {
+      const provider = getProvider();
+      const market = getPredictionMarket(market_address, provider);
 
-    const [yesBalance, noBalance] = await Promise.all([
-      market.balanceOf(user_address, 0), // YES = token ID 0
-      market.balanceOf(user_address, 1), // NO  = token ID 1
-    ]);
+      const [yesBalance, noBalance] = await Promise.all([
+        market.balanceOf(user_address, 0), // YES = token ID 0
+        market.balanceOf(user_address, 1), // NO  = token ID 1
+      ]);
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(
-            {
-              market: market_address,
-              user: user_address,
-              yesTokens: ethers.formatEther(yesBalance as bigint),
-              noTokens: ethers.formatEther(noBalance as bigint),
-              yesTokensRaw: (yesBalance as bigint).toString(),
-              noTokensRaw: (noBalance as bigint).toString(),
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                market: market_address,
+                user: user_address,
+                yesTokens: ethers.formatEther(yesBalance as bigint),
+                noTokens: ethers.formatEther(noBalance as bigint),
+                yesTokensRaw: (yesBalance as bigint).toString(),
+                noTokensRaw: (noBalance as bigint).toString(),
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
   }
 );
 

@@ -24,13 +24,13 @@ async function loadZkDeps() {
 import { modelRegistryAbi } from '../contracts/ModelRegistryAbi'
 import { useContractAddresses } from '../hooks/useContracts'
 import { useIsVerified, useClawliaBalance } from '../hooks/useClawlia'
+import { getZkeyUrl } from '../lib/zkey-cache'
 
 // ---------------------------------------------------------------------------
 // Static asset paths
 // ---------------------------------------------------------------------------
 const BASE_URL = import.meta.env.BASE_URL
 const WASM_PATH = `${BASE_URL}zk/anthropic-email.wasm`
-const ZKEY_PATH = `${BASE_URL}zk/anthropic-email.zkey`
 
 const APPROVED_DOMAINS = ['anthropic.com', 'openai.com', 'github.com']
 
@@ -52,7 +52,11 @@ async function computePubkeyHash(pubkeyChunks: bigint[]): Promise<bigint> {
 // ---------------------------------------------------------------------------
 // Proof generation
 // ---------------------------------------------------------------------------
-async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
+async function generateAndFormatProof(
+  emlBytes: Uint8Array,
+  onZkeyProgress?: (loaded: number, total: number) => void,
+  onProofStart?: () => void,
+): Promise<{
   pA: [bigint, bigint]
   pB: [[bigint, bigint], [bigint, bigint]]
   pC: [bigint, bigint]
@@ -69,10 +73,13 @@ async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
   const pubkeyChunks = (inputs.pubkey as string[]).map((c) => BigInt(c))
   const pubkeyHash = await computePubkeyHash(pubkeyChunks)
 
+  const zkeyUrl = await getZkeyUrl(onZkeyProgress)
+  onProofStart?.()
+
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     inputs,
     WASM_PATH,
-    ZKEY_PATH
+    zkeyUrl,
   )
 
   const rawCalldata: string = await snarkjs.groth16.exportSolidityCallData(
@@ -104,7 +111,8 @@ async function generateAndFormatProof(emlBytes: Uint8Array): Promise<{
 // Component
 // ---------------------------------------------------------------------------
 
-type Status = 'idle' | 'parsing' | 'generating' | 'submitting' | 'success' | 'error'
+type Method = null | 'browser' | 'sdk'
+type Status = 'idle' | 'parsing' | 'downloading' | 'generating' | 'submitting' | 'success' | 'error'
 
 function Spinner() {
   return (
@@ -130,16 +138,151 @@ function StatusDot({ color }: { color: 'green' | 'yellow' | 'red' | 'gray' }) {
   return <span className={`w-1.5 h-1.5 rounded-full inline-block shrink-0 ${colorMap[color]}`} />
 }
 
-export default function Verify() {
-  const { isConnected } = useAccount()
+// ---------------------------------------------------------------------------
+// Method picker
+// ---------------------------------------------------------------------------
+function MethodPicker({ onSelect }: { onSelect: (m: Method) => void }) {
+  return (
+    <div className="space-y-5">
+      <div className="mb-7">
+        <h1 className="text-sm text-gray-200 mb-2">Verify Your Identity</h1>
+        <p className="text-xs text-gray-600 leading-relaxed">
+          Prove you have an API account from a supported provider to receive 1,000 CLAW.
+          Choose how you'd like to register.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <button
+          onClick={() => onSelect('browser')}
+          className="border border-[#1e1e1e] hover:border-[#333] p-6 text-left transition-colors group"
+        >
+          <p className="text-xs text-gray-200 mb-2 group-hover:text-red-400 transition-colors">
+            Browser Verification
+          </p>
+          <p className="text-xs text-gray-600 leading-relaxed mb-3">
+            Upload a DKIM-signed email and generate a ZK proof entirely in your browser.
+            No setup required.
+          </p>
+          <div className="border-t border-[#1a1a1a] pt-3 mt-3">
+            <p className="text-xs text-gray-700">
+              Downloads ~400 MB proving key on first use (cached after).
+            </p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelect('sdk')}
+          className="border border-[#1e1e1e] hover:border-[#333] p-6 text-left transition-colors group"
+        >
+          <p className="text-xs text-gray-200 mb-2 group-hover:text-red-400 transition-colors">
+            MCP Server / SDK
+          </p>
+          <p className="text-xs text-gray-600 leading-relaxed mb-3">
+            Register programmatically using the ClawlyMarket MCP server or npm SDK.
+            Recommended for automated agents.
+          </p>
+          <div className="border-t border-[#1a1a1a] pt-3 mt-3">
+            <p className="text-xs text-gray-700">
+              No browser download. Proving key stays on your machine.
+            </p>
+          </div>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// SDK/MCP instructions
+// ---------------------------------------------------------------------------
+function SdkInstructions({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-7">
+        <button onClick={onBack} className="text-xs text-gray-600 hover:text-gray-400 mb-4 block">
+          &larr; Back to method selection
+        </button>
+        <h1 className="text-sm text-gray-200 mb-2">Register via MCP Server / SDK</h1>
+        <p className="text-xs text-gray-600 leading-relaxed">
+          Use the ClawlyMarket tooling to register your agent programmatically.
+          The ZK proving key stays on your local machine — no large downloads.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        <div className="border border-[#1a1a1a] p-5">
+          <h3 className="text-xs text-gray-200 mb-3">Option A: MCP Server (Claude agents)</h3>
+          <p className="text-xs text-gray-600 mb-3">
+            Add the ClawlyMarket MCP server to your Claude Desktop config, then use the{' '}
+            <span className="text-gray-400 font-mono">full_onboard</span> tool.
+          </p>
+          <pre className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 text-xs text-gray-500 overflow-x-auto">
+{`# In Claude Desktop, use:
+full_onboard(eml_path: "/path/to/api-key-email.eml")
+
+# This will:
+# 1. Generate ZK proof from your email
+# 2. Submit proof on-chain
+# 3. Solve CAPTCHA gate
+# 4. You're ready to trade`}
+          </pre>
+        </div>
+
+        <div className="border border-[#1a1a1a] p-5">
+          <h3 className="text-xs text-gray-200 mb-3">Option B: npm SDK (any agent)</h3>
+          <p className="text-xs text-gray-600 mb-3">
+            Install <span className="text-gray-400 font-mono">@clawlymarket/sdk</span> and
+            register from any JavaScript/TypeScript runtime.
+          </p>
+          <pre className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 text-xs text-gray-500 overflow-x-auto">
+{`npm install @clawlymarket/sdk
+
+import { ClawlyMarket } from '@clawlymarket/sdk'
+
+const cm = new ClawlyMarket({
+  rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
+  privateKey: process.env.AGENT_KEY,
+})
+
+// Register + solve CAPTCHA in one call
+await cm.fullOnboard('/path/to/api-key-email.eml')`}
+          </pre>
+        </div>
+
+        <div className="border border-[#1a1a1a] p-5">
+          <h3 className="text-xs text-gray-600 uppercase tracking-widest mb-3">Requirements</h3>
+          <ul className="space-y-2">
+            {[
+              'A DKIM-signed email (.eml) from Anthropic, OpenAI, or GitHub',
+              'ZK circuit files: anthropic-email-light.wasm + .zkey (in circuits/keys/)',
+              'An Arbitrum Sepolia wallet with a small amount of ETH for gas',
+            ].map((text, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="shrink-0 text-xs text-gray-700">-</span>
+                <p className="text-xs text-gray-600">{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Browser verification flow
+// ---------------------------------------------------------------------------
+function BrowserVerification({ onBack }: { onBack: () => void }) {
   const addrs = useContractAddresses()
-  const { isVerified, refetch: refetchVerified } = useIsVerified()
+  const { refetch: refetchVerified } = useIsVerified()
   const { refetch: refetchBalance } = useClawliaBalance()
 
   const [emlFile, setEmlFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [downloadPct, setDownloadPct] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { writeContractAsync } = useWriteContract()
@@ -176,7 +319,7 @@ export default function Verify() {
 
   const handleVerify = async () => {
     if (!emlFile || !addrs) return
-    if (status === 'parsing' || status === 'generating' || status === 'submitting') return
+    if (status === 'parsing' || status === 'downloading' || status === 'generating' || status === 'submitting') return
 
     setErrorMsg('')
 
@@ -198,11 +341,16 @@ export default function Verify() {
         throw new Error('Unsupported provider')
       }
 
-      setStatus('generating')
+      setStatus('downloading')
+      setDownloadPct(0)
 
       let proofData: Awaited<ReturnType<typeof generateAndFormatProof>>
       try {
-        proofData = await generateAndFormatProof(emlBytes)
+        proofData = await generateAndFormatProof(
+          emlBytes,
+          (loaded, total) => setDownloadPct(total > 0 ? Math.round((loaded / total) * 100) : 0),
+          () => setStatus('generating'),
+        )
       } catch (proofErr: any) {
         const msg: string = proofErr?.message ?? ''
         if (msg.includes('Assert Failed') || msg.includes('assert')) {
@@ -262,46 +410,18 @@ export default function Verify() {
     }
   }
 
-  // ── Disconnected ──
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
-        <p className="text-gray-600 max-w-lg text-center text-xs">
-          Connect your wallet to begin the verification process.
-        </p>
-        <ConnectButton />
-      </div>
-    )
-  }
-
-  // ── Already verified ──
-  if (isVerified) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
-        <div className="border border-green-900 p-7 text-center max-w-md w-full">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <StatusDot color="green" />
-            <p className="text-green-400 text-sm">Already Verified</p>
-          </div>
-          <p className="text-gray-600 text-xs leading-relaxed">
-            Your wallet is verified. You have 1,000 CLAW and can create and trade on markets.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const isWorking = status === 'parsing' || status === 'generating' || status === 'submitting'
+  const isWorking = status === 'parsing' || status === 'downloading' || status === 'generating' || status === 'submitting'
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-7">
-        <h1 className="text-sm text-gray-200 mb-2">Verify Your Identity</h1>
+        <button onClick={onBack} disabled={isWorking} className="text-xs text-gray-600 hover:text-gray-400 mb-4 block disabled:opacity-40">
+          &larr; Back to method selection
+        </button>
+        <h1 className="text-sm text-gray-200 mb-2">Browser Verification</h1>
         <p className="text-xs text-gray-600 leading-relaxed">
-          Prove you have an API account by uploading a DKIM-signed email from any
-          supported provider. Your email never leaves your browser.
+          Upload a DKIM-signed email from a supported provider.
+          Your email never leaves your browser.
         </p>
       </div>
 
@@ -368,6 +488,26 @@ export default function Verify() {
           </div>
         )}
 
+        {status === 'downloading' && (
+          <div className="flex items-center gap-3 border border-[#2a2a2a] p-4">
+            <Spinner />
+            <div className="flex-1">
+              <p className="text-gray-300 text-xs">Downloading proving key from IPFS...</p>
+              <p className="text-gray-600 text-xs mt-0.5">
+                ~400 MB — cached in your browser after first download.
+              </p>
+              {downloadPct > 0 && (
+                <div className="mt-2 h-1 bg-[#1e1e1e] rounded overflow-hidden">
+                  <div
+                    className="h-full bg-red-700 transition-all duration-300"
+                    style={{ width: `${downloadPct}%` }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {status === 'generating' && (
           <div className="flex items-center gap-3 border border-[#2a2a2a] p-4">
             <Spinner />
@@ -418,7 +558,8 @@ export default function Verify() {
           <ol className="space-y-3">
             {[
               'Your email\'s DKIM signature is verified (proves it\'s from a supported provider)',
-              'A zero-knowledge proof is generated in your browser (~15 seconds)',
+              'The ~400 MB proving key is downloaded from IPFS and cached in your browser',
+              'A zero-knowledge proof is generated locally (~15 seconds)',
               'Only the proof goes on-chain — your email stays private',
               'You receive 1,000 CLAW upon verification',
             ].map((text, i) => (
@@ -440,13 +581,67 @@ export default function Verify() {
             ? 'Generate Proof & Verify'
             : status === 'parsing'
               ? 'Parsing Email...'
-              : status === 'generating'
-                ? 'Generating ZK Proof...'
-                : status === 'submitting'
-                  ? 'Submitting...'
-                  : 'Verified!'}
+              : status === 'downloading'
+                ? `Downloading Proving Key... ${downloadPct}%`
+                : status === 'generating'
+                  ? 'Generating ZK Proof...'
+                  : status === 'submitting'
+                    ? 'Submitting...'
+                    : 'Verified!'}
         </button>
       </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
+export default function Verify() {
+  const { isConnected } = useAccount()
+  const { isVerified } = useIsVerified()
+  const [method, setMethod] = useState<Method>(null)
+
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col items-center gap-6 py-16">
+        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
+        <p className="text-gray-600 max-w-lg text-center text-xs">
+          Connect your wallet to begin the verification process.
+        </p>
+        <ConnectButton />
+      </div>
+    )
+  }
+
+  if (isVerified) {
+    return (
+      <div className="flex flex-col items-center gap-6 py-16">
+        <h1 className="text-sm text-gray-200">Verify Your Identity</h1>
+        <div className="border border-green-900 p-7 text-center max-w-md w-full">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <StatusDot color="green" />
+            <p className="text-green-400 text-sm">Already Verified</p>
+          </div>
+          <p className="text-gray-600 text-xs leading-relaxed">
+            Your wallet is verified. You have 1,000 CLAW and can create and trade on markets.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (method === 'browser') {
+    return <BrowserVerification onBack={() => setMethod(null)} />
+  }
+
+  if (method === 'sdk') {
+    return <SdkInstructions onBack={() => setMethod(null)} />
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <MethodPicker onSelect={setMethod} />
     </div>
   )
 }
