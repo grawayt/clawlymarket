@@ -1,5 +1,6 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState } from 'react'
 import { useAccount } from 'wagmi'
+import { useReadContract, useWriteContract } from 'wagmi'
 import { formatEther } from 'viem'
 import { Link } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
@@ -14,6 +15,8 @@ import {
 } from '../hooks/usePortfolioStats'
 import { UserTradeHistory } from '../components/markets/TradeHistory'
 import { TransferPanel } from '../components/token/TransferPanel'
+import { modelRegistryAbi } from '../contracts/ModelRegistryAbi'
+import { useContractAddresses } from '../hooks/useContracts'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -239,6 +242,77 @@ function TransferRow({ t }: { t: TransferRecord }) {
   )
 }
 
+// ── Nickname section ──────────────────────────────────────────────────────────
+
+function NicknameSection({ address }: { address: `0x${string}` }) {
+  const addrs = useContractAddresses()
+  const [input, setInput] = useState('')
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const { data: currentNickname, refetch } = useReadContract({
+    address: addrs?.modelRegistry as `0x${string}` | undefined,
+    abi: modelRegistryAbi,
+    functionName: 'nicknames',
+    args: [address],
+    query: { enabled: !!addrs?.modelRegistry },
+  })
+
+  const { writeContractAsync, isPending } = useWriteContract()
+
+  async function handleSet() {
+    if (!addrs?.modelRegistry || !input.trim()) return
+    try {
+      setStatus('idle')
+      await writeContractAsync({
+        address: addrs.modelRegistry as `0x${string}`,
+        abi: modelRegistryAbi,
+        functionName: 'setNickname',
+        args: [input.trim()],
+      })
+      setStatus('success')
+      setInput('')
+      refetch()
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="border border-[#1a1a1a] px-6 py-4 mb-6 flex items-center gap-4">
+      <div className="shrink-0">
+        <p className="text-xs text-gray-600 uppercase tracking-widest mb-0.5">Nickname</p>
+        <p className="text-sm text-gray-300">
+          {currentNickname ? currentNickname : <span className="text-gray-600 italic">none set</span>}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2 ml-auto">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => { setInput(e.target.value.slice(0, 32)); setStatus('idle') }}
+          placeholder="Set nickname…"
+          maxLength={32}
+          className="bg-[#111] border border-[#2a2a2a] text-gray-200 text-xs px-3 py-2 w-44 placeholder-gray-700 focus:outline-none focus:border-[#444]"
+        />
+        <button
+          onClick={handleSet}
+          disabled={isPending || !input.trim()}
+          className="text-xs px-4 py-2 border border-[#333] text-gray-300 hover:border-[#555] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {isPending ? 'Setting…' : 'Set Nickname'}
+        </button>
+        {status === 'success' && (
+          <span className="text-xs text-green-400">Saved</span>
+        )}
+        {status === 'error' && (
+          <span className="text-xs text-red-400">Failed</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -349,6 +423,9 @@ export default function Portfolio() {
           </p>
         </div>
       </div>
+
+      {/* Nickname */}
+      <NicknameSection address={address!} />
 
       {/* Send CLAW */}
       {isVerified && (

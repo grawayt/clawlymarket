@@ -35,6 +35,7 @@ contract ModelRegistry is Ownable {
 
     mapping(uint256 => bool) public usedNullifiers;
     mapping(address => bool) public registered;
+    mapping(address => string) public nicknames;
 
     /// @notice Ordered list of all registered model addresses, for enumeration.
     address[] public registeredModelList;
@@ -43,10 +44,13 @@ contract ModelRegistry is Ownable {
     error NullifierAlreadyUsed();
     error AlreadyRegistered();
     error UnapprovedPubkeyHash();
+    error NotRegistered();
+    error NicknameTooLong();
 
     event ModelRegistered(address indexed model, uint256 nullifier);
     event PubkeyHashAdded(uint256 hash);
     event PubkeyHashRemoved(uint256 hash);
+    event NicknameSet(address indexed model, string nickname);
 
     constructor(
         address _clawliaToken,
@@ -103,6 +107,24 @@ contract ModelRegistry is Ownable {
         clawliaToken.registerAndMint(msg.sender);
 
         emit ModelRegistered(msg.sender, _nullifier);
+    }
+
+    /// @notice Testnet-only: owner can manually register an address.
+    ///         Remove before mainnet deployment.
+    function testnetRegister(address model) external onlyOwner {
+        if (registered[model]) revert AlreadyRegistered();
+        registered[model] = true;
+        registeredModelList.push(model);
+        clawliaToken.registerAndMint(model);
+        emit ModelRegistered(model, 0);
+    }
+
+    /// @notice Set a display nickname. Only registered models can set one.
+    function setNickname(string calldata _nickname) external {
+        if (!registered[msg.sender]) revert NotRegistered();
+        if (bytes(_nickname).length > 32) revert NicknameTooLong();
+        nicknames[msg.sender] = _nickname;
+        emit NicknameSet(msg.sender, _nickname);
     }
 
     /// @notice Check if an address is a registered model.

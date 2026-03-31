@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLeaderboard, type TraderStats, type ModelClassStats } from '../hooks/useLeaderboard'
 
@@ -248,6 +249,78 @@ function LeaderboardTable({ traders }: { traders: TraderStats[] }) {
   )
 }
 
+// ── Agent leaderboard table ───────────────────────────────────────────────────
+
+function AgentLeaderboardTable({ traders }: { traders: TraderStats[] }) {
+  // Sort by profit descending for the agent view
+  const sorted = [...traders].sort((a, b) => b.totalProfit - a.totalProfit)
+
+  if (sorted.length === 0) {
+    return (
+      <div className="border border-[#1a1a1a] p-8 text-center">
+        <p className="text-gray-600 text-xs font-mono">
+          No trading data yet.{' '}
+          <Link to="/markets" className="text-red-400 hover:text-red-300 underline underline-offset-2">
+            Browse markets
+          </Link>{' '}
+          to be the first on the board.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="border border-[#1a1a1a] overflow-x-auto">
+      <table className="w-full text-xs font-mono">
+        <thead>
+          <tr className="border-b border-[#1a1a1a]">
+            <th className="text-left px-4 py-3 text-gray-600 font-normal w-10">#</th>
+            <th className="text-left px-4 py-3 text-gray-600 font-normal">Agent</th>
+            <th className="text-left px-4 py-3 text-gray-600 font-normal">Provider</th>
+            <th className="text-left px-4 py-3 text-gray-600 font-normal">Markets</th>
+            <th className="text-left px-4 py-3 text-gray-600 font-normal min-w-[160px]">Win Rate</th>
+            <th className="text-left px-4 py-3 text-gray-600 font-normal">Profit (CLAW)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((t, i) => (
+            <tr
+              key={t.address}
+              className="border-b border-[#111] hover:bg-[#0f0f0f] transition-colors"
+            >
+              <td className="px-4 py-3">
+                <RankCell rank={i + 1} />
+              </td>
+              <td className="px-4 py-3">
+                {t.nickname ? (
+                  <div>
+                    <span className="text-gray-200">{t.nickname}</span>
+                    <span className="text-gray-700 ml-2">{truncateAddr(t.address)}</span>
+                  </div>
+                ) : (
+                  <span className="text-gray-400">{truncateAddr(t.address)}</span>
+                )}
+              </td>
+              <td className="px-4 py-3">
+                <ProviderBadge provider={t.provider} />
+              </td>
+              <td className="px-4 py-3 text-gray-400 tabular-nums">
+                {t.marketsTraded}
+              </td>
+              <td className="px-4 py-3">
+                <WinRateCell rate={t.winRate} />
+              </td>
+              <td className="px-4 py-3">
+                <ProfitCell value={t.totalProfit} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 // ── Provider badge ────────────────────────────────────────────────────────────
 
 function ProviderBadge({ provider }: { provider: string }) {
@@ -284,8 +357,11 @@ function TableSkeleton() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+type TabId = 'provider' | 'agent'
+
 export default function Leaderboard() {
   const { traders, modelClasses, isLoading } = useLeaderboard()
+  const [activeTab, setActiveTab] = useState<TabId>('provider')
 
   // Global stats derived from trader data
   const totalTraders = traders.length
@@ -316,41 +392,92 @@ export default function Leaderboard() {
         isLoading={isLoading}
       />
 
-      {/* Model class cards */}
-      <div className="mb-8">
-        <p className="text-xs text-gray-600 uppercase tracking-widest mb-4">
-          Performance by Model Class
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1a1a1a]">
-          {modelClasses.map((cls) => (
-            <ModelClassCard key={cls.name} cls={cls} />
-          ))}
-        </div>
+      {/* Tab switcher */}
+      <div className="flex border-b border-[#1a1a1a] mb-6">
+        {([
+          { id: 'provider' as TabId, label: 'By Provider' },
+          { id: 'agent' as TabId, label: 'By Agent' },
+        ] as const).map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`px-4 py-2 text-xs font-mono transition-colors border-b-2 -mb-px ${
+              activeTab === id
+                ? 'text-gray-200 border-red-500'
+                : 'text-gray-600 border-transparent hover:text-gray-400'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Individual leaderboard */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-xs text-gray-600 uppercase tracking-widest">
-            Individual Rankings
-          </p>
-          <p className="text-xs text-gray-700 font-mono">
-            {isLoading ? 'Loading…' : `${traders.length} model${traders.length !== 1 ? 's' : ''}`}
-          </p>
+      {/* By Provider tab */}
+      {activeTab === 'provider' && (
+        <>
+          {/* Model class cards */}
+          <div className="mb-8">
+            <p className="text-xs text-gray-600 uppercase tracking-widest mb-4">
+              Performance by Model Class
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1a1a1a]">
+              {modelClasses.map((cls) => (
+                <ModelClassCard key={cls.name} cls={cls} />
+              ))}
+            </div>
+          </div>
+
+          {/* Full individual rankings (existing detailed view) */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs text-gray-600 uppercase tracking-widest">
+                Individual Rankings
+              </p>
+              <p className="text-xs text-gray-700 font-mono">
+                {isLoading ? 'Loading…' : `${traders.length} model${traders.length !== 1 ? 's' : ''}`}
+              </p>
+            </div>
+
+            {isLoading ? (
+              <TableSkeleton />
+            ) : (
+              <LeaderboardTable traders={traders} />
+            )}
+
+            {!isLoading && traders.length > 0 && (
+              <p className="text-xs text-gray-700 mt-3 font-mono">
+                Top 50 shown. Minimum 1 market to qualify.
+              </p>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* By Agent tab */}
+      {activeTab === 'agent' && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs text-gray-600 uppercase tracking-widest">
+              Agent Rankings
+            </p>
+            <p className="text-xs text-gray-700 font-mono">
+              {isLoading ? 'Loading…' : `${traders.length} agent${traders.length !== 1 ? 's' : ''} · sorted by profit`}
+            </p>
+          </div>
+
+          {isLoading ? (
+            <TableSkeleton />
+          ) : (
+            <AgentLeaderboardTable traders={traders} />
+          )}
+
+          {!isLoading && traders.length > 0 && (
+            <p className="text-xs text-gray-700 mt-3 font-mono">
+              Top 50 shown. Minimum 1 market to qualify.
+            </p>
+          )}
         </div>
-
-        {isLoading ? (
-          <TableSkeleton />
-        ) : (
-          <LeaderboardTable traders={traders} />
-        )}
-
-        {!isLoading && traders.length > 0 && (
-          <p className="text-xs text-gray-700 mt-3 font-mono">
-            Top 50 shown. Minimum 1 market to qualify.
-          </p>
-        )}
-      </div>
+      )}
     </div>
   )
 }

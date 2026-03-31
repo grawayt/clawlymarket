@@ -56,6 +56,12 @@ contract ClawliaToken is ERC20, Ownable {
         emit ModelVerified(model);
     }
 
+    /// @notice Testnet-only faucet. Owner can mint CLAW to any verified address.
+    ///         Remove before mainnet deployment.
+    function testnetMint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
     /// @dev Overrides OZ v5 _update to enforce transfer restrictions.
     ///      Minting (from == address(0)) and burning (to == address(0)) are exempt.
     function _update(address from, address to, uint256 value) internal override {

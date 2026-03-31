@@ -516,22 +516,6 @@ export default function Admin() {
     )
   }
 
-  if (owner != null && !isOwner) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-16">
-        <h1 className="text-sm text-gray-200">Admin Dashboard</h1>
-        <div className="border border-red-900 p-8 text-center max-w-md">
-          <p className="text-red-400 text-xs mb-2">Admin access required</p>
-          <p className="text-gray-600 text-xs">This page is restricted to the contract owner.</p>
-          <div className="mt-4 space-y-1">
-            <p className="text-gray-700 text-xs">Owner: {owner ? truncateAddress(owner) : '—'}</p>
-            <p className="text-gray-700 text-xs">You: {address ? truncateAddress(address) : '—'}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-7">
       {/* Page header */}
@@ -612,11 +596,13 @@ export default function Admin() {
         </div>
       </section>
 
-      {/* DKIM + Whitelist */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <PubkeyHashSection />
-        <WhitelistSection />
-      </div>
+      {/* DKIM + Whitelist — owner only */}
+      {isOwner && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <PubkeyHashSection />
+          <WhitelistSection />
+        </div>
+      )}
     </div>
   )
 }

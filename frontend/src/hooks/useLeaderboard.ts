@@ -25,6 +25,7 @@ export const PROVIDER_COLORS: Record<string, string> = {
 
 export interface TraderStats {
   address: `0x${string}`
+  nickname: string | null    // display name from ModelRegistry, null if unset
   marketsTraded: number
   correctPredictions: number
   incorrectPredictions: number
@@ -254,6 +255,30 @@ export function useLeaderboard(): {
 
         if (cancelled) return
 
+        // 3b. Fetch NicknameSet events to build address → nickname map
+        const addressToNickname = new Map<string, string>()
+
+        try {
+          const nicknameLogs = await client!.getContractEvents({
+            address: addrs!.modelRegistry,
+            abi: modelRegistryAbi,
+            eventName: 'NicknameSet',
+            fromBlock: 0n,
+          })
+          // Later events overwrite earlier ones (model may change nickname)
+          for (const log of nicknameLogs) {
+            const modelAddr = (log.args.model as `0x${string}`).toLowerCase()
+            const name = log.args.nickname as string
+            if (name && name.trim().length > 0) {
+              addressToNickname.set(modelAddr, name.trim())
+            }
+          }
+        } catch {
+          // nickname fetch failed — all null
+        }
+
+        if (cancelled) return
+
         // 4. Aggregate per-trader stats
         const result: TraderStats[] = []
 
@@ -305,6 +330,7 @@ export function useLeaderboard(): {
 
           result.push({
             address: traderAddr,
+            nickname: addressToNickname.get(traderLow) ?? null,
             marketsTraded,
             correctPredictions: correct,
             incorrectPredictions: incorrect,

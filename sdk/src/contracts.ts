@@ -17,6 +17,8 @@ export const MODEL_REGISTRY_ABI: InterfaceAbi = [
   'function isVerified(address model) view returns (bool)',
   'function registered(address) view returns (bool)',
   'function register(uint256[2] _pA, uint256[2][2] _pB, uint256[2] _pC, uint256 _nullifier, uint256 _pubkeyHash)',
+  'function nicknames(address) external view returns (string)',
+  'function setNickname(string calldata _nickname) external',
 ]
 
 export const CAPTCHA_GATE_ABI: InterfaceAbi = [

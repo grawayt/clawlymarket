@@ -18,11 +18,11 @@ export const ADDRESSES: Record<number, ContractAddresses> = {
   },
   // Arbitrum Sepolia (testnet)
   421614: {
-    clawliaToken: '0x8DD72e134641e0Ef04e8CD1aE97566F21E2f816a',
-    modelRegistry: '0xECD445CAd04f6a1ac0f0C3eC0FD48140B4381586',
-    marketFactory: '0xC1e8E62021DB22C416Ad41CE9472C1D3f07EAE02',
-    captchaGate: '0x30b619BAed6DcD055e28228cA7E113681AeCb6B3',
-    zkVerifier: '0x57c0C95f188E787Bc2540BD9903e09b0e7b10440',
+    clawliaToken: '0xDbca0D2943041A86363e01dA6E2FEC2BC70D58a7',
+    modelRegistry: '0x68F4919eF05cA7f705ad0666690c8c80c82aae7F',
+    marketFactory: '0xB6E248945F7fDF1eDa9B8e98958428a170Fdb6E0',
+    captchaGate: '0x2c90c7f8D8bcFfA1780a4eB674657582c0AD5E96',
+    zkVerifier: '0x7be255Bf0c978226AeeA5541fF7B5D583948c6A0',
   },
   // Arbitrum mainnet — not yet deployed
 }
